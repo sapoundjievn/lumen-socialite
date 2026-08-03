@@ -22,7 +22,6 @@ export interface Post {
   replies_count: number;
   views_count: number;
   created_at: string;
-  // Joined data
   profiles?: Profile;
   liked_by_user?: boolean;
 }
@@ -41,5 +40,15 @@ export interface Follow {
   created_at: string;
 }
 
-// Keep old names for compatibility during transition
-export type User = Profile;
+/** Legacy shape used by mock-data (Who to follow, etc.) */
+export interface User {
+  id: string;
+  username: string;
+  displayName: string;
+  avatar: string;
+  bio?: string;
+  verified?: boolean;
+  followers: number;
+  following: number;
+  joinedAt: string;
+}
