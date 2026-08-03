@@ -40,7 +40,7 @@ export interface Follow {
   created_at: string;
 }
 
-/** Legacy shape used by mock-data (Who to follow, etc.) */
+/** Legacy shape used by mock-data */
 export interface User {
   id: string;
   username: string;
@@ -51,4 +51,10 @@ export interface User {
   followers: number;
   following: number;
   joinedAt: string;
+}
+
+export interface Trend {
+  category: string;
+  title: string;
+  posts: string;
 }
