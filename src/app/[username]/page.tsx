@@ -4,11 +4,18 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { BadgeCheck, Calendar, ArrowLeft } from "lucide-react";
-import { getProfileByUsername, getPostsByUserId } from "@/lib/posts";
+import {
+  getProfileByUsername,
+  getPostsByUserId,
+  followUser,
+  unfollowUser,
+  isFollowing,
+} from "@/lib/posts";
+import { getCurrentProfile } from "@/lib/auth";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
-import { formatNumber } from "@/lib/utils";
 import SpecialStars from "@/components/SpecialStars";
+import { formatNumber } from "@/lib/utils";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -17,6 +24,9 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [following, setFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   useEffect(() => {
     if (!username) return;
@@ -25,6 +35,9 @@ export default function ProfilePage() {
 
   async function loadProfile() {
     setLoading(true);
+    const me = await getCurrentProfile();
+    if (me) setCurrentUserId(me.id);
+
     const { data: p } = await getProfileByUsername(username);
     if (!p) {
       setNotFound(true);
@@ -32,9 +45,42 @@ export default function ProfilePage() {
       return;
     }
     setProfile(p);
+
     const { data: userPosts } = await getPostsByUserId(p.id);
     setPosts(userPosts);
+
+    if (me && me.id !== p.id) {
+      const fol = await isFollowing(me.id, p.id);
+      setFollowing(fol);
+    }
+
     setLoading(false);
+  }
+
+  async function handleFollow() {
+    if (!currentUserId || !profile) {
+      alert("Please sign in to follow");
+      return;
+    }
+    if (currentUserId === profile.id) return;
+
+    setFollowLoading(true);
+    if (following) {
+      await unfollowUser(currentUserId, profile.id);
+      setFollowing(false);
+      setProfile({
+        ...profile,
+        followers_count: Math.max(0, (profile.followers_count || 0) - 1),
+      });
+    } else {
+      await followUser(currentUserId, profile.id);
+      setFollowing(true);
+      setProfile({
+        ...profile,
+        followers_count: (profile.followers_count || 0) + 1,
+      });
+    }
+    setFollowLoading(false);
   }
 
   if (loading) {
@@ -59,6 +105,7 @@ export default function ProfilePage() {
   const avatar =
     profile.avatar_url ||
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${profile.id}`;
+  const isOwnProfile = currentUserId === profile.id;
 
   return (
     <main className="min-h-screen w-full border-x-0 sm:border-x border-border">
@@ -72,19 +119,17 @@ export default function ProfilePage() {
             <ArrowLeft className="h-5 w-5 text-charcoal" />
           </Link>
           <div>
-            <div>
-              <div className="flex items-center gap-1">
-                <h1 className="text-xl font-bold text-charcoal">{profile.display_name}</h1>
-                {profile.verified && (
-                  <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
-                )}
-              </div>
-              <div className="mt-0.5">
-                <SpecialStars username={profile.username} />
-              </div>
-              <div className="text-[13px] text-muted">
-                {formatNumber(posts.length)} Enlightenments
-              </div>
+            <div className="flex items-center gap-1">
+              <h1 className="text-xl font-bold text-charcoal">{profile.display_name}</h1>
+              {profile.verified && (
+                <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
+              )}
+            </div>
+            <div className="mt-0.5">
+              <SpecialStars username={profile.username} />
+            </div>
+            <div className="text-[13px] text-muted">
+              {formatNumber(posts.length)} Enlightenments
             </div>
           </div>
         </div>
@@ -106,24 +151,33 @@ export default function ProfilePage() {
       <div className="px-4 pt-20 pb-4">
         <div className="flex items-start justify-between">
           <div>
-            <div>
-              <div className="flex items-center gap-1 flex-wrap">
-                <h2 className="text-xl font-extrabold text-charcoal">
-                  {profile.display_name}
-                </h2>
-                {profile.verified && (
-                  <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
-                )}
-              </div>
-              <div className="mt-1">
-                <SpecialStars username={profile.username} />
-              </div>
-              <div className="mt-0.5 text-[15px] text-muted">@{profile.username}</div>
+            <div className="flex items-center gap-1 flex-wrap">
+              <h2 className="text-xl font-extrabold text-charcoal">
+                {profile.display_name}
+              </h2>
+              {profile.verified && (
+                <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
+              )}
             </div>
+            <div className="mt-1">
+              <SpecialStars username={profile.username} />
+            </div>
+            <div className="mt-0.5 text-[15px] text-muted">@{profile.username}</div>
           </div>
-          <button className="rounded-full border border-border px-4 py-1.5 text-[15px] font-bold text-charcoal transition hover:bg-champagne/40">
-            Follow
-          </button>
+
+          {!isOwnProfile && (
+            <button
+              onClick={handleFollow}
+              disabled={followLoading}
+              className={`rounded-full px-4 py-1.5 text-[15px] font-bold transition ${
+                following
+                  ? "border border-border text-charcoal hover:bg-champagne/40"
+                  : "bg-charcoal text-pearl hover:bg-charcoal-soft"
+              }`}
+            >
+              {followLoading ? "..." : following ? "Following" : "Follow"}
+            </button>
+          )}
         </div>
 
         {profile.bio && (
@@ -161,9 +215,9 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <div className="border-b border-border">
-        <button className="relative flex-1 px-4 py-4 text-[15px] font-bold text-charcoal">
+        <button className="relative px-4 py-4 text-[15px] font-bold text-charcoal">
           Enlightenments
-          <div className="absolute bottom-0 left-1/2 h-1 w-16 -translate-x-1/2 rounded-full bg-gold" />
+          <div className="absolute bottom-0 left-4 right-4 h-1 rounded-full bg-gold" />
         </button>
       </div>
 
