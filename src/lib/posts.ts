@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 import type { Post } from "@/types";
 
-export async function getFeed(limit = 20): Promise<Post[]> {
+export async function getFeed(limit = 20, currentUserId?: string | null): Promise<Post[]> {
   const { data, error } = await supabase
     .from("posts")
     .select(`
@@ -23,7 +23,26 @@ export async function getFeed(limit = 20): Promise<Post[]> {
     console.error("Error fetching feed:", error);
     return [];
   }
-  return data || [];
+
+  if (!data) return [];
+
+  // Mark which posts the current user has liked
+  if (currentUserId && data.length > 0) {
+    const postIds = data.map((p) => p.id);
+    const { data: likes } = await supabase
+      .from("likes")
+      .select("post_id")
+      .eq("user_id", currentUserId)
+      .in("post_id", postIds);
+
+    const likedSet = new Set((likes || []).map((l) => l.post_id));
+    return data.map((p) => ({
+      ...p,
+      liked_by_user: likedSet.has(p.id),
+    }));
+  }
+
+  return data;
 }
 
 export async function createPost(content: string, userId: string, mediaUrls: string[] = []) {
@@ -63,14 +82,4 @@ export async function unlikePost(postId: string, userId: string) {
     .eq("post_id", postId)
     .eq("user_id", userId);
   return { error };
-}
-
-export async function hasUserLiked(postId: string, userId: string): Promise<boolean> {
-  const { data } = await supabase
-    .from("likes")
-    .select("id")
-    .eq("post_id", postId)
-    .eq("user_id", userId)
-    .maybeSingle();
-  return !!data;
 }

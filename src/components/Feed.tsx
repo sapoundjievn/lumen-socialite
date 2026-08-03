@@ -14,15 +14,16 @@ export default function Feed() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    loadFeed();
     getCurrentProfile().then((p) => {
-      if (p) setCurrentUserId(p.id);
+      const uid = p?.id || null;
+      setCurrentUserId(uid);
+      loadFeed(uid);
     });
   }, []);
 
-  async function loadFeed() {
+  async function loadFeed(uid?: string | null) {
     setLoading(true);
-    const data = await getFeed();
+    const data = await getFeed(20, uid ?? currentUserId);
     setPosts(data);
     setLoading(false);
   }
@@ -40,19 +41,36 @@ export default function Feed() {
       return;
     }
     if (data) {
-      setPosts([data, ...posts]);
+      setPosts([{ ...data, liked_by_user: false }, ...posts]);
     }
   };
 
   const handleLike = async (id: string) => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      alert("Please sign in to like");
+      return;
+    }
 
     const post = posts.find((p) => p.id === id);
     if (!post) return;
 
-    // Optimistic update already done in PostCard
-    // Here we just sync with database
-    if (post.liked_by_user) {
+    const wasLiked = post.liked_by_user;
+
+    // Optimistic update
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              liked_by_user: !wasLiked,
+              likes_count: (p.likes_count || 0) + (wasLiked ? -1 : 1),
+            }
+          : p
+      )
+    );
+
+    // Sync with database
+    if (wasLiked) {
       await unlikePost(id, currentUserId);
     } else {
       await likePost(id, currentUserId);
@@ -60,7 +78,7 @@ export default function Feed() {
   };
 
   const handleRepost = (id: string) => {
-    // TODO: implement repost later
+    // Coming soon
   };
 
   return (

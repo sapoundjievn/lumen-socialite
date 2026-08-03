@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   MessageCircle,
   Repeat2,
@@ -21,10 +20,8 @@ interface PostCardProps {
 
 export default function PostCard({ post, onLike, onRepost }: PostCardProps) {
   const profile = post.profiles;
-  const [liked, setLiked] = useState(post.liked_by_user || false);
-  const [reposted, setReposted] = useState(false);
-  const [likes, setLikes] = useState(post.likes_count || 0);
-  const [reposts, setReposts] = useState(post.reposts_count || 0);
+  const liked = post.liked_by_user || false;
+  const likes = post.likes_count || 0;
 
   const displayName = profile?.display_name || "User";
   const username = profile?.username || "user";
@@ -32,18 +29,6 @@ export default function PostCard({ post, onLike, onRepost }: PostCardProps) {
     profile?.avatar_url ||
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${post.user_id}`;
   const verified = profile?.verified || false;
-
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikes((prev) => (liked ? prev - 1 : prev + 1));
-    onLike(post.id);
-  };
-
-  const handleRepost = () => {
-    setReposted(!reposted);
-    setReposts((prev) => (reposted ? prev - 1 : prev + 1));
-    onRepost(post.id);
-  };
 
   return (
     <article className="group border-b border-border px-4 py-3 transition hover:bg-champagne/20">
@@ -107,27 +92,19 @@ export default function PostCard({ post, onLike, onRepost }: PostCardProps) {
             </button>
 
             <button
-              onClick={handleRepost}
-              className={cn(
-                "group/btn flex items-center gap-1.5 transition",
-                reposted ? "text-green-600" : "hover:text-green-600"
-              )}
+              onClick={() => onRepost(post.id)}
+              className="group/btn flex items-center gap-1.5 transition hover:text-green-600"
             >
-              <div
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-full transition",
-                  reposted
-                    ? "bg-green-600/10"
-                    : "group-hover/btn:bg-green-600/10"
-                )}
-              >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full transition group-hover/btn:bg-green-600/10">
                 <Repeat2 className="h-[18px] w-[18px]" />
               </div>
-              <span className="text-[13px]">{formatNumber(reposts)}</span>
+              <span className="text-[13px]">
+                {formatNumber(post.reposts_count || 0)}
+              </span>
             </button>
 
             <button
-              onClick={handleLike}
+              onClick={() => onLike(post.id)}
               className={cn(
                 "group/btn flex items-center gap-1.5 transition",
                 liked ? "text-rose-500" : "hover:text-rose-500"
