@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Post } from "@/types";
 import { cn, formatNumber, formatTime } from "@/lib/utils";
+import SpecialStars from "./SpecialStars";
 
 interface PostCardProps {
   post: Post;
@@ -53,6 +54,7 @@ export default function PostCard({ post, onLike, onRepost }: PostCardProps) {
               {verified && (
                 <BadgeCheck className="h-4 w-4 flex-shrink-0 fill-gold text-white" />
               )}
+              <SpecialStars username={username} />
               <span className="truncate text-muted">@{username}</span>
               <span className="text-muted">·</span>
               <span className="text-muted hover:underline">

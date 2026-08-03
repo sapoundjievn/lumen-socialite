@@ -8,6 +8,7 @@ import { getProfileByUsername, getPostsByUserId } from "@/lib/posts";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import { formatNumber } from "@/lib/utils";
+import SpecialStars from "@/components/SpecialStars";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -76,6 +77,7 @@ export default function ProfilePage() {
               {profile.verified && (
                 <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
               )}
+              <SpecialStars username={profile.username} />
             </div>
             <div className="text-[13px] text-muted">
               {formatNumber(posts.length)} Enlightenments
@@ -100,13 +102,14 @@ export default function ProfilePage() {
       <div className="px-4 pt-20 pb-4">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-wrap">
               <h2 className="text-xl font-extrabold text-charcoal">
                 {profile.display_name}
               </h2>
               {profile.verified && (
                 <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
               )}
+              <SpecialStars username={profile.username} />
             </div>
             <div className="text-[15px] text-muted">@{profile.username}</div>
           </div>
