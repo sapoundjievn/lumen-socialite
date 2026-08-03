@@ -1,6 +1,9 @@
 import { supabase } from "./supabase";
 import type { Post } from "@/types";
 
+// Founder account that can like unlimited times
+const FOUNDER_USERNAME = "thevip";
+
 export async function getFeed(limit = 20, currentUserId?: string | null): Promise<Post[]> {
   const { data, error } = await supabase
     .from("posts")
@@ -26,7 +29,6 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
 
   if (!data) return [];
 
-  // Mark which posts the current user has liked
   if (currentUserId && data.length > 0) {
     const postIds = data.map((p) => p.id);
     const { data: likes } = await supabase
@@ -68,14 +70,58 @@ export async function createPost(content: string, userId: string, mediaUrls: str
   return { data, error };
 }
 
-export async function likePost(postId: string, userId: string) {
+export async function likePost(postId: string, userId: string, username?: string) {
+  const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
+
+  if (isFounder) {
+    // Founder: always increment count (unlimited likes)
+    // We still try to insert a like row, but ignore unique errors
+    await supabase.from("likes").insert({ post_id: postId, user_id: userId });
+    
+    // Force increment the counter regardless
+    const { data: post } = await supabase
+      .from("posts")
+      .select("likes_count")
+      .eq("id", postId)
+      .single();
+
+    if (post) {
+      await supabase
+        .from("posts")
+        .update({ likes_count: (post.likes_count || 0) + 1 })
+        .eq("id", postId);
+    }
+    return { error: null };
+  }
+
+  // Normal users: one like only
   const { error } = await supabase
     .from("likes")
     .insert({ post_id: postId, user_id: userId });
   return { error };
 }
 
-export async function unlikePost(postId: string, userId: string) {
+export async function unlikePost(postId: string, userId: string, username?: string) {
+  const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
+
+  if (isFounder) {
+    // Founder doesn't really "unlike" in the unlimited mode — they just keep adding
+    // But if they want to remove one, we can decrement
+    const { data: post } = await supabase
+      .from("posts")
+      .select("likes_count")
+      .eq("id", postId)
+      .single();
+
+    if (post && (post.likes_count || 0) > 0) {
+      await supabase
+        .from("posts")
+        .update({ likes_count: post.likes_count - 1 })
+        .eq("id", postId);
+    }
+    return { error: null };
+  }
+
   const { error } = await supabase
     .from("likes")
     .delete()

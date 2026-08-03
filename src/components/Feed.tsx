@@ -12,11 +12,14 @@ export default function Feed() {
   const [tab, setTab] = useState<"for-you" | "following">("for-you");
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUsername, setCurrentUsername] = useState<string | null>(null);
 
   useEffect(() => {
     getCurrentProfile().then((p) => {
       const uid = p?.id || null;
+      const uname = p?.username || null;
       setCurrentUserId(uid);
+      setCurrentUsername(uname);
       loadFeed(uid);
     });
   }, []);
@@ -54,9 +57,27 @@ export default function Feed() {
     const post = posts.find((p) => p.id === id);
     if (!post) return;
 
+    const isFounder = currentUsername?.toLowerCase() === "thevip";
     const wasLiked = post.liked_by_user;
 
-    // Optimistic update
+    if (isFounder) {
+      // Founder: every click adds +1 (unlimited)
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                liked_by_user: true,
+                likes_count: (p.likes_count || 0) + 1,
+              }
+            : p
+        )
+      );
+      await likePost(id, currentUserId, currentUsername || undefined);
+      return;
+    }
+
+    // Normal user: toggle one like
     setPosts((prev) =>
       prev.map((p) =>
         p.id === id
@@ -69,11 +90,10 @@ export default function Feed() {
       )
     );
 
-    // Sync with database
     if (wasLiked) {
-      await unlikePost(id, currentUserId);
+      await unlikePost(id, currentUserId, currentUsername || undefined);
     } else {
-      await likePost(id, currentUserId);
+      await likePost(id, currentUserId, currentUsername || undefined);
     }
   };
 
@@ -83,7 +103,6 @@ export default function Feed() {
 
   return (
     <main className="min-h-screen w-full border-x-0 sm:border-x border-border">
-      {/* Sticky header */}
       <div className="sticky top-0 z-10 border-b border-border bg-pearl/85 backdrop-blur-md">
         <div className="flex items-center gap-3 px-4 py-3">
           <img
@@ -104,7 +123,6 @@ export default function Feed() {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex">
           <button
             onClick={() => setTab("for-you")}
@@ -131,10 +149,8 @@ export default function Feed() {
         </div>
       </div>
 
-      {/* Composer */}
       <Composer onPost={handlePost} />
 
-      {/* Posts */}
       <div>
         {loading ? (
           <div className="flex justify-center py-16">
