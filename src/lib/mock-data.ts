@@ -1,4 +1,4 @@
-import { Post, Trend, User } from "@/types";
+import { Trend, User } from "@/types";
 
 export const currentUser: User = {
   id: "u1",
@@ -55,7 +55,7 @@ export const users: User[] = [
   },
 ];
 
-export const initialPosts: Post[] = [
+export const initialPosts: any[] = [
   {
     id: "p1",
     user: users[1],
