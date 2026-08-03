@@ -47,19 +47,23 @@ export default function PostCard({ post, onLike, onRepost }: PostCardProps) {
         <div className="min-w-0 flex-1">
           {/* Header */}
           <div className="flex items-start justify-between">
-            <div className="flex min-w-0 flex-wrap items-center gap-x-1 text-[15px]">
-              <span className="truncate font-bold text-charcoal hover:underline">
-                {displayName}
-              </span>
-              {verified && (
-                <BadgeCheck className="h-4 w-4 flex-shrink-0 fill-gold text-white" />
-              )}
-              <SpecialStars username={username} />
-              <span className="truncate text-muted">@{username}</span>
-              <span className="text-muted">·</span>
-              <span className="text-muted hover:underline">
-                {formatTime(post.created_at)}
-              </span>
+            <div className="min-w-0 text-[15px]">
+              <div className="flex flex-wrap items-center gap-x-1">
+                <span className="truncate font-bold text-charcoal hover:underline">
+                  {displayName}
+                </span>
+                {verified && (
+                  <BadgeCheck className="h-4 w-4 flex-shrink-0 fill-gold text-white" />
+                )}
+                <span className="truncate text-muted">@{username}</span>
+                <span className="text-muted">·</span>
+                <span className="text-muted hover:underline">
+                  {formatTime(post.created_at)}
+                </span>
+              </div>
+              <div className="mt-0.5">
+                <SpecialStars username={username} />
+              </div>
             </div>
             <button className="ml-auto flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-muted opacity-0 transition group-hover:opacity-100 hover:bg-champagne/50 hover:text-gold-deep">
               <MoreHorizontal className="h-[18px] w-[18px]" />

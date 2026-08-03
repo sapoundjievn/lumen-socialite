@@ -72,15 +72,19 @@ export default function ProfilePage() {
             <ArrowLeft className="h-5 w-5 text-charcoal" />
           </Link>
           <div>
-            <div className="flex items-center gap-1">
-              <h1 className="text-xl font-bold text-charcoal">{profile.display_name}</h1>
-              {profile.verified && (
-                <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
-              )}
-              <SpecialStars username={profile.username} />
-            </div>
-            <div className="text-[13px] text-muted">
-              {formatNumber(posts.length)} Enlightenments
+            <div>
+              <div className="flex items-center gap-1">
+                <h1 className="text-xl font-bold text-charcoal">{profile.display_name}</h1>
+                {profile.verified && (
+                  <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
+                )}
+              </div>
+              <div className="mt-0.5">
+                <SpecialStars username={profile.username} />
+              </div>
+              <div className="text-[13px] text-muted">
+                {formatNumber(posts.length)} Enlightenments
+              </div>
             </div>
           </div>
         </div>
@@ -102,16 +106,20 @@ export default function ProfilePage() {
       <div className="px-4 pt-20 pb-4">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-1 flex-wrap">
-              <h2 className="text-xl font-extrabold text-charcoal">
-                {profile.display_name}
-              </h2>
-              {profile.verified && (
-                <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
-              )}
-              <SpecialStars username={profile.username} />
+            <div>
+              <div className="flex items-center gap-1 flex-wrap">
+                <h2 className="text-xl font-extrabold text-charcoal">
+                  {profile.display_name}
+                </h2>
+                {profile.verified && (
+                  <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
+                )}
+              </div>
+              <div className="mt-1">
+                <SpecialStars username={profile.username} />
+              </div>
+              <div className="mt-0.5 text-[15px] text-muted">@{profile.username}</div>
             </div>
-            <div className="text-[15px] text-muted">@{profile.username}</div>
           </div>
           <button className="rounded-full border border-border px-4 py-1.5 text-[15px] font-bold text-charcoal transition hover:bg-champagne/40">
             Follow
