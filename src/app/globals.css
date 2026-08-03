@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+:root {
+  /* Champagne Frost Pearl Theme */
+  --pearl: #FAF8F5;
+  --pearl-soft: #F7F3EE;
+  --champagne: #F5E8D3;
+  --champagne-deep: #E8D5B7;
+  --frost: #F0F4F8;
+  --frost-blue: #E8F0F5;
+  --gold: #C9A86C;
+  --gold-soft: #D4B896;
+  --gold-deep: #B8956A;
+  --charcoal: #2A2622;
+  --charcoal-soft: #3D3833;
+  --muted: #6B6560;
+  --muted-light: #9A948C;
+  --border: #E8E0D5;
+  --border-soft: #F0E9DF;
+  --white: #FFFFFF;
+  --success: #4A7C59;
+  --like: #E74C6F;
+}
+
+@theme inline {
+  --color-pearl: var(--pearl);
+  --color-pearl-soft: var(--pearl-soft);
+  --color-champagne: var(--champagne);
+  --color-champagne-deep: var(--champagne-deep);
+  --color-frost: var(--frost);
+  --color-frost-blue: var(--frost-blue);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-deep: var(--gold-deep);
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-soft: var(--charcoal-soft);
+  --color-muted: var(--muted);
+  --color-muted-light: var(--muted-light);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-like: var(--like);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--pearl);
+  color: var(--charcoal);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar - elegant frosted */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--champagne-deep);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Smooth transitions */
+button, a {
+  transition: all 0.15s ease;
+}
+
+/* Post hover */
+.post-hover:hover {
+  background-color: rgba(245, 232, 211, 0.35);
+}
+
+/* Focus ring champagne */
+.focus-champagne:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--gold-soft);
+}

@@ -1,0 +1,136 @@
+import { Post, Trend, User } from "@/types";
+
+export const currentUser: User = {
+  id: "u1",
+  username: "TheVIP",
+  displayName: "Nikolay Sapoundjiev",
+  avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Nikolay&backgroundColor=f5e8d3",
+  bio: "Founder of Lumen ✨ Building the future of elegant social.",
+  verified: true,
+  followers: 12840,
+  following: 312,
+  joinedAt: "2026-01-15",
+};
+
+export const users: User[] = [
+  currentUser,
+  {
+    id: "u2",
+    username: "Kendall.VIP",
+    displayName: "Kendall Nicole Jenner",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Kendall&backgroundColor=f0f4f8",
+    bio: "Co-founder @ Lumen",
+    verified: true,
+    followers: 98400,
+    following: 189,
+    joinedAt: "2026-01-15",
+  },
+  {
+    id: "u3",
+    username: "champagne_dreams",
+    displayName: "Aria Chen",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Aria&backgroundColor=e8d5b7",
+    followers: 45200,
+    following: 890,
+    joinedAt: "2025-11-02",
+  },
+  {
+    id: "u4",
+    username: "frostlight",
+    displayName: "Leo Frost",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Leo&backgroundColor=faf8f5",
+    verified: true,
+    followers: 23100,
+    following: 412,
+    joinedAt: "2025-08-19",
+  },
+  {
+    id: "u5",
+    username: "pearl_studio",
+    displayName: "Pearl Studio",
+    avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Pearl&backgroundColor=e8f0f5",
+    followers: 18700,
+    following: 156,
+    joinedAt: "2026-03-01",
+  },
+];
+
+export const initialPosts: Post[] = [
+  {
+    id: "p1",
+    user: users[1],
+    content: "Welcome to Lumen ✨\n\nThe most elegant place on the internet. Champagne frost pearl everything.\n\nThis is just the beginning.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+    likes: 2840,
+    reposts: 412,
+    replies: 189,
+    views: 48200,
+    liked: true,
+  },
+  {
+    id: "p2",
+    user: users[2],
+    content: "The soft glow of champagne light at golden hour hits different.\n\nLumen feels like that — warm, refined, never loud.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+    likes: 1204,
+    reposts: 98,
+    replies: 67,
+    views: 21400,
+  },
+  {
+    id: "p3",
+    user: users[3],
+    content: "Just shipped a new frost gradient system for Lumen.\n\nSubtle enough to disappear. Beautiful enough to notice.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+    likes: 876,
+    reposts: 154,
+    replies: 42,
+    views: 15600,
+    reposted: true,
+  },
+  {
+    id: "p4",
+    user: currentUser,
+    content: "Building in public.\n\nLumen is live. Champagne frost pearl theme locked in.\n\nWho’s ready?",
+    createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+    likes: 3421,
+    reposts: 687,
+    replies: 312,
+    views: 89200,
+  },
+  {
+    id: "p5",
+    user: users[4],
+    content: "Design tip: restraint is the ultimate luxury.\n\nLumen’s interface understands this.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
+    likes: 2103,
+    reposts: 289,
+    replies: 98,
+    views: 32100,
+  },
+  {
+    id: "p6",
+    user: users[1],
+    content: "Co-founder note:\n\nWe built Lumen because the internet deserves beauty again.\n\nNo noise. Just signal — and soft light.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
+    likes: 5621,
+    reposts: 1204,
+    replies: 456,
+    views: 124800,
+    liked: true,
+  },
+];
+
+export const trends: Trend[] = [
+  { category: "Trending in Design", title: "Champagne Frost", posts: "12.4K posts" },
+  { category: "Technology", title: "Lumen Platform", posts: "48.2K posts" },
+  { category: "Trending", title: "Pearl Aesthetic", posts: "8,912 posts" },
+  { category: "Business & Finance", title: "Elegant Social", posts: "3,401 posts" },
+  { category: "Trending in Florida", title: "Tampa Tech", posts: "2,187 posts" },
+];
+
+export const whoToFollow = [
+  users[2],
+  users[3],
+  users[4],
+];
