@@ -10,6 +10,11 @@ import {
   followUser,
   unfollowUser,
   isFollowing,
+  sendFriendRequest,
+  acceptFriendRequest,
+  removeFriendship,
+  getFriendStatus,
+  type FriendStatus,
 } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import type { Profile, Post } from "@/types";
@@ -27,6 +32,8 @@ export default function ProfilePage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [following, setFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [friendStatus, setFriendStatus] = useState<FriendStatus>("none");
+  const [friendLoading, setFriendLoading] = useState(false);
 
   useEffect(() => {
     if (!username) return;
@@ -50,8 +57,12 @@ export default function ProfilePage() {
     setPosts(userPosts);
 
     if (me && me.id !== p.id) {
-      const fol = await isFollowing(me.id, p.id);
+      const [fol, fr] = await Promise.all([
+        isFollowing(me.id, p.id),
+        getFriendStatus(me.id, p.id),
+      ]);
       setFollowing(fol);
+      setFriendStatus(fr);
     }
 
     setLoading(false);
@@ -81,6 +92,45 @@ export default function ProfilePage() {
       });
     }
     setFollowLoading(false);
+  }
+
+  async function handleFriend() {
+    if (!currentUserId || !profile) {
+      alert("Please sign in to add friends");
+      return;
+    }
+    if (currentUserId === profile.id) return;
+
+    setFriendLoading(true);
+
+    if (friendStatus === "none") {
+      const { error } = await sendFriendRequest(currentUserId, profile.id);
+      if (!error) setFriendStatus("pending_sent");
+      else alert(error.message || "Could not send friend request");
+    } else if (friendStatus === "pending_received") {
+      // Accept — current user is the addressee
+      const { error } = await acceptFriendRequest(profile.id, currentUserId);
+      if (!error) setFriendStatus("friends");
+      else alert(error.message || "Could not accept");
+    } else if (friendStatus === "friends" || friendStatus === "pending_sent") {
+      await removeFriendship(currentUserId, profile.id);
+      setFriendStatus("none");
+    }
+
+    setFriendLoading(false);
+  }
+
+  function friendButtonLabel() {
+    switch (friendStatus) {
+      case "friends":
+        return "Friends";
+      case "pending_sent":
+        return "Request sent";
+      case "pending_received":
+        return "Accept friend";
+      default:
+        return "Add friends";
+    }
   }
 
   if (loading) {
@@ -149,8 +199,8 @@ export default function ProfilePage() {
 
       {/* Profile info */}
       <div className="px-4 pt-20 pb-4">
-        <div className="flex items-start justify-between">
-          <div>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
             <div className="flex items-center gap-1 flex-wrap">
               <h2 className="text-xl font-extrabold text-charcoal">
                 {profile.display_name}
@@ -166,17 +216,34 @@ export default function ProfilePage() {
           </div>
 
           {!isOwnProfile && (
-            <button
-              onClick={handleFollow}
-              disabled={followLoading}
-              className={`rounded-full px-4 py-1.5 text-[15px] font-bold transition ${
-                following
-                  ? "border border-border text-charcoal hover:bg-champagne/40"
-                  : "bg-charcoal text-pearl hover:bg-charcoal-soft"
-              }`}
-            >
-              {followLoading ? "..." : following ? "Following" : "Follow"}
-            </button>
+            <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
+              <button
+                onClick={handleFollow}
+                disabled={followLoading}
+                className={`rounded-full px-4 py-1.5 text-[14px] font-bold transition ${
+                  following
+                    ? "border border-border text-charcoal hover:bg-champagne/40"
+                    : "bg-charcoal text-pearl hover:bg-charcoal-soft"
+                }`}
+              >
+                {followLoading ? "..." : following ? "Following" : "Follow"}
+              </button>
+              <button
+                onClick={handleFriend}
+                disabled={friendLoading}
+                className={`rounded-full px-4 py-1.5 text-[14px] font-bold transition ${
+                  friendStatus === "friends"
+                    ? "border border-[#C9A86C] text-[#C9A86C] hover:bg-champagne/40"
+                    : friendStatus === "pending_received"
+                    ? "bg-gold text-white hover:bg-gold-deep"
+                    : friendStatus === "pending_sent"
+                    ? "border border-border text-muted hover:bg-champagne/40"
+                    : "border border-border text-charcoal hover:bg-champagne/40"
+                }`}
+              >
+                {friendLoading ? "..." : friendButtonLabel()}
+              </button>
+            </div>
           )}
         </div>
 

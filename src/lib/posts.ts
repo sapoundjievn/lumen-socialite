@@ -184,3 +184,75 @@ export async function isFollowing(followerId: string, followingId: string): Prom
     .maybeSingle();
   return !!data;
 }
+
+// ---------- Friends (separate from Follow) ----------
+
+export async function sendFriendRequest(fromId: string, toId: string) {
+  if (fromId === toId) return { error: { message: "Cannot friend yourself" } };
+  // Store with ordered pair so we don't get duplicates
+  const { error } = await supabase.from("friendships").insert({
+    requester_id: fromId,
+    addressee_id: toId,
+    status: "pending",
+  });
+  return { error };
+}
+
+export async function acceptFriendRequest(requesterId: string, addresseeId: string) {
+  const { error } = await supabase
+    .from("friendships")
+    .update({ status: "accepted" })
+    .eq("requester_id", requesterId)
+    .eq("addressee_id", addresseeId)
+    .eq("status", "pending");
+  return { error };
+}
+
+export async function removeFriendship(userId: string, otherId: string) {
+  const { error } = await supabase
+    .from("friendships")
+    .delete()
+    .or(
+      `and(requester_id.eq.${userId},addressee_id.eq.${otherId}),and(requester_id.eq.${otherId},addressee_id.eq.${userId})`
+    );
+  return { error };
+}
+
+export type FriendStatus = "none" | "pending_sent" | "pending_received" | "friends";
+
+export async function getFriendStatus(
+  currentUserId: string,
+  otherUserId: string
+): Promise<FriendStatus> {
+  const { data } = await supabase
+    .from("friendships")
+    .select("requester_id, addressee_id, status")
+    .or(
+      `and(requester_id.eq.${currentUserId},addressee_id.eq.${otherUserId}),and(requester_id.eq.${otherUserId},addressee_id.eq.${currentUserId})`
+    )
+    .maybeSingle();
+
+  if (!data) return "none";
+  if (data.status === "accepted") return "friends";
+  if (data.requester_id === currentUserId) return "pending_sent";
+  return "pending_received";
+}
+
+/** Auto-follow founders after signup */
+export async function autoFollowFounders(newUserId: string) {
+  const founders = ["thevip", "kendall.vip"];
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username")
+    .in("username", founders);
+
+  if (!profiles || profiles.length === 0) return;
+
+  for (const p of profiles) {
+    if (p.id === newUserId) continue;
+    await supabase.from("follows").upsert(
+      { follower_id: newUserId, following_id: p.id },
+      { onConflict: "follower_id,following_id", ignoreDuplicates: true }
+    );
+  }
+}

@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import type { Profile } from "@/types";
+import { autoFollowFounders } from "./posts";
 
 export async function signUp(email: string, password: string, username: string, displayName: string) {
   const { data, error } = await supabase.auth.signUp({
@@ -12,6 +13,19 @@ export async function signUp(email: string, password: string, username: string, 
       },
     },
   });
+
+  // After successful signup, auto-follow founders (thevip + kendall.vip)
+  if (!error && data.user) {
+    // Profile is created by DB trigger — small delay then follow
+    setTimeout(async () => {
+      try {
+        await autoFollowFounders(data.user!.id);
+      } catch (e) {
+        console.error("Auto-follow founders failed:", e);
+      }
+    }, 1500);
+  }
+
   return { data, error };
 }
 
