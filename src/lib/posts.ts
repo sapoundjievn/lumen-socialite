@@ -129,3 +129,31 @@ export async function unlikePost(postId: string, userId: string, username?: stri
     .eq("user_id", userId);
   return { error };
 }
+
+export async function getProfileByUsername(username: string) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .ilike("username", username)
+    .maybeSingle();
+  return { data, error };
+}
+
+export async function getPostsByUserId(userId: string, limit = 50) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(`
+      *,
+      profiles (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        verified
+      )
+    `)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return { data: data || [], error };
+}

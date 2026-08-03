@@ -18,19 +18,26 @@ import { cn } from "@/lib/utils";
 import { getCurrentProfile, signOut, onAuthStateChange } from "@/lib/auth";
 import type { Profile } from "@/types";
 
-const navItems = [
+const navItemsBase = [
   { icon: Home, label: "Home", href: "/", active: true },
   { icon: Search, label: "Explore", href: "#" },
   { icon: Bell, label: "Notifications", href: "#" },
   { icon: Mail, label: "Messages", href: "#" },
   { icon: Bookmark, label: "Bookmarks", href: "#" },
-  { icon: User, label: "Profile", href: "#" },
+  { icon: User, label: "Profile", href: "profile" },
   { icon: MoreHorizontal, label: "More", href: "#" },
 ];
 
 export default function Sidebar() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const navItems = navItemsBase.map((item) => {
+    if (item.label === "Profile" && profile?.username) {
+      return { ...item, href: `/${profile.username}` };
+    }
+    return item;
+  });
 
   useEffect(() => {
     getCurrentProfile().then((p) => {
