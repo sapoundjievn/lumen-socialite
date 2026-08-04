@@ -351,6 +351,33 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
+
+          {/* Own profile actions under banner */}
+          {isOwnProfile && (
+            <div className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditName(profile.display_name);
+                  setEditBio(profile.bio || "");
+                  setEditOpen(true);
+                }}
+                className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
+              >
+                Edit profile
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await signOut();
+                  router.push("/login");
+                }}
+                className="rounded-full border border-rose-200/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-rose-600 shadow-sm backdrop-blur-sm transition hover:bg-rose-50 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
+              >
+                Sign out
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Profile info */}
@@ -373,31 +400,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {isOwnProfile ? (
-              <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditName(profile.display_name);
-                    setEditBio(profile.bio || "");
-                    setEditOpen(true);
-                  }}
-                  className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
-                >
-                  Edit profile
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await signOut();
-                    router.push("/login");
-                  }}
-                  className="rounded-full border border-rose-200 px-4 py-1.5 text-[14px] font-bold text-rose-600 transition hover:bg-rose-50"
-                >
-                  Sign out
-                </button>
-              </div>
-            ) : (
+            {!isOwnProfile ? (
               <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
                 <button
                   type="button"
