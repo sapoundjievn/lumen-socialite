@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   MessageCircle,
   Repeat2,
@@ -26,6 +27,7 @@ export default function PostCard({ post, onLike, onRepost }: PostCardProps) {
 
   const displayName = profile?.display_name || "User";
   const username = profile?.username || "user";
+  const profileHref = `/${username}`;
   const avatar =
     profile?.avatar_url ||
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${post.user_id}`;
@@ -34,14 +36,14 @@ export default function PostCard({ post, onLike, onRepost }: PostCardProps) {
   return (
     <article className="group border-b border-border px-4 py-3 transition hover:bg-champagne/20">
       <div className="flex gap-3">
-        {/* Avatar */}
-        <div className="flex-shrink-0">
+        {/* Avatar - clickable */}
+        <Link href={profileHref} className="flex-shrink-0">
           <img
             src={avatar}
             alt={displayName}
-            className="h-10 w-10 rounded-full border border-border bg-champagne object-cover"
+            className="h-10 w-10 rounded-full border border-border bg-champagne object-cover transition hover:opacity-90"
           />
-        </div>
+        </Link>
 
         {/* Content */}
         <div className="min-w-0 flex-1">
@@ -49,15 +51,20 @@ export default function PostCard({ post, onLike, onRepost }: PostCardProps) {
           <div className="flex items-start justify-between">
             <div className="min-w-0 text-[15px]">
               <div className="flex flex-wrap items-center gap-x-1">
-                <span className="truncate font-bold text-charcoal hover:underline">
+                <Link
+                  href={profileHref}
+                  className="truncate font-bold text-charcoal hover:underline"
+                >
                   {displayName}
-                </span>
+                </Link>
                 {verified && (
                   <BadgeCheck className="h-4 w-4 flex-shrink-0 fill-gold text-white" />
                 )}
-                <span className="truncate text-muted">@{username}</span>
+                <Link href={profileHref} className="truncate text-muted hover:underline">
+                  @{username}
+                </Link>
                 <span className="text-muted">·</span>
-                <span className="text-muted hover:underline">
+                <span className="text-muted">
                   {formatTime(post.created_at)}
                 </span>
               </div>
