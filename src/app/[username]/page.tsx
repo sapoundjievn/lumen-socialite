@@ -400,7 +400,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {!isOwnProfile ? (
+            {!isOwnProfile && (
               <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
                 <button
                   type="button"
