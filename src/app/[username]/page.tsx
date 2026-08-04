@@ -25,7 +25,7 @@ import {
   getOrCreateConversation,
   type FriendStatus,
 } from "@/lib/posts";
-import { getCurrentProfile } from "@/lib/auth";
+import { getCurrentProfile, signOut } from "@/lib/auth";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import SpecialStars from "@/components/SpecialStars";
@@ -382,16 +382,28 @@ export default function ProfilePage() {
             </div>
 
             {isOwnProfile && (
-              <button
-                onClick={() => {
-                  setEditName(profile.display_name);
-                  setEditBio(profile.bio || "");
-                  setEditOpen(true);
-                }}
-                className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
-              >
-                Edit profile
-              </button>
+              <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
+                <button
+                  onClick={() => {
+                    setEditName(profile.display_name);
+                    setEditBio(profile.bio || "");
+                    setEditOpen(true);
+                  }}
+                  className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
+                >
+                  Edit profile
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await signOut();
+                    router.push("/login");
+                  }}
+                  className="rounded-full border border-rose-200 px-4 py-1.5 text-[14px] font-bold text-rose-600 transition hover:bg-rose-50"
+                >
+                  Sign out
+                </button>
+              </div>
             )}
 
             {!isOwnProfile && (
