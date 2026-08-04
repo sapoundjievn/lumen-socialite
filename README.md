@@ -9,7 +9,7 @@ Elegant social experience with Champagne Frost Pearl aesthetic.
 - **Sub name**: Socialite
 - **Primary action**: Enlightenment
 - **Image / media**: Illumination
-- **Copyright**: © 2026 @Lumen social media platform. All rights reserved.
+- **Copyright**: © 2026 @Lumen · Socialite media platform. All rights reserved.
 
 ## Stack
 - Next.js 16 (App Router)
@@ -52,4 +52,4 @@ Run the SQL in `supabase-schema.sql` in your Supabase SQL Editor (already done).
 - Real Enlightenment posting
 - Likes / Follows
 
-© 2026 @Lumen social media platform. All rights reserved.
+© 2026 @Lumen · Socialite media platform. All rights reserved.

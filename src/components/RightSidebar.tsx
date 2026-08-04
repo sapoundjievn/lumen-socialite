@@ -132,7 +132,7 @@ export default function RightSidebar() {
           </a>
         </div>
         <div className="mt-2 text-[12px] text-muted-light">
-          © 2026 @Lumen social media platform. All rights reserved.
+          © 2026 @Lumen · Socialite media platform. All rights reserved.
         </div>
       </div>
     </aside>
