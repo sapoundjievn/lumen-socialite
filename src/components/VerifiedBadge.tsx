@@ -2,7 +2,16 @@
 
 import { BadgeCheck } from "lucide-react";
 
-/** Verified check — special accounts keep classic BadgeCheck; others by gender */
+/**
+ * Verified badge colors
+ * PERMANENT (never change):
+ *   @thevip       → solid Champagne Frost Pearl
+ *   @kendall.vip  → solid pink
+ * Everyone else (when verified) by gender choice:
+ *   male   → blue
+ *   female → light pink
+ *   other  → rainbow
+ */
 export default function VerifiedBadge({
   username,
   gender,
@@ -20,24 +29,19 @@ export default function VerifiedBadge({
       : "h-4 w-4 flex-shrink-0";
   const gradId = `rb-${(u || "x").replace(/[^a-z0-9]/gi, "")}-${size}`;
 
-  // Special accounts — classic lucide BadgeCheck (pre-gender system look)
+  // ===== PERMANENT founder badges — do not alter =====
   if (u === "thevip") {
-    return (
-      <BadgeCheck className={`${dim} fill-[#C9A86C] text-white`} />
-    );
+    return <BadgeCheck className={`${dim} fill-[#C9A86C] text-white`} />;
   }
   if (u === "kendall.vip") {
-    return (
-      <BadgeCheck className={`${dim} fill-[#C2185B] text-white`} />
-    );
+    return <BadgeCheck className={`${dim} fill-[#C2185B] text-white`} />;
   }
+  // Optional fixed blue for Igor (remove this block if he should follow gender only)
   if (u === "igorpiven") {
-    return (
-      <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />
-    );
+    return <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />;
   }
 
-  // By gender
+  // ===== Everyone else: by gender choice =====
   if (g === "male" || g === "m") {
     return <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />;
   }
@@ -57,7 +61,6 @@ export default function VerifiedBadge({
             <stop offset="100%" stopColor="#86007D" />
           </linearGradient>
         </defs>
-        {/* BadgeCheck-like shape */}
         <path
           fill={`url(#${gradId})`}
           d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
@@ -66,6 +69,6 @@ export default function VerifiedBadge({
     );
   }
 
-  // Default champagne
+  // Verified but no gender set yet
   return <BadgeCheck className={`${dim} fill-[#C9A86C] text-white`} />;
 }
