@@ -228,7 +228,12 @@ export default function PostCard({
             </button>
 
             <button
-              onClick={() => onRepost(post.id)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRepost(post.id);
+              }}
               className={cn(
                 "group/btn flex items-center gap-1.5 transition",
                 post.reposted_by_user ? "text-green-600" : "hover:text-green-600"
@@ -250,7 +255,12 @@ export default function PostCard({
             </button>
 
             <button
-              onClick={() => onLike(post.id)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onLike(post.id);
+              }}
               className={cn(
                 "group/btn flex items-center gap-1.5 transition",
                 liked ? "text-rose-500" : "hover:text-rose-500"

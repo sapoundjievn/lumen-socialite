@@ -1,4 +1,5 @@
 "use client";
+/* feed-interaction-v2 */
 
 import { useState, useEffect } from "react";
 import { Post } from "@/types";

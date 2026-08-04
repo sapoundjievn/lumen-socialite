@@ -1,4 +1,5 @@
 "use client";
+/* interaction-v2 */
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -193,7 +194,10 @@ export default function ProfilePage() {
       return;
     }
     const post = posts.find((p: any) => p.id === id);
-    if (!post) return;
+    if (!post) {
+      alert("Post not found in list");
+      return;
+    }
     const was = !!post.liked_by_user;
     setPosts((prev: any) =>
       prev.map((p: any) =>
@@ -206,8 +210,16 @@ export default function ProfilePage() {
           : p
       )
     );
-    if (was) await unlikePost(id, currentUserId);
-    else await likePost(id, currentUserId);
+    try {
+      const res = was
+        ? await unlikePost(id, currentUserId)
+        : await likePost(id, currentUserId);
+      if (res && (res as any).error) {
+        alert("Like failed: " + ((res as any).error.message || "error"));
+      }
+    } catch (e: any) {
+      alert("Like error: " + (e?.message || e));
+    }
   }
 
   async function handleRepost(id: string) {
@@ -216,7 +228,10 @@ export default function ProfilePage() {
       return;
     }
     const post = posts.find((p: any) => p.id === id) as any;
-    if (!post) return;
+    if (!post) {
+      alert("Post not found in list");
+      return;
+    }
     const was = !!post.reposted_by_user;
     setPosts((prev: any) =>
       prev.map((p: any) =>
@@ -229,25 +244,26 @@ export default function ProfilePage() {
           : p
       )
     );
-    const { error } = was
-      ? await unrepostPost(id, currentUserId)
-      : await repostPost(id, currentUserId);
-    if (error) {
-      setPosts((prev: any) =>
-        prev.map((p: any) =>
-          p.id === id
-            ? {
-                ...p,
-                reposted_by_user: was,
-                reposts_count: (p.reposts_count || 0) + (was ? 1 : -1),
-              }
-            : p
-        )
-      );
-      alert("Repost failed: " + (error.message || "unknown"));
-    } else if (!was) {
-      // Add to profile feed as repost if viewing own profile later - for other profile just ok
-      // If we are viewing someone else and WE repost, our profile will show it on next visit
+    try {
+      const { error } = was
+        ? await unrepostPost(id, currentUserId)
+        : await repostPost(id, currentUserId);
+      if (error) {
+        setPosts((prev: any) =>
+          prev.map((p: any) =>
+            p.id === id
+              ? {
+                  ...p,
+                  reposted_by_user: was,
+                  reposts_count: (p.reposts_count || 0) + (was ? 1 : -1),
+                }
+              : p
+          )
+        );
+        alert("Repost failed: " + (error.message || JSON.stringify(error)));
+      }
+    } catch (e: any) {
+      alert("Repost error: " + (e?.message || e));
     }
   }
 
