@@ -200,6 +200,27 @@ export default function ProfilePage() {
       alert("Post not found in list");
       return;
     }
+
+    const me = await getCurrentProfile();
+    const isFounder = me?.username?.toLowerCase() === "thevip";
+
+    if (isFounder) {
+      setPosts((prev: any) =>
+        prev.map((p: any) =>
+          p.id === id
+            ? {
+                ...p,
+                liked_by_user: true,
+                likes_count: (p.likes_count || 0) + 1,
+                views_count: (p.views_count || 0) + 1,
+              }
+            : p
+        )
+      );
+      await likePost(id, currentUserId, "thevip");
+      return;
+    }
+
     const was = !!post.liked_by_user;
     setPosts((prev: any) =>
       prev.map((p: any) =>

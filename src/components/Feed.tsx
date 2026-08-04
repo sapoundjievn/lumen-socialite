@@ -62,7 +62,7 @@ export default function Feed() {
     const wasLiked = post.liked_by_user;
 
     if (isFounder) {
-      // Founder: every click adds +1 (unlimited)
+      // Founder: every like +1 like and +1 view
       setPosts((prev) =>
         prev.map((p) =>
           p.id === id
@@ -70,6 +70,7 @@ export default function Feed() {
                 ...p,
                 liked_by_user: true,
                 likes_count: (p.likes_count || 0) + 1,
+                views_count: (p.views_count || 0) + 1,
               }
             : p
         )

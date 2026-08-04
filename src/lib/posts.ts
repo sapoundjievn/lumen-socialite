@@ -97,21 +97,22 @@ export async function likePost(postId: string, userId: string, username?: string
   const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
 
   if (isFounder) {
-    // Founder: always increment count (unlimited likes)
-    // We still try to insert a like row, but ignore unique errors
+    // Founder: unlimited likes — each like also adds 1 view
     await supabase.from("likes").insert({ post_id: postId, user_id: userId });
-    
-    // Force increment the counter regardless
+
     const { data: post } = await supabase
       .from("posts")
-      .select("likes_count")
+      .select("likes_count, views_count")
       .eq("id", postId)
       .single();
 
     if (post) {
       await supabase
         .from("posts")
-        .update({ likes_count: (post.likes_count || 0) + 1 })
+        .update({
+          likes_count: (post.likes_count || 0) + 1,
+          views_count: (post.views_count || 0) + 1,
+        })
         .eq("id", postId);
     }
     return { error: null };

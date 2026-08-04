@@ -85,6 +85,10 @@ export default function PostCard({
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    setViews(post.views_count || 0);
+  }, [post.views_count]);
+
+  useEffect(() => {
     if (viewedRef.current) return;
     viewedRef.current = true;
     recordPostView(post.id).then(() => {
