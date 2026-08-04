@@ -321,7 +321,7 @@ export default function ProfilePage() {
             >
               <ArrowLeft className="h-5 w-5 text-charcoal" />
             </Link>
-            <span className="text-[15px] font-bold text-charcoal">Profile</span>
+            <span className="text-[15px] font-bold text-charcoal">Back home</span>
           </div>
         </div>
 
