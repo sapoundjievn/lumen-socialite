@@ -311,23 +311,16 @@ export default function ProfilePage() {
       </div>
 
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-16 sm:pb-0">
-        {/* Header — back only */}
-        <div className="sticky top-0 z-10 border-b border-border bg-pearl/85 backdrop-blur-md">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <Link
-              href="/"
-              className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-champagne/40"
-              aria-label="Back to Home"
-            >
-              <ArrowLeft className="h-5 w-5 text-charcoal" />
-            </Link>
-            <span className="text-[15px] font-bold text-charcoal">Back home</span>
-          </div>
-        </div>
-
-        {/* Banner + Avatar */}
+        {/* Banner + Avatar — back button on gold header */}
         <div className="relative">
           <div className="h-48 bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]" />
+          <Link
+            href="/"
+            className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
+            aria-label="Back to Home"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
           <div className="absolute -bottom-16 left-4">
             <div className="relative">
               <img
