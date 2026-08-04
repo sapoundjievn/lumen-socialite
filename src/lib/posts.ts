@@ -683,16 +683,27 @@ export async function sendMessage(
 }
 
 export async function searchProfiles(query: string) {
-  const q = query.trim();
+  const q = query.trim().replace(/[%_,]/g, "");
   if (!q) return { data: [], error: null };
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select(
-      "id, username, display_name, avatar_url, verified, bio, followers_count"
-    )
-    .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
-    .limit(20);
+  // Two queries then merge (more reliable than or+ilike on some setups)
+  const [byUser, byName] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, username, display_name, avatar_url, verified, bio, followers_count")
+      .ilike("username", `%${q}%`)
+      .limit(20),
+    supabase
+      .from("profiles")
+      .select("id, username, display_name, avatar_url, verified, bio, followers_count")
+      .ilike("display_name", `%${q}%`)
+      .limit(20),
+  ]);
 
-  return { data: data || [], error };
+  const map = new Map<string, any>();
+  for (const row of [...(byUser.data || []), ...(byName.data || [])]) {
+    map.set(row.id, row);
+  }
+
+  return { data: Array.from(map.values()), error: byUser.error || byName.error };
 }
