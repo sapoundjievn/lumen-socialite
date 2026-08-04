@@ -20,7 +20,7 @@ import type { Profile } from "@/types";
 
 const navItemsBase = [
   { icon: Home, label: "Home", href: "/", active: true },
-  { icon: Search, label: "Explore", href: "#" },
+  { icon: Search, label: "Explore", href: "/explore" },
   { icon: Bell, label: "Notifications", href: "/notifications" },
   { icon: Mail, label: "Messages", href: "/messages" },
   { icon: Bookmark, label: "Bookmarks", href: "#" },

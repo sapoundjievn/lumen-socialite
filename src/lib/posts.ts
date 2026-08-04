@@ -681,3 +681,18 @@ export async function sendMessage(
 
   return { data, error };
 }
+
+export async function searchProfiles(query: string) {
+  const q = query.trim();
+  if (!q) return { data: [], error: null };
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(
+      "id, username, display_name, avatar_url, verified, bio, followers_count"
+    )
+    .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
+    .limit(20);
+
+  return { data: data || [], error };
+}

@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, MoreHorizontal } from "lucide-react";
 import { trends, whoToFollow } from "@/lib/mock-data";
 
 export default function RightSidebar() {
+  const router = useRouter();
+  const [q, setQ] = useState("");
   return (
     <aside className="sticky top-0 hidden h-screen w-[350px] flex-col gap-4 overflow-y-auto px-6 py-3 lg:flex">
       {/* Search */}
@@ -11,6 +15,13 @@ export default function RightSidebar() {
         <Search className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />
         <input
           type="text"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && q.trim()) {
+              router.push(`/explore?q=${encodeURIComponent(q.trim())}`);
+            }
+          }}
           placeholder="Search Lumen"
           className="w-full rounded-full border border-transparent bg-frost py-3 pl-12 pr-4 text-[15px] text-charcoal placeholder:text-muted focus:border-gold-soft focus:bg-white focus:outline-none focus:ring-1 focus:ring-gold-soft"
         />

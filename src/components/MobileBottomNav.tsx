@@ -19,7 +19,7 @@ export default function MobileBottomNav() {
 
   const items = [
     { icon: Home, label: "Home", href: "/" },
-    { icon: Search, label: "Explore", href: "#" },
+    { icon: Search, label: "Explore", href: "/explore" },
     { icon: Bell, label: "Alerts", href: "/notifications" },
     { icon: Mail, label: "Messages", href: "/messages" },
     { icon: User, label: "Profile", href: profileHref },
