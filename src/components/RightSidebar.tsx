@@ -70,7 +70,7 @@ export default function RightSidebar() {
       style={{ maxHeight: "100dvh" }}
     >
       <div
-        className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto overscroll-y-contain px-6 py-3 pb-24"
+        className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto overscroll-y-contain px-5 py-3 pb-16"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
       {/* Search */}
@@ -92,7 +92,7 @@ export default function RightSidebar() {
 
       {/* Trends for you */}
       <div className="overflow-hidden rounded-2xl border border-border bg-pearl-soft">
-        <h2 className="px-4 py-3 text-xl font-extrabold text-charcoal">
+        <h2 className="px-3 py-2.5 text-lg font-extrabold text-charcoal">
           Trends for you
         </h2>
         {trends.map((trend, i) => (
@@ -103,7 +103,7 @@ export default function RightSidebar() {
               const q = trend.title.replace(/^#/, "");
               router.push(`/explore?q=${encodeURIComponent(q)}`);
             }}
-            className="flex w-full items-start justify-between px-4 py-3 text-left transition hover:bg-champagne/30"
+            className="flex w-full items-start justify-between px-3 py-2 text-left transition hover:bg-champagne/30"
           >
             <div className="min-w-0">
               <div className="text-[13px] text-muted">{trend.category}</div>
@@ -116,7 +116,7 @@ export default function RightSidebar() {
         <button
           type="button"
           onClick={() => router.push("/explore")}
-          className="w-full px-4 py-3 text-left text-[15px] text-gold-deep transition hover:bg-champagne/30"
+          className="w-full px-3 py-2 text-left text-[14px] text-gold-deep transition hover:bg-champagne/30"
         >
           Show more
         </button>
@@ -124,7 +124,7 @@ export default function RightSidebar() {
 
       {/* Who to follow */}
       <div className="overflow-hidden rounded-2xl border border-border bg-pearl-soft">
-        <h2 className="px-4 py-3 text-xl font-extrabold text-charcoal">
+        <h2 className="px-3 py-2.5 text-lg font-extrabold text-charcoal">
           Who to follow
         </h2>
         {people.length === 0 ? (
@@ -135,7 +135,7 @@ export default function RightSidebar() {
           people.map((user) => (
             <div
               key={user.id}
-              className="flex items-center gap-3 px-4 py-3 transition hover:bg-champagne/30"
+              className="flex items-center gap-2.5 px-3 py-2 transition hover:bg-champagne/30"
             >
               <Link href={`/${user.username}`}>
                 <img
@@ -180,35 +180,25 @@ export default function RightSidebar() {
         <button
           type="button"
           onClick={() => router.push("/explore")}
-          className="w-full px-4 py-3 text-left text-[15px] text-gold-deep transition hover:bg-champagne/30"
+          className="w-full px-3 py-2 text-left text-[14px] text-gold-deep transition hover:bg-champagne/30"
         >
           Show more
         </button>
       </div>
 
-      {/* Ken Coin */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#F5E8D3] via-[#E8D5A3] to-[#C9A86C] p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-2xl shadow-sm">
+      {/* Ken Coin — compact */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#F5E8D3] via-[#E8D5A3] to-[#C9A86C] px-3 py-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/80 text-lg shadow-sm">
             ✨
           </div>
-          <div className="min-w-0">
-            <div className="text-[16px] font-extrabold text-charcoal">Ken Coin</div>
-            <div className="text-[13px] font-medium text-[#6B5B3E]">
-              Lumen · Socialite
-            </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[14px] font-extrabold leading-tight text-charcoal">Ken Coin</div>
+            <div className="text-[11px] font-medium text-[#6B5B3E]">Lumen · Socialite · Base</div>
           </div>
-        </div>
-        <p className="mt-3 text-[13px] leading-5 text-charcoal/80">
-          The official token of Lumen Socialite — powering the elegant social platform.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wide text-[#6B5B3E]">
-          <span className="rounded-full bg-white/60 px-2.5 py-1">Base</span>
-          <span className="rounded-full bg-white/60 px-2.5 py-1">KEN</span>
-          <span className="rounded-full bg-white/60 px-2.5 py-1">1B supply</span>
-        </div>
-        <div className="mt-4 flex w-full items-center justify-center rounded-full bg-charcoal/90 py-2.5 text-[14px] font-bold text-pearl">
-          Coming soon on Base
+          <span className="flex-shrink-0 rounded-full bg-charcoal/90 px-2.5 py-1 text-[11px] font-bold text-pearl">
+            Soon
+          </span>
         </div>
       </div>
 

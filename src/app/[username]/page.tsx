@@ -333,7 +333,7 @@ export default function ProfilePage() {
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-16 sm:pb-0">
         {/* Banner + Avatar — back on gold */}
         <div className="relative">
-          <div className="h-40 bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]" />
+          <div className="h-28 bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]" />
           <Link
             href="/"
             className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
@@ -341,7 +341,7 @@ export default function ProfilePage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <div className="absolute -bottom-6 left-4">
+          <div className="absolute -bottom-8 left-4">
             <div className="relative">
               <img
                 src={avatar}
@@ -400,7 +400,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile info */}
-        <div className="px-4 pt-12 pb-4">
+        <div className="px-4 pt-10 pb-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1 pr-2">
               <div className="flex min-w-0 items-center gap-1.5">
