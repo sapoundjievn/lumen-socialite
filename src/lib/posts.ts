@@ -546,3 +546,131 @@ export async function markNotificationRead(id: string, userId: string) {
     .eq("id", id)
     .eq("user_id", userId);
 }
+
+// ---------- Direct Messages ----------
+
+export async function getOrCreateConversation(myId: string, otherId: string) {
+  // Find existing 1:1 conversation
+  const { data: myMemberships } = await supabase
+    .from("conversation_members")
+    .select("conversation_id")
+    .eq("user_id", myId);
+
+  if (myMemberships && myMemberships.length > 0) {
+    const ids = myMemberships.map((m) => m.conversation_id);
+    const { data: shared } = await supabase
+      .from("conversation_members")
+      .select("conversation_id")
+      .eq("user_id", otherId)
+      .in("conversation_id", ids);
+
+    if (shared && shared.length > 0) {
+      return { conversationId: shared[0].conversation_id, error: null };
+    }
+  }
+
+  // Create new conversation
+  const { data: conv, error: cErr } = await supabase
+    .from("conversations")
+    .insert({})
+    .select("id")
+    .single();
+
+  if (cErr || !conv) return { conversationId: null, error: cErr };
+
+  const { error: mErr } = await supabase.from("conversation_members").insert([
+    { conversation_id: conv.id, user_id: myId },
+    { conversation_id: conv.id, user_id: otherId },
+  ]);
+
+  if (mErr) return { conversationId: null, error: mErr };
+  return { conversationId: conv.id, error: null };
+}
+
+export async function getMyConversations(userId: string) {
+  const { data: memberships } = await supabase
+    .from("conversation_members")
+    .select("conversation_id")
+    .eq("user_id", userId);
+
+  if (!memberships || memberships.length === 0) return { data: [], error: null };
+
+  const convIds = memberships.map((m) => m.conversation_id);
+
+  // Other members
+  const { data: others } = await supabase
+    .from("conversation_members")
+    .select("conversation_id, user_id")
+    .in("conversation_id", convIds)
+    .neq("user_id", userId);
+
+  const otherIds = [...new Set((others || []).map((o) => o.user_id))];
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username, display_name, avatar_url, verified")
+    .in("id", otherIds);
+
+  const profileMap: Record<string, any> = {};
+  for (const p of profiles || []) profileMap[p.id] = p;
+
+  // Last message per conversation
+  const { data: msgs } = await supabase
+    .from("messages")
+    .select("conversation_id, content, created_at, sender_id")
+    .in("conversation_id", convIds)
+    .order("created_at", { ascending: false });
+
+  const lastMsg: Record<string, any> = {};
+  for (const m of msgs || []) {
+    if (!lastMsg[m.conversation_id]) lastMsg[m.conversation_id] = m;
+  }
+
+  const list = (others || []).map((o) => ({
+    conversation_id: o.conversation_id,
+    other: profileMap[o.user_id] || null,
+    last_message: lastMsg[o.conversation_id] || null,
+  }));
+
+  // Sort by last message time
+  list.sort((a, b) => {
+    const ta = a.last_message?.created_at || "";
+    const tb = b.last_message?.created_at || "";
+    return tb.localeCompare(ta);
+  });
+
+  return { data: list, error: null };
+}
+
+export async function getMessages(conversationId: string) {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("id, content, sender_id, created_at")
+    .eq("conversation_id", conversationId)
+    .order("created_at", { ascending: true });
+  return { data: data || [], error };
+}
+
+export async function sendMessage(
+  conversationId: string,
+  senderId: string,
+  content: string
+) {
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({
+      conversation_id: conversationId,
+      sender_id: senderId,
+      content,
+    })
+    .select()
+    .single();
+
+  if (!error) {
+    await supabase
+      .from("conversations")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", conversationId);
+  }
+
+  return { data, error };
+}

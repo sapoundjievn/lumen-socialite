@@ -21,7 +21,7 @@ export default function MobileBottomNav() {
     { icon: Home, label: "Home", href: "/" },
     { icon: Search, label: "Explore", href: "#" },
     { icon: Bell, label: "Alerts", href: "/notifications" },
-    { icon: Mail, label: "Messages", href: "#" },
+    { icon: Mail, label: "Messages", href: "/messages" },
     { icon: User, label: "Profile", href: profileHref },
   ];
 

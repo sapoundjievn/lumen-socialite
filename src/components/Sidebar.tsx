@@ -22,7 +22,7 @@ const navItemsBase = [
   { icon: Home, label: "Home", href: "/", active: true },
   { icon: Search, label: "Explore", href: "#" },
   { icon: Bell, label: "Notifications", href: "/notifications" },
-  { icon: Mail, label: "Messages", href: "#" },
+  { icon: Mail, label: "Messages", href: "/messages" },
   { icon: Bookmark, label: "Bookmarks", href: "#" },
   { icon: User, label: "Profile", href: "profile" },
   { icon: MoreHorizontal, label: "More", href: "#" },

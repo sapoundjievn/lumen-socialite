@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { BadgeCheck, Calendar, ArrowLeft, Camera } from "lucide-react";
 import {
@@ -16,6 +16,7 @@ import {
   getFriendStatus,
   uploadAvatar,
   updateProfile,
+  getOrCreateConversation,
   type FriendStatus,
 } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
@@ -28,6 +29,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 
 export default function ProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const username = (params.username as string) || "";
   const [profile, setProfile] = useState<Profile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -304,6 +306,26 @@ export default function ProfilePage() {
                   }`}
                 >
                   {followLoading ? "..." : following ? "Following" : "Follow"}
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!currentUserId || !profile) {
+                      alert("Please sign in");
+                      return;
+                    }
+                    const { conversationId, error } = await getOrCreateConversation(
+                      currentUserId,
+                      profile.id
+                    );
+                    if (error || !conversationId) {
+                      alert(error?.message || "Could not open messages");
+                      return;
+                    }
+                    router.push(`/messages/${conversationId}`);
+                  }}
+                  className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
+                >
+                  Message
                 </button>
                 <button
                   onClick={handleFriend}
