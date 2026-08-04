@@ -7,6 +7,7 @@ import { BadgeCheck, Calendar, ArrowLeft, Camera } from "lucide-react";
 import {
   getProfileByUsername,
   getPostsByUserId,
+  getRepostedPosts,
   followUser,
   unfollowUser,
   isFollowing,
@@ -45,6 +46,8 @@ export default function ProfilePage() {
   const [editName, setEditName] = useState("");
   const [editBio, setEditBio] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
+  const [profileTab, setProfileTab] = useState<"posts" | "reposts">("posts");
+  const [reposts, setReposts] = useState<Post[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -66,7 +69,31 @@ export default function ProfilePage() {
     setProfile(p);
 
     const { data: userPosts } = await getPostsByUserId(p.id);
-    setPosts(userPosts);
+    const { data: userReposts } = await getRepostedPosts(p.id);
+    const originals = (userPosts || []).map((post: Post) => ({
+      ...post,
+      _isRepost: false as boolean,
+      _sortAt: post.created_at,
+    }));
+    const shared = (userReposts || []).map((post: any) => ({
+      ...post,
+      _isRepost: true as boolean,
+      _sortAt: post.created_at,
+    }));
+    // Merge: originals + reposts, newest first by original post time
+    const merged = [...originals, ...shared].sort(
+      (a, b) => new Date(b._sortAt).getTime() - new Date(a._sortAt).getTime()
+    );
+    // Dedupe by post id (prefer original if they also wrote it)
+    const seen = new Set<string>();
+    const deduped: any[] = [];
+    for (const item of merged) {
+      if (seen.has(item.id)) continue;
+      seen.add(item.id);
+      deduped.push(item);
+    }
+    setPosts(deduped as any);
+    setReposts(userReposts as Post[]);
 
     if (me && me.id !== p.id) {
       const [fol, fr] = await Promise.all([
@@ -387,31 +414,41 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Posts */}
+        {/* Posts + Reposts */}
         <div>
           {posts.length === 0 ? (
             <div className="px-6 py-16 text-center text-muted">
               No enlightenments yet.
             </div>
           ) : (
-            posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onLike={() => {}}
-                onRepost={() => {}}
-                currentUserId={currentUserId}
-                onPostUpdated={(updated) =>
-                  setPosts((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
-                }
-                onPostDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
-              />
+            posts.map((post: any) => (
+              <div key={post.id + (post._isRepost ? "-rp" : "")}>
+                {post._isRepost && (
+                  <div className="flex items-center gap-2 px-4 pt-3 text-[13px] font-medium text-muted">
+                    <span>↺</span>
+                    <span>Reposted</span>
+                  </div>
+                )}
+                <PostCard
+                  post={post}
+                  onLike={() => {}}
+                  onRepost={() => {}}
+                  currentUserId={currentUserId}
+                  onPostUpdated={(updated) =>
+                    setPosts((prev) =>
+                      prev.map((p) =>
+                        p.id === updated.id ? { ...p, ...updated } : p
+                      )
+                    )
+                  }
+                  onPostDeleted={(id) =>
+                    setPosts((prev) => prev.filter((p) => p.id !== id))
+                  }
+                />
+              </div>
             ))
           )}
         </div>
-      </main>
-
-
       {/* Edit profile modal */}
       {editOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
