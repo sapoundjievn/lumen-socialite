@@ -878,3 +878,72 @@ export async function recordPostView(postId: string) {
     .eq("id", postId);
   return { error };
 }
+
+
+export async function getWhoToFollow(currentUserId?: string | null, limit = 3) {
+  let query = supabase
+    .from("profiles")
+    .select("id, username, display_name, avatar_url, verified, gender, followers_count")
+    .order("followers_count", { ascending: false })
+    .limit(20);
+
+  const { data, error } = await query;
+  if (error || !data) return { data: [], error };
+
+  let list = data;
+  if (currentUserId) {
+    list = list.filter((p) => p.id !== currentUserId);
+    const { data: follows } = await supabase
+      .from("follows")
+      .select("following_id")
+      .eq("follower_id", currentUserId);
+    const followingSet = new Set((follows || []).map((f) => f.following_id));
+    list = list.filter((p) => !followingSet.has(p.id));
+  }
+  return { data: list.slice(0, limit), error: null };
+}
+
+export async function getTrends(limit = 5) {
+  const { data: posts } = await supabase
+    .from("posts")
+    .select("content")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  const counts: Record<string, number> = {};
+  const tagRe = /#([\w\u00C0-\u024F]+)/g;
+  for (const p of posts || []) {
+    const text = p.content || "";
+    let m;
+    const re = new RegExp(tagRe);
+    while ((m = re.exec(text)) !== null) {
+      const tag = m[1].toLowerCase();
+      counts[tag] = (counts[tag] || 0) + 1;
+    }
+  }
+
+  let trends = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([title, n]) => ({
+      category: "Trending on Lumen",
+      title: `#${title}`,
+      posts: n === 1 ? "1 post" : `${n} posts`,
+    }));
+
+  // Fallbacks so the box is never empty
+  const fallbacks = [
+    { category: "Trending in Design", title: "Champagne Frost", posts: "—" },
+    { category: "Technology", title: "Lumen Platform", posts: "—" },
+    { category: "Trending", title: "Pearl Aesthetic", posts: "—" },
+    { category: "Business & Finance", title: "Ken Coin", posts: "—" },
+    { category: "Trending", title: "Socialite", posts: "—" },
+  ];
+  while (trends.length < limit) {
+    const fb = fallbacks[trends.length];
+    if (!fb) break;
+    if (!trends.some((t) => t.title === fb.title)) trends.push(fb);
+    else trends.push({ ...fb, title: fb.title + " ·" });
+  }
+  return { data: trends.slice(0, limit) };
+}
