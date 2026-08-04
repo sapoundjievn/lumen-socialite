@@ -10,6 +10,8 @@ import {
   createReply,
   likePost,
   unlikePost,
+  repostPost,
+  unrepostPost,
 } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import type { Post } from "@/types";
@@ -67,6 +69,15 @@ export default function PostDetailPage() {
     }
   }
 
+  async function handleRepost(id: string) {
+    if (!currentUserId) return;
+    const { error } = await repostPost(id, currentUserId);
+    if (error) alert("Repost failed: " + error.message);
+    else if (post?.id === id) {
+      setPost({ ...post, reposts_count: (post.reposts_count || 0) + 1, reposted_by_user: true });
+    }
+  }
+
   async function handleLike(id: string) {
     if (!currentUserId) return;
     // Simple toggle for detail view
@@ -119,7 +130,7 @@ export default function PostDetailPage() {
             <PostCard
               post={post}
               onLike={handleLike}
-              onRepost={() => {}}
+              onRepost={handleRepost}
               currentUserId={currentUserId}
               onPostUpdated={(u) => setPost({ ...post, ...u })}
               onPostDeleted={() => (window.location.href = "/")}
@@ -157,7 +168,7 @@ export default function PostDetailPage() {
                   key={r.id}
                   post={r}
                   onLike={handleLike}
-                  onRepost={() => {}}
+                  onRepost={handleRepost}
                   currentUserId={currentUserId}
                   onPostUpdated={(u) =>
                     setReplies((prev) => prev.map((p) => (p.id === u.id ? { ...p, ...u } : p)))

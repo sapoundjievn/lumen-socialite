@@ -8,6 +8,10 @@ import {
   getProfileByUsername,
   getPostsByUserId,
   getRepostedPosts,
+  repostPost,
+  unrepostPost,
+  likePost,
+  unlikePost,
   followUser,
   unfollowUser,
   isFollowing,
@@ -180,6 +184,71 @@ export default function ProfilePage() {
     }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+
+  async function handleLike(id: string) {
+    if (!currentUserId) {
+      alert("Please sign in to like");
+      return;
+    }
+    const post = posts.find((p: any) => p.id === id);
+    if (!post) return;
+    const was = !!post.liked_by_user;
+    setPosts((prev: any) =>
+      prev.map((p: any) =>
+        p.id === id
+          ? {
+              ...p,
+              liked_by_user: !was,
+              likes_count: (p.likes_count || 0) + (was ? -1 : 1),
+            }
+          : p
+      )
+    );
+    if (was) await unlikePost(id, currentUserId);
+    else await likePost(id, currentUserId);
+  }
+
+  async function handleRepost(id: string) {
+    if (!currentUserId) {
+      alert("Please sign in to repost");
+      return;
+    }
+    const post = posts.find((p: any) => p.id === id) as any;
+    if (!post) return;
+    const was = !!post.reposted_by_user;
+    setPosts((prev: any) =>
+      prev.map((p: any) =>
+        p.id === id
+          ? {
+              ...p,
+              reposted_by_user: !was,
+              reposts_count: (p.reposts_count || 0) + (was ? -1 : 1),
+            }
+          : p
+      )
+    );
+    const { error } = was
+      ? await unrepostPost(id, currentUserId)
+      : await repostPost(id, currentUserId);
+    if (error) {
+      setPosts((prev: any) =>
+        prev.map((p: any) =>
+          p.id === id
+            ? {
+                ...p,
+                reposted_by_user: was,
+                reposts_count: (p.reposts_count || 0) + (was ? 1 : -1),
+              }
+            : p
+        )
+      );
+      alert("Repost failed: " + (error.message || "unknown"));
+    } else if (!was) {
+      // Add to profile feed as repost if viewing own profile later - for other profile just ok
+      // If we are viewing someone else and WE repost, our profile will show it on next visit
+    }
   }
 
   function friendButtonLabel() {
@@ -431,8 +500,8 @@ export default function ProfilePage() {
                 )}
                 <PostCard
                   post={post}
-                  onLike={() => {}}
-                  onRepost={() => {}}
+                  onLike={handleLike}
+                  onRepost={handleRepost}
                   currentUserId={currentUserId}
                   onPostUpdated={(updated) =>
                     setPosts((prev) =>
