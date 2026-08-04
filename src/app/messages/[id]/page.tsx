@@ -124,7 +124,9 @@ export default function ConversationPage() {
                         className={
                           other.username.toLowerCase() === "kendall.vip"
                             ? "h-4 w-4 fill-[#C2185B] text-white"
-                            : "h-4 w-4 fill-gold text-white"
+                            : other.username.toLowerCase() === "igorpiven"
+                            ? "h-4 w-4 fill-[#1D9BF0] text-white"
+                            : "h-4 w-4 fill-[#C9A86C] text-white"
                         }
                       />
                     )}

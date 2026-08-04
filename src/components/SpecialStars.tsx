@@ -34,7 +34,7 @@ export default function SpecialStars({ username }: { username: string }) {
           ))}
         </span>
         <span
-          className="text-[11px] font-medium leading-snug text-[#C9A86C] sm:text-[12px] sm:leading-none"
+          className="text-[11px] font-semibold leading-snug text-[#8B6914] sm:text-[12px] sm:leading-none"
           style={{ fontFamily: "Times New Roman, Times, serif" }}
         >
           Identity Verified • The VIP • Founder/Creator of the Platform

@@ -390,7 +390,9 @@ export default function ProfilePage() {
                     className={
                       profile.username.toLowerCase() === "kendall.vip"
                         ? "h-[18px] w-[18px] flex-shrink-0 fill-[#C2185B] text-white sm:h-5 sm:w-5"
-                        : "h-[18px] w-[18px] flex-shrink-0 fill-gold text-white sm:h-5 sm:w-5"
+                        : profile.username.toLowerCase() === "igorpiven"
+                        ? "h-[18px] w-[18px] flex-shrink-0 fill-[#1D9BF0] text-white sm:h-5 sm:w-5"
+                        : "h-[18px] w-[18px] flex-shrink-0 fill-[#C9A86C] text-white sm:h-5 sm:w-5"
                     }
                   />
                 )}

@@ -143,7 +143,9 @@ function ExploreInner() {
                       className={
                         p.username.toLowerCase() === "kendall.vip"
                           ? "h-4 w-4 flex-shrink-0 fill-[#C2185B] text-white"
-                          : "h-4 w-4 flex-shrink-0 fill-gold text-white"
+                          : p.username.toLowerCase() === "igorpiven"
+                          ? "h-4 w-4 flex-shrink-0 fill-[#1D9BF0] text-white"
+                          : "h-4 w-4 flex-shrink-0 fill-[#C9A86C] text-white"
                       }
                     />
                   )}
