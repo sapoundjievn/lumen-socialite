@@ -578,12 +578,19 @@ export async function getOrCreateConversation(myId: string, otherId: string) {
 
   if (cErr || !conv) return { conversationId: null, error: cErr };
 
-  const { error: mErr } = await supabase.from("conversation_members").insert([
-    { conversation_id: conv.id, user_id: myId },
-    { conversation_id: conv.id, user_id: otherId },
-  ]);
+  // Insert self first (required by RLS), then the other user
+  const { error: m1 } = await supabase.from("conversation_members").insert({
+    conversation_id: conv.id,
+    user_id: myId,
+  });
+  if (m1) return { conversationId: null, error: m1 };
 
-  if (mErr) return { conversationId: null, error: mErr };
+  const { error: m2 } = await supabase.from("conversation_members").insert({
+    conversation_id: conv.id,
+    user_id: otherId,
+  });
+  if (m2) return { conversationId: null, error: m2 };
+
   return { conversationId: conv.id, error: null };
 }
 
