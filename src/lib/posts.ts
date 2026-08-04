@@ -67,6 +67,10 @@ export async function createPost(content: string, userId: string, mediaUrls: str
     `)
     .single();
 
+  if (!error && data) {
+    await notifyMentions(content, userId, data.id);
+  }
+
   return { data, error };
 }
 
@@ -414,6 +418,7 @@ export async function createReply(
         .update({ replies_count: (parent.replies_count || 0) + 1 })
         .eq("id", replyToId);
     }
+    await notifyMentions(content, userId, data.id);
   }
 
   return { data, error };
@@ -453,4 +458,75 @@ export async function getReplies(postId: string) {
     .eq("reply_to", postId)
     .order("created_at", { ascending: true });
   return { data: data || [], error };
+}
+
+/** Extract @usernames from text (lowercase, unique) */
+export function extractMentions(content: string): string[] {
+  const matches = content.match(/@([a-zA-Z0-9_.]+)/g) || [];
+  const names = matches.map((m) => m.slice(1).toLowerCase());
+  return [...new Set(names)];
+}
+
+async function notifyMentions(
+  content: string,
+  actorId: string,
+  postId: string
+) {
+  const usernames = extractMentions(content);
+  if (usernames.length === 0) return;
+
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username")
+    .in("username", usernames);
+
+  if (!profiles) return;
+
+  const rows = profiles
+    .filter((p) => p.id !== actorId)
+    .map((p) => ({
+      user_id: p.id,
+      actor_id: actorId,
+      type: "mention",
+      post_id: postId,
+      message: content.slice(0, 200),
+      read: false,
+    }));
+
+  if (rows.length > 0) {
+    await supabase.from("notifications").insert(rows);
+  }
+}
+
+export async function getNotifications(userId: string) {
+  const { data, error } = await supabase
+    .from("notifications")
+    .select(`
+      id,
+      type,
+      message,
+      read,
+      post_id,
+      created_at,
+      actor:profiles!notifications_actor_id_fkey (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        verified
+      )
+    `)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  return { data: data || [], error };
+}
+
+export async function markNotificationRead(id: string, userId: string) {
+  await supabase
+    .from("notifications")
+    .update({ read: true })
+    .eq("id", id)
+    .eq("user_id", userId);
 }
