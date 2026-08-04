@@ -152,7 +152,11 @@ export async function getProfileByUsername(username: string) {
   return { data, error };
 }
 
-export async function getPostsByUserId(userId: string, limit = 50) {
+export async function getPostsByUserId(
+  userId: string,
+  limit = 50,
+  currentUserId?: string | null
+) {
   const { data, error } = await supabase
     .from("posts")
     .select(`
@@ -168,7 +172,36 @@ export async function getPostsByUserId(userId: string, limit = 50) {
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(limit);
-  return { data: data || [], error };
+
+  if (error || !data) return { data: data || [], error };
+
+  if (currentUserId && data.length > 0) {
+    const postIds = data.map((p) => p.id);
+    const [{ data: likes }, { data: reposts }] = await Promise.all([
+      supabase
+        .from("likes")
+        .select("post_id")
+        .eq("user_id", currentUserId)
+        .in("post_id", postIds),
+      supabase
+        .from("reposts")
+        .select("post_id")
+        .eq("user_id", currentUserId)
+        .in("post_id", postIds),
+    ]);
+    const likedSet = new Set((likes || []).map((l) => l.post_id));
+    const repostedSet = new Set((reposts || []).map((r) => r.post_id));
+    return {
+      data: data.map((p) => ({
+        ...p,
+        liked_by_user: likedSet.has(p.id),
+        reposted_by_user: repostedSet.has(p.id),
+      })),
+      error: null,
+    };
+  }
+
+  return { data, error: null };
 }
 
 export async function followUser(followerId: string, followingId: string) {

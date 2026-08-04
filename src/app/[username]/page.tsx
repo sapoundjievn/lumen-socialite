@@ -73,7 +73,7 @@ export default function ProfilePage() {
     }
     setProfile(p);
 
-    const { data: userPosts } = await getPostsByUserId(p.id);
+    const { data: userPosts } = await getPostsByUserId(p.id, 50, me?.id);
     const { data: userReposts } = await getRepostedPosts(p.id);
     const originals = (userPosts || []).map((post: Post) => ({
       ...post,
@@ -233,8 +233,13 @@ export default function ProfilePage() {
       return;
     }
     const was = !!post.reposted_by_user;
-    setPosts((prev: any) =>
-      prev.map((p: any) =>
+    // Optimistic update
+    setPosts((prev: any) => {
+      if (was && currentUserId === profile?.id && post._isRepost) {
+        // Undo repost on own profile: remove the repost entry from the list
+        return prev.filter((p: any) => !(p.id === id && p._isRepost));
+      }
+      return prev.map((p: any) =>
         p.id === id
           ? {
               ...p,
@@ -242,28 +247,20 @@ export default function ProfilePage() {
               reposts_count: (p.reposts_count || 0) + (was ? -1 : 1),
             }
           : p
-      )
-    );
+      );
+    });
     try {
       const { error } = was
         ? await unrepostPost(id, currentUserId)
         : await repostPost(id, currentUserId);
       if (error) {
-        setPosts((prev: any) =>
-          prev.map((p: any) =>
-            p.id === id
-              ? {
-                  ...p,
-                  reposted_by_user: was,
-                  reposts_count: (p.reposts_count || 0) + (was ? 1 : -1),
-                }
-              : p
-          )
-        );
-        alert("Repost failed: " + (error.message || JSON.stringify(error)));
+        // reload to be safe
+        alert("Unrepost failed: " + (error.message || JSON.stringify(error)));
+        loadProfile();
       }
     } catch (e: any) {
       alert("Repost error: " + (e?.message || e));
+      loadProfile();
     }
   }
 
