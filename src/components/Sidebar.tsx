@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getCurrentProfile, signOut, onAuthStateChange } from "@/lib/auth";
 import type { Profile } from "@/types";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 export default function Sidebar() {
   const router = useRouter();
@@ -116,10 +117,13 @@ export default function Sidebar() {
           )}
         </nav>
 
-        <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-3.5 font-bold text-white shadow-md transition hover:bg-gold-deep active:scale-[0.98] xl:px-6">
+        <Link
+          href="/"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-3.5 font-bold text-white shadow-md transition hover:bg-gold-deep active:scale-[0.98] xl:px-6"
+        >
           <Feather className="h-5 w-5 xl:hidden" />
           <span className="hidden xl:inline">Enlightenment</span>
-        </button>
+        </Link>
       </div>
 
       <div className="mb-3">
@@ -136,8 +140,16 @@ export default function Sidebar() {
               className="h-10 w-10 rounded-full border border-border bg-champagne object-cover"
             />
             <div className="hidden min-w-0 flex-1 text-left xl:block">
-              <div className="truncate text-[15px] font-bold leading-5">
-                {profile.display_name}
+              <div className="flex min-w-0 items-center gap-1">
+                <span className="truncate text-[15px] font-bold leading-5">
+                  {profile.display_name}
+                </span>
+                {profile.verified && (
+                  <VerifiedBadge
+                    username={profile.username}
+                    gender={(profile as any).gender}
+                  />
+                )}
               </div>
               <div className="truncate text-[13px] leading-4 text-muted">
                 @{profile.username}

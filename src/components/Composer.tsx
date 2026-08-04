@@ -59,7 +59,7 @@ export default function Composer({ onPost }: ComposerProps) {
             value={content}
             onChange={handleInput}
             onFocus={() => setFocused(true)}
-            placeholder="Share an enlightenment..."
+            placeholder="Let me enlighten you..."
             rows={1}
             className="w-full resize-none bg-transparent text-[20px] leading-6 text-charcoal placeholder:text-muted-light focus:outline-none"
             style={{ minHeight: "28px" }}

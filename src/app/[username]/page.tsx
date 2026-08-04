@@ -24,11 +24,13 @@ import {
   uploadAvatar,
   updateProfile,
   getOrCreateConversation,
+  createPost,
   type FriendStatus,
 } from "@/lib/posts";
 import { getCurrentProfile, signOut } from "@/lib/auth";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
+import Composer from "@/components/Composer";
 import SpecialStars from "@/components/SpecialStars";
 import { formatNumber } from "@/lib/utils";
 import Sidebar from "@/components/Sidebar";
@@ -319,6 +321,21 @@ export default function ProfilePage() {
     );
   }
 
+  async function handleComposePost(content: string) {
+    if (!currentUserId) {
+      alert("Please sign in");
+      return;
+    }
+    const { data, error } = await createPost(content, currentUserId);
+    if (error) {
+      alert(error.message || "Could not post");
+      return;
+    }
+    if (data) {
+      setPosts((prev) => [data as any, ...prev]);
+    }
+  }
+
   const avatar =
     profile.avatar_url ||
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${profile.id}`;
@@ -536,6 +553,11 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Composer on own profile */}
+        {isOwnProfile && (
+          <Composer onPost={handleComposePost} />
+        )}
 
         {/* Tabs */}
         <div className="border-b border-border">
