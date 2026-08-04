@@ -311,29 +311,17 @@ export default function ProfilePage() {
       </div>
 
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-16 sm:pb-0">
-        {/* Header */}
+        {/* Header — back only */}
         <div className="sticky top-0 z-10 border-b border-border bg-pearl/85 backdrop-blur-md">
-          <div className="flex items-center gap-6 px-4 py-3">
+          <div className="flex items-center gap-3 px-4 py-3">
             <Link
               href="/"
               className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-champagne/40"
+              aria-label="Back to Home"
             >
               <ArrowLeft className="h-5 w-5 text-charcoal" />
             </Link>
-            <div>
-              <div className="flex items-center gap-1">
-                <h1 className="text-xl font-bold text-charcoal">{profile.display_name}</h1>
-                {profile.verified && (
-                  <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
-                )}
-              </div>
-              <div className="mt-0.5">
-                <SpecialStars username={profile.username} />
-              </div>
-              <div className="text-[13px] text-muted">
-                {formatNumber(posts.length)} Enlightenments
-              </div>
-            </div>
+            <span className="text-[15px] font-bold text-charcoal">Profile</span>
           </div>
         </div>
 
@@ -475,7 +463,13 @@ export default function ProfilePage() {
             </span>
           </div>
 
-          <div className="mt-3 flex gap-4 text-[15px]">
+          <div className="mt-3 flex flex-wrap gap-4 text-[15px]">
+            <div>
+              <span className="font-bold text-charcoal">
+                {formatNumber(posts.filter((p: any) => !p._isRepost).length)}
+              </span>{" "}
+              <span className="text-muted">Enlightenments</span>
+            </div>
             <div>
               <span className="font-bold text-charcoal">
                 {formatNumber(profile.following_count || 0)}
