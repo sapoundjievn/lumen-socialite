@@ -862,3 +862,18 @@ export async function getBookmarks(userId: string, limit = 50) {
 
   return { data: ordered, error: pErr };
 }
+
+
+export async function recordPostView(postId: string) {
+  const { data: post } = await supabase
+    .from("posts")
+    .select("views_count")
+    .eq("id", postId)
+    .single();
+  if (!post) return { error: { message: "Post not found" } };
+  const { error } = await supabase
+    .from("posts")
+    .update({ views_count: (post.views_count || 0) + 1 })
+    .eq("id", postId);
+  return { error };
+}

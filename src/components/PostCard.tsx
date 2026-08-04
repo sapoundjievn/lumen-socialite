@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -17,6 +17,7 @@ import {
 import { Post } from "@/types";
 import { cn, formatNumber, formatTime } from "@/lib/utils";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import { recordPostView } from "@/lib/posts";
 import SpecialStars from "./SpecialStars";
 import { canEditPost, editPost, deletePost } from "@/lib/posts";
 
@@ -76,9 +77,20 @@ export default function PostCard({
   const editable = isOwner && canEditPost(post.created_at, username);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [views, setViews] = useState(post.views_count || 0);
+  const viewedRef = useRef(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(post.content);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (viewedRef.current) return;
+    viewedRef.current = true;
+    recordPostView(post.id).then(() => {
+      setViews((v) => v + 1);
+    });
+  }, [post.id]);
 
   async function handleSaveEdit() {
     if (!currentUserId || !editText.trim()) return;
@@ -280,14 +292,52 @@ export default function PostCard({
               <span className="text-[13px]">{formatNumber(likes)}</span>
             </button>
 
-            <button className="group/btn flex items-center gap-1.5 transition hover:text-gold-deep">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full transition group-hover/btn:bg-gold/10">
-                <BarChart2 className="h-[18px] w-[18px]" />
-              </div>
-              <span className="text-[13px]">
-                {formatNumber(post.views_count || 0)}
-              </span>
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowStats((s) => !s);
+                }}
+                className="group/btn flex items-center gap-1.5 transition hover:text-gold-deep"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full transition group-hover/btn:bg-gold/10">
+                  <BarChart2 className="h-[18px] w-[18px]" />
+                </div>
+                <span className="text-[13px]">{formatNumber(views)}</span>
+              </button>
+              {showStats && (
+                <div
+                  className="absolute bottom-10 left-1/2 z-20 w-44 -translate-x-1/2 rounded-xl border border-border bg-white p-3 shadow-lg"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="mb-2 text-[12px] font-bold text-charcoal">Post stats</div>
+                  <div className="space-y-1.5 text-[13px] text-muted">
+                    <div className="flex justify-between">
+                      <span>Views</span>
+                      <span className="font-semibold text-charcoal">{formatNumber(views)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Likes</span>
+                      <span className="font-semibold text-charcoal">{formatNumber(likes)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Reposts</span>
+                      <span className="font-semibold text-charcoal">
+                        {formatNumber(post.reposts_count || 0)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Replies</span>
+                      <span className="font-semibold text-charcoal">
+                        {formatNumber(post.replies_count || 0)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <button
               type="button"
