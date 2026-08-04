@@ -298,3 +298,40 @@ export async function getPendingFriendRequestCount(userId: string): Promise<numb
     .eq("status", "pending");
   return count || 0;
 }
+
+/** Upload profile photo to Supabase Storage and update profile */
+export async function uploadAvatar(userId: string, file: File) {
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${userId}/avatar.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { upsert: true, contentType: file.type });
+
+  if (uploadError) return { url: null, error: uploadError };
+
+  const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+  // cache-bust so the new image shows immediately
+  const url = `${data.publicUrl}?t=${Date.now()}`;
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ avatar_url: url, updated_at: new Date().toISOString() })
+    .eq("id", userId);
+
+  if (updateError) return { url: null, error: updateError };
+  return { url, error: null };
+}
+
+export async function updateProfile(
+  userId: string,
+  updates: { display_name?: string; bio?: string }
+) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("id", userId)
+    .select()
+    .single();
+  return { data, error };
+}
