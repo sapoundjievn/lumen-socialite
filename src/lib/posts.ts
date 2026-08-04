@@ -724,26 +724,8 @@ export async function repostPost(postId: string, userId: string) {
   const { error } = await supabase
     .from("reposts")
     .insert({ post_id: postId, user_id: userId });
-
-  if (error) {
-    console.error("repost insert error", error);
-    return { error };
-  }
-
-  const { data: post } = await supabase
-    .from("posts")
-    .select("reposts_count")
-    .eq("id", postId)
-    .single();
-
-  if (post) {
-    const { error: uErr } = await supabase
-      .from("posts")
-      .update({ reposts_count: (post.reposts_count || 0) + 1 })
-      .eq("id", postId);
-    if (uErr) console.error("repost count error", uErr);
-  }
-  return { error: null };
+  if (error) console.error("repost error", error);
+  return { error };
 }
 
 export async function unrepostPost(postId: string, userId: string) {
@@ -752,20 +734,7 @@ export async function unrepostPost(postId: string, userId: string) {
     .delete()
     .eq("post_id", postId)
     .eq("user_id", userId);
-
-  if (!error) {
-    const { data: post } = await supabase
-      .from("posts")
-      .select("reposts_count")
-      .eq("id", postId)
-      .single();
-    if (post && (post.reposts_count || 0) > 0) {
-      await supabase
-        .from("posts")
-        .update({ reposts_count: post.reposts_count - 1 })
-        .eq("id", postId);
-    }
-  }
+  if (error) console.error("unrepost error", error);
   return { error };
 }
 
@@ -788,7 +757,11 @@ export async function getRepostedPosts(userId: string, limit = 50) {
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  if (error || !rows || rows.length === 0) return { data: [], error };
+  if (error) {
+    console.error("getRepostedPosts", error);
+    return { data: [], error };
+  }
+  if (!rows || rows.length === 0) return { data: [], error: null };
 
   const ids = rows.map((r) => r.post_id);
   const { data: posts, error: pErr } = await supabase
@@ -805,8 +778,16 @@ export async function getRepostedPosts(userId: string, limit = 50) {
     `)
     .in("id", ids);
 
-  // Keep repost order
+  if (pErr) console.error("getRepostedPosts posts", pErr);
+
   const map = new Map((posts || []).map((p) => [p.id, p]));
-  const ordered = ids.map((id) => map.get(id)).filter(Boolean);
+  const ordered = rows
+    .map((r) => {
+      const p = map.get(r.post_id);
+      if (!p) return null;
+      return { ...p, _isRepost: true, _sortAt: r.created_at };
+    })
+    .filter(Boolean);
+
   return { data: ordered, error: pErr };
 }
