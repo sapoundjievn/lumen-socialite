@@ -721,11 +721,19 @@ export async function searchProfiles(query: string) {
 }
 
 export async function repostPost(postId: string, userId: string) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("reposts")
-    .insert({ post_id: postId, user_id: userId });
-  if (error) console.error("repost error", error);
-  return { error };
+    .insert({ post_id: postId, user_id: userId })
+    .select("id, post_id, user_id")
+    .single();
+
+  if (error || !data) {
+    console.error("repost error", error);
+    return {
+      error: error || ({ message: "Repost did not save (no row returned)" } as any),
+    };
+  }
+  return { error: null, data };
 }
 
 export async function unrepostPost(postId: string, userId: string) {

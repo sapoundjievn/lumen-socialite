@@ -135,7 +135,7 @@ export default function Feed() {
             : p
         )
       );
-      alert(error.message || "Repost failed — check that the reposts table exists in Supabase");
+      alert("Repost failed: " + (error.message || JSON.stringify(error)));
     }
   };
 
