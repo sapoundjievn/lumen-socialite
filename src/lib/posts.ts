@@ -256,3 +256,45 @@ export async function autoFollowFounders(newUserId: string) {
     );
   }
 }
+
+/** Incoming pending friend requests for the current user */
+export async function getPendingFriendRequests(userId: string) {
+  const { data, error } = await supabase
+    .from("friendships")
+    .select(`
+      id,
+      status,
+      created_at,
+      requester:profiles!friendships_requester_id_fkey (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        verified
+      )
+    `)
+    .eq("addressee_id", userId)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+
+  return { data: data || [], error };
+}
+
+export async function denyFriendRequest(requesterId: string, addresseeId: string) {
+  const { error } = await supabase
+    .from("friendships")
+    .delete()
+    .eq("requester_id", requesterId)
+    .eq("addressee_id", addresseeId)
+    .eq("status", "pending");
+  return { error };
+}
+
+export async function getPendingFriendRequestCount(userId: string): Promise<number> {
+  const { count } = await supabase
+    .from("friendships")
+    .select("id", { count: "exact", head: true })
+    .eq("addressee_id", userId)
+    .eq("status", "pending");
+  return count || 0;
+}
