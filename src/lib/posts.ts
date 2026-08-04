@@ -376,3 +376,81 @@ export async function deletePost(postId: string, userId: string) {
     .eq("user_id", userId);
   return { error };
 }
+
+export async function createReply(
+  content: string,
+  userId: string,
+  replyToId: string
+) {
+  const { data, error } = await supabase
+    .from("posts")
+    .insert({
+      user_id: userId,
+      content,
+      reply_to: replyToId,
+    })
+    .select(`
+      *,
+      profiles (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        verified
+      )
+    `)
+    .single();
+
+  if (!error && data) {
+    // Increment parent replies_count
+    const { data: parent } = await supabase
+      .from("posts")
+      .select("replies_count")
+      .eq("id", replyToId)
+      .single();
+    if (parent) {
+      await supabase
+        .from("posts")
+        .update({ replies_count: (parent.replies_count || 0) + 1 })
+        .eq("id", replyToId);
+    }
+  }
+
+  return { data, error };
+}
+
+export async function getPostById(postId: string) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(`
+      *,
+      profiles (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        verified
+      )
+    `)
+    .eq("id", postId)
+    .single();
+  return { data, error };
+}
+
+export async function getReplies(postId: string) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select(`
+      *,
+      profiles (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        verified
+      )
+    `)
+    .eq("reply_to", postId)
+    .order("created_at", { ascending: true });
+  return { data: data || [], error };
+}

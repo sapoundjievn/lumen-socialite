@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   MessageCircle,
   Repeat2,
@@ -35,6 +36,7 @@ export default function PostCard({
   onPostUpdated,
   onPostDeleted,
 }: PostCardProps) {
+  const router = useRouter();
   const profile = post.profiles;
   const liked = post.liked_by_user || false;
   const likes = post.likes_count || 0;
@@ -192,7 +194,10 @@ export default function PostCard({
           )}
 
           <div className="mt-3 flex max-w-md justify-between text-muted">
-            <button className="group/btn flex items-center gap-1.5 transition hover:text-sky-500">
+            <button
+              onClick={() => router.push(`/post/${post.id}`)}
+              className="group/btn flex items-center gap-1.5 transition hover:text-sky-500"
+            >
               <div className="flex h-8 w-8 items-center justify-center rounded-full transition group-hover/btn:bg-sky-500/10">
                 <MessageCircle className="h-[18px] w-[18px]" />
               </div>
