@@ -61,7 +61,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[275px] flex-col justify-between px-3 py-3 xl:w-[275px]">
+    <aside className="sticky top-0 flex h-screen w-[275px] shrink-0 flex-col justify-between self-start overflow-y-auto px-3 py-3 xl:w-[275px]">
       <div>
         <div className="mb-4 flex items-center gap-3 px-2 pt-1">
           <img

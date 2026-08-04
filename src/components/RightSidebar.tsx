@@ -65,8 +65,14 @@ export default function RightSidebar() {
   }
 
   return (
-    <aside className="sticky top-0 hidden h-dvh max-h-dvh w-[350px] shrink-0 flex-col overflow-hidden lg:flex">
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain px-6 py-3 pb-20">
+    <aside
+      className="sticky top-0 hidden h-screen w-[350px] shrink-0 self-start overflow-hidden lg:flex lg:flex-col"
+      style={{ maxHeight: "100dvh" }}
+    >
+      <div
+        className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto overscroll-y-contain px-6 py-3 pb-24"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />

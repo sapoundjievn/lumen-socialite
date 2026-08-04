@@ -5,7 +5,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 
 export default function Home() {
   return (
-    <div className="mx-auto flex min-h-screen max-w-[1280px] justify-center">
+    <div className="mx-auto flex min-h-screen max-w-[1280px] items-start justify-center">
       {/* Left sidebar – hidden on mobile */}
       <div className="hidden sm:flex">
         <Sidebar />
