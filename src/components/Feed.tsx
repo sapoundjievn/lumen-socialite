@@ -104,20 +104,39 @@ export default function Feed() {
     }
     const post = posts.find((p) => p.id === id);
     if (!post) return;
-    const was = !!(post as any).reposted_by_user;
+    const was = !!post.reposted_by_user;
+
     setPosts((prev) =>
       prev.map((p) =>
         p.id === id
-          ? ({
+          ? {
               ...p,
               reposted_by_user: !was,
               reposts_count: (p.reposts_count || 0) + (was ? -1 : 1),
-            } as any)
+            }
           : p
       )
     );
-    if (was) await unrepostPost(id, currentUserId);
-    else await repostPost(id, currentUserId);
+
+    const { error } = was
+      ? await unrepostPost(id, currentUserId)
+      : await repostPost(id, currentUserId);
+
+    if (error) {
+      // revert
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                reposted_by_user: was,
+                reposts_count: (p.reposts_count || 0) + (was ? 1 : -1),
+              }
+            : p
+        )
+      );
+      alert(error.message || "Repost failed — check that the reposts table exists in Supabase");
+    }
   };
 
   return (

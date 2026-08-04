@@ -31,16 +31,25 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
 
   if (currentUserId && data.length > 0) {
     const postIds = data.map((p) => p.id);
-    const { data: likes } = await supabase
-      .from("likes")
-      .select("post_id")
-      .eq("user_id", currentUserId)
-      .in("post_id", postIds);
+    const [{ data: likes }, { data: reposts }] = await Promise.all([
+      supabase
+        .from("likes")
+        .select("post_id")
+        .eq("user_id", currentUserId)
+        .in("post_id", postIds),
+      supabase
+        .from("reposts")
+        .select("post_id")
+        .eq("user_id", currentUserId)
+        .in("post_id", postIds),
+    ]);
 
     const likedSet = new Set((likes || []).map((l) => l.post_id));
+    const repostedSet = new Set((reposts || []).map((r) => r.post_id));
     return data.map((p) => ({
       ...p,
       liked_by_user: likedSet.has(p.id),
+      reposted_by_user: repostedSet.has(p.id),
     }));
   }
 
@@ -716,20 +725,25 @@ export async function repostPost(postId: string, userId: string) {
     .from("reposts")
     .insert({ post_id: postId, user_id: userId });
 
-  if (!error) {
-    const { data: post } = await supabase
-      .from("posts")
-      .select("reposts_count")
-      .eq("id", postId)
-      .single();
-    if (post) {
-      await supabase
-        .from("posts")
-        .update({ reposts_count: (post.reposts_count || 0) + 1 })
-        .eq("id", postId);
-    }
+  if (error) {
+    console.error("repost insert error", error);
+    return { error };
   }
-  return { error };
+
+  const { data: post } = await supabase
+    .from("posts")
+    .select("reposts_count")
+    .eq("id", postId)
+    .single();
+
+  if (post) {
+    const { error: uErr } = await supabase
+      .from("posts")
+      .update({ reposts_count: (post.reposts_count || 0) + 1 })
+      .eq("id", postId);
+    if (uErr) console.error("repost count error", uErr);
+  }
+  return { error: null };
 }
 
 export async function unrepostPost(postId: string, userId: string) {
@@ -763,4 +777,36 @@ export async function hasUserReposted(postId: string, userId: string) {
     .eq("user_id", userId)
     .maybeSingle();
   return !!data;
+}
+
+
+export async function getRepostedPosts(userId: string, limit = 50) {
+  const { data: rows, error } = await supabase
+    .from("reposts")
+    .select("post_id, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !rows || rows.length === 0) return { data: [], error };
+
+  const ids = rows.map((r) => r.post_id);
+  const { data: posts, error: pErr } = await supabase
+    .from("posts")
+    .select(`
+      *,
+      profiles (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        verified
+      )
+    `)
+    .in("id", ids);
+
+  // Keep repost order
+  const map = new Map((posts || []).map((p) => [p.id, p]));
+  const ordered = ids.map((id) => map.get(id)).filter(Boolean);
+  return { data: ordered, error: pErr };
 }
