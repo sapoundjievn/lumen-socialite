@@ -169,6 +169,11 @@ export default function Feed() {
               post={post}
               onLike={handleLike}
               onRepost={handleRepost}
+              currentUserId={currentUserId}
+              onPostUpdated={(updated) =>
+                setPosts((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
+              }
+              onPostDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
             />
           ))
         )}

@@ -15,6 +15,7 @@ import {
   removeFriendship,
   getFriendStatus,
   uploadAvatar,
+  updateProfile,
   type FriendStatus,
 } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
@@ -38,6 +39,10 @@ export default function ProfilePage() {
   const [friendStatus, setFriendStatus] = useState<FriendStatus>("none");
   const [friendLoading, setFriendLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editBio, setEditBio] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -274,6 +279,19 @@ export default function ProfilePage() {
               <div className="mt-0.5 text-[15px] text-muted">@{profile.username}</div>
             </div>
 
+            {isOwnProfile && (
+              <button
+                onClick={() => {
+                  setEditName(profile.display_name);
+                  setEditBio(profile.bio || "");
+                  setEditOpen(true);
+                }}
+                className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
+              >
+                Edit profile
+              </button>
+            )}
+
             {!isOwnProfile && (
               <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
                 <button
@@ -360,11 +378,76 @@ export default function ProfilePage() {
                 post={post}
                 onLike={() => {}}
                 onRepost={() => {}}
+                currentUserId={currentUserId}
+                onPostUpdated={(updated) =>
+                  setPosts((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
+                }
+                onPostDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
               />
             ))
           )}
         </div>
       </main>
+
+
+      {/* Edit profile modal */}
+      {editOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-xl">
+            <h3 className="text-xl font-bold text-charcoal">Edit profile</h3>
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">Display name</label>
+                <input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-charcoal focus:border-gold-soft focus:outline-none"
+                  maxLength={50}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">Bio</label>
+                <textarea
+                  value={editBio}
+                  onChange={(e) => setEditBio(e.target.value)}
+                  rows={3}
+                  maxLength={160}
+                  className="w-full resize-none rounded-xl border border-border bg-pearl px-3 py-2 text-charcoal focus:border-gold-soft focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setEditOpen(false)}
+                className="rounded-full px-4 py-1.5 text-[14px] font-bold text-muted hover:bg-champagne/40"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={savingProfile || !editName.trim()}
+                onClick={async () => {
+                  if (!currentUserId || !profile) return;
+                  setSavingProfile(true);
+                  const { data, error } = await updateProfile(currentUserId, {
+                    display_name: editName.trim(),
+                    bio: editBio.trim(),
+                  });
+                  setSavingProfile(false);
+                  if (error) {
+                    alert(error.message || "Could not save");
+                    return;
+                  }
+                  if (data) setProfile(data);
+                  setEditOpen(false);
+                }}
+                className="rounded-full bg-gold px-4 py-1.5 text-[14px] font-bold text-white hover:bg-gold-deep disabled:opacity-50"
+              >
+                {savingProfile ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <MobileBottomNav />
     </div>

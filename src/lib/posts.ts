@@ -335,3 +335,44 @@ export async function updateProfile(
     .single();
   return { data, error };
 }
+
+const FOUNDER_USERNAMES = ["thevip", "kendall.vip"];
+
+export function canEditPost(
+  postCreatedAt: string,
+  postUsername?: string | null
+): boolean {
+  const u = (postUsername || "").toLowerCase();
+  if (FOUNDER_USERNAMES.includes(u)) return true;
+  const ageMs = Date.now() - new Date(postCreatedAt).getTime();
+  return ageMs <= 15 * 60 * 1000; // 15 minutes
+}
+
+export async function editPost(postId: string, content: string, userId: string) {
+  const { data, error } = await supabase
+    .from("posts")
+    .update({ content, updated_at: new Date().toISOString() })
+    .eq("id", postId)
+    .eq("user_id", userId)
+    .select(`
+      *,
+      profiles (
+        id,
+        username,
+        display_name,
+        avatar_url,
+        verified
+      )
+    `)
+    .single();
+  return { data, error };
+}
+
+export async function deletePost(postId: string, userId: string) {
+  const { error } = await supabase
+    .from("posts")
+    .delete()
+    .eq("id", postId)
+    .eq("user_id", userId);
+  return { error };
+}
