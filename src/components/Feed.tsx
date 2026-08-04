@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { Post } from "@/types";
-import { getFeed, createPost, likePost, unlikePost, repostPost, unrepostPost } from "@/lib/posts";
+import { getFeed, createPost, likePost, unlikePost, repostPost, unrepostPost, bookmarkPost, unbookmarkPost } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import Composer from "./Composer";
 import PostCard from "./PostCard";
@@ -140,6 +140,33 @@ export default function Feed() {
     }
   };
 
+
+  const handleBookmark = async (id: string) => {
+    if (!currentUserId) {
+      alert("Please sign in to bookmark");
+      return;
+    }
+    const post = posts.find((p) => p.id === id);
+    if (!post) return;
+    const was = !!post.bookmarked_by_user;
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, bookmarked_by_user: !was } : p
+      )
+    );
+    const { error } = was
+      ? await unbookmarkPost(id, currentUserId)
+      : await bookmarkPost(id, currentUserId);
+    if (error) {
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, bookmarked_by_user: was } : p
+        )
+      );
+      alert("Bookmark failed: " + (error.message || "error"));
+    }
+  };
+
   return (
     <main className="min-h-screen w-full border-x-0 sm:border-x border-border">
       <div className="sticky top-0 z-10 border-b border-border bg-pearl/85 backdrop-blur-md">
@@ -208,6 +235,7 @@ export default function Feed() {
               post={post}
               onLike={handleLike}
               onRepost={handleRepost}
+              onBookmark={handleBookmark}
               currentUserId={currentUserId}
               onPostUpdated={(updated) =>
                 setPosts((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))

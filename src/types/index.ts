@@ -25,6 +25,7 @@ export interface Post {
   profiles?: Profile;
   liked_by_user?: boolean;
   reposted_by_user?: boolean;
+  bookmarked_by_user?: boolean;
 }
 
 export interface Like {

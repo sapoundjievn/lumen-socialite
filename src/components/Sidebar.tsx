@@ -51,7 +51,7 @@ export default function Sidebar() {
     { icon: Search, label: "Explore", href: "/explore" },
     { icon: Bell, label: "Notifications", href: "/notifications" },
     { icon: Mail, label: "Messages", href: "/messages" },
-    { icon: Bookmark, label: "Bookmarks", href: "#" },
+    { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
     {
       icon: User,
       label: "Profile",

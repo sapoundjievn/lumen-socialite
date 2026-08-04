@@ -31,25 +31,33 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
 
   if (currentUserId && data.length > 0) {
     const postIds = data.map((p) => p.id);
-    const [{ data: likes }, { data: reposts }] = await Promise.all([
-      supabase
-        .from("likes")
-        .select("post_id")
-        .eq("user_id", currentUserId)
-        .in("post_id", postIds),
-      supabase
-        .from("reposts")
-        .select("post_id")
-        .eq("user_id", currentUserId)
-        .in("post_id", postIds),
-    ]);
+    const [{ data: likes }, { data: reposts }, { data: bookmarks }] =
+      await Promise.all([
+        supabase
+          .from("likes")
+          .select("post_id")
+          .eq("user_id", currentUserId)
+          .in("post_id", postIds),
+        supabase
+          .from("reposts")
+          .select("post_id")
+          .eq("user_id", currentUserId)
+          .in("post_id", postIds),
+        supabase
+          .from("bookmarks")
+          .select("post_id")
+          .eq("user_id", currentUserId)
+          .in("post_id", postIds),
+      ]);
 
     const likedSet = new Set((likes || []).map((l) => l.post_id));
     const repostedSet = new Set((reposts || []).map((r) => r.post_id));
+    const bookmarkedSet = new Set((bookmarks || []).map((b) => b.post_id));
     return data.map((p) => ({
       ...p,
       liked_by_user: likedSet.has(p.id),
       reposted_by_user: repostedSet.has(p.id),
+      bookmarked_by_user: bookmarkedSet.has(p.id),
     }));
   }
 
@@ -794,6 +802,54 @@ export async function getRepostedPosts(userId: string, limit = 50) {
       const p = map.get(r.post_id);
       if (!p) return null;
       return { ...p, _isRepost: true, _sortAt: r.created_at };
+    })
+    .filter(Boolean);
+
+  return { data: ordered, error: pErr };
+}
+
+// ===== BOOKMARKS =====
+export async function bookmarkPost(postId: string, userId: string) {
+  const { data, error } = await supabase
+    .from("bookmarks")
+    .insert({ post_id: postId, user_id: userId })
+    .select("id")
+    .single();
+  return { data, error };
+}
+
+export async function unbookmarkPost(postId: string, userId: string) {
+  const { error } = await supabase
+    .from("bookmarks")
+    .delete()
+    .eq("post_id", postId)
+    .eq("user_id", userId);
+  return { error };
+}
+
+export async function getBookmarks(userId: string, limit = 50) {
+  const { data: rows, error } = await supabase
+    .from("bookmarks")
+    .select("post_id, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !rows?.length) return { data: [], error };
+
+  const ids = rows.map((r) => r.post_id);
+  const { data: posts, error: pErr } = await supabase
+    .from("posts")
+    .select(
+      `*, profiles ( id, username, display_name, avatar_url, verified )`
+    )
+    .in("id", ids);
+
+  const map = new Map((posts || []).map((p) => [p.id, p]));
+  const ordered = rows
+    .map((r) => {
+      const p = map.get(r.post_id);
+      return p ? { ...p, bookmarked_by_user: true } : null;
     })
     .filter(Boolean);
 

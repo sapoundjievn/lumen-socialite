@@ -9,6 +9,7 @@ import {
   Heart,
   BarChart2,
   Share,
+  Bookmark,
   MoreHorizontal,
   BadgeCheck,
   Pencil,
@@ -47,6 +48,7 @@ interface PostCardProps {
   currentUserId?: string | null;
   onPostUpdated?: (post: Post) => void;
   onPostDeleted?: (id: string) => void;
+  onBookmark?: (id: string) => void;
 }
 
 export default function PostCard({
@@ -56,6 +58,7 @@ export default function PostCard({
   currentUserId,
   onPostUpdated,
   onPostDeleted,
+  onBookmark,
 }: PostCardProps) {
   const router = useRouter();
   const profile = post.profiles;
@@ -286,9 +289,33 @@ export default function PostCard({
               </span>
             </button>
 
-            <button className="group/btn flex items-center gap-1.5 transition hover:text-gold-deep">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full transition group-hover/btn:bg-gold/10">
-                <Share className="h-[18px] w-[18px]" />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onBookmark?.(post.id);
+              }}
+              className={
+                post.bookmarked_by_user
+                  ? "group/btn flex items-center gap-1.5 text-gold-deep transition"
+                  : "group/btn flex items-center gap-1.5 transition hover:text-gold-deep"
+              }
+            >
+              <div
+                className={
+                  post.bookmarked_by_user
+                    ? "flex h-8 w-8 items-center justify-center rounded-full bg-gold/10 transition"
+                    : "flex h-8 w-8 items-center justify-center rounded-full transition group-hover/btn:bg-gold/10"
+                }
+              >
+                <Bookmark
+                  className={
+                    post.bookmarked_by_user
+                      ? "h-[18px] w-[18px] fill-current"
+                      : "h-[18px] w-[18px]"
+                  }
+                />
               </div>
             </button>
           </div>
