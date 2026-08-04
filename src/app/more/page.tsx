@@ -12,6 +12,7 @@ import {
   Bell,
   Mail,
   Search,
+  ShieldCheck,
 } from "lucide-react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
 import type { Profile } from "@/types";
@@ -37,6 +38,7 @@ export default function MorePage() {
   }
 
   const links = [
+    { icon: ShieldCheck, label: "Get verified ($60/yr)", href: "/verify" },
     { icon: Search, label: "Explore", href: "/explore" },
     { icon: Bell, label: "Notifications", href: "/notifications" },
     { icon: Mail, label: "Messages", href: "/messages" },
