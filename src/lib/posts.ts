@@ -369,6 +369,11 @@ export async function editPost(postId: string, content: string, userId: string) 
       )
     `)
     .single();
+
+  if (!error && data) {
+    await notifyMentions(content, userId, postId);
+  }
+
   return { data, error };
 }
 
@@ -467,7 +472,7 @@ export function extractMentions(content: string): string[] {
   return [...new Set(names)];
 }
 
-async function notifyMentions(
+export async function notifyMentions(
   content: string,
   actorId: string,
   postId: string
@@ -475,52 +480,63 @@ async function notifyMentions(
   const usernames = extractMentions(content);
   if (usernames.length === 0) return;
 
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, username")
-    .in("username", usernames);
+  // Case-insensitive lookup for each @username
+  const found: { id: string; username: string }[] = [];
+  for (const u of usernames) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, username")
+      .ilike("username", u)
+      .maybeSingle();
+    if (data) found.push(data);
+  }
 
-  if (!profiles) return;
-
-  const rows = profiles
+  const rows = found
     .filter((p) => p.id !== actorId)
     .map((p) => ({
       user_id: p.id,
       actor_id: actorId,
-      type: "mention",
+      type: "mention" as const,
       post_id: postId,
-      message: content.slice(0, 200),
+      message: content.slice(0, 280),
       read: false,
     }));
 
   if (rows.length > 0) {
-    await supabase.from("notifications").insert(rows);
+    const { error } = await supabase.from("notifications").insert(rows);
+    if (error) console.error("Mention notify error:", error);
   }
 }
 
 export async function getNotifications(userId: string) {
-  const { data, error } = await supabase
+  // Fetch notifications then attach actors separately (avoids FK name issues)
+  const { data: notifs, error } = await supabase
     .from("notifications")
-    .select(`
-      id,
-      type,
-      message,
-      read,
-      post_id,
-      created_at,
-      actor:profiles!notifications_actor_id_fkey (
-        id,
-        username,
-        display_name,
-        avatar_url,
-        verified
-      )
-    `)
+    .select("id, type, message, read, post_id, created_at, actor_id")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50);
 
-  return { data: data || [], error };
+  if (error || !notifs) return { data: [], error };
+
+  const actorIds = [...new Set(notifs.map((n) => n.actor_id).filter(Boolean))];
+  let actorsMap: Record<string, any> = {};
+  if (actorIds.length > 0) {
+    const { data: actors } = await supabase
+      .from("profiles")
+      .select("id, username, display_name, avatar_url, verified")
+      .in("id", actorIds as string[]);
+    for (const a of actors || []) {
+      actorsMap[a.id] = a;
+    }
+  }
+
+  const data = notifs.map((n) => ({
+    ...n,
+    actor: n.actor_id ? actorsMap[n.actor_id] || null : null,
+  }));
+
+  return { data, error: null };
 }
 
 export async function markNotificationRead(id: string, userId: string) {

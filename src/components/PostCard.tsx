@@ -19,6 +19,27 @@ import { cn, formatNumber, formatTime } from "@/lib/utils";
 import SpecialStars from "./SpecialStars";
 import { canEditPost, editPost, deletePost } from "@/lib/posts";
 
+
+function renderContentWithMentions(text: string) {
+  const parts = text.split(/(@[a-zA-Z0-9_.]+)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("@") && part.length > 1) {
+      const username = part.slice(1);
+      return (
+        <Link
+          key={i}
+          href={`/${username}`}
+          className="font-medium text-gold-deep hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </Link>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 interface PostCardProps {
   post: Post;
   onLike: (id: string) => void;
@@ -179,7 +200,7 @@ export default function PostCard({
             </div>
           ) : (
             <div className="mt-0.5 whitespace-pre-wrap text-[15px] leading-5 text-charcoal">
-              {post.content}
+              {renderContentWithMentions(post.content)}
             </div>
           )}
 
