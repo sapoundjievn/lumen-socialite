@@ -683,27 +683,30 @@ export async function sendMessage(
 }
 
 export async function searchProfiles(query: string) {
-  const q = query.trim().replace(/[%_,]/g, "");
+  // Support "@thevip" and "thevip"
+  let q = query.trim();
+  if (q.startsWith("@")) q = q.slice(1);
+  q = q.replace(/[%_,]/g, "").trim();
   if (!q) return { data: [], error: null };
 
-  // Two queries then merge (more reliable than or+ilike on some setups)
-  const [byUser, byName] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, username, display_name, avatar_url, verified, bio, followers_count")
-      .ilike("username", `%${q}%`)
-      .limit(20),
-    supabase
-      .from("profiles")
-      .select("id, username, display_name, avatar_url, verified, bio, followers_count")
-      .ilike("display_name", `%${q}%`)
-      .limit(20),
+  const fields =
+    "id, username, display_name, avatar_url, verified, bio, followers_count";
+
+  // Exact username first, then partial username, then display name
+  const [exact, byUser, byName] = await Promise.all([
+    supabase.from("profiles").select(fields).ilike("username", q).limit(5),
+    supabase.from("profiles").select(fields).ilike("username", `%${q}%`).limit(20),
+    supabase.from("profiles").select(fields).ilike("display_name", `%${q}%`).limit(20),
   ]);
 
   const map = new Map<string, any>();
-  for (const row of [...(byUser.data || []), ...(byName.data || [])]) {
-    map.set(row.id, row);
-  }
+  // Exact matches first
+  for (const row of exact.data || []) map.set(row.id, row);
+  for (const row of byUser.data || []) map.set(row.id, row);
+  for (const row of byName.data || []) map.set(row.id, row);
 
-  return { data: Array.from(map.values()), error: byUser.error || byName.error };
+  return {
+    data: Array.from(map.values()),
+    error: exact.error || byUser.error || byName.error,
+  };
 }
