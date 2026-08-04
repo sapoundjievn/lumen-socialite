@@ -305,12 +305,12 @@ export async function uploadAvatar(userId: string, file: File) {
   const path = `${userId}/avatar.${ext}`;
 
   const { error: uploadError } = await supabase.storage
-    .from("avatars")
+    .from("Avatars")
     .upload(path, file, { upsert: true, contentType: file.type });
 
   if (uploadError) return { url: null, error: uploadError };
 
-  const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+  const { data } = supabase.storage.from("Avatars").getPublicUrl(path);
   // cache-bust so the new image shows immediately
   const url = `${data.publicUrl}?t=${Date.now()}`;
 
