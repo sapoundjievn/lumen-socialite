@@ -366,16 +366,6 @@ export default function ProfilePage() {
               >
                 Edit profile
               </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  await signOut();
-                  router.push("/login");
-                }}
-                className="rounded-full border border-rose-200/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-rose-600 shadow-sm backdrop-blur-sm transition hover:bg-rose-50 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
-              >
-                Sign out
-              </button>
             </div>
           )}
         </div>

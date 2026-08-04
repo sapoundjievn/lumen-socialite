@@ -1,21 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, Search, Bell, Mail, User } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, Search, Bell, Mail, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { getCurrentProfile } from "@/lib/auth";
+import { getCurrentProfile, signOut } from "@/lib/auth";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [profileHref, setProfileHref] = useState("/login");
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     getCurrentProfile().then((p) => {
-      if (p?.username) setProfileHref(`/${p.username}`);
+      if (p?.username) {
+        setProfileHref(`/${p.username}`);
+        setSignedIn(true);
+      } else {
+        setProfileHref("/login");
+        setSignedIn(false);
+      }
     });
-  }, []);
+  }, [pathname]);
 
   const items = [
     { icon: Home, label: "Home", href: "/" },
@@ -24,6 +32,12 @@ export default function MobileBottomNav() {
     { icon: Mail, label: "Messages", href: "/messages" },
     { icon: User, label: "Profile", href: profileHref },
   ];
+
+  async function handleSignOut() {
+    await signOut();
+    setSignedIn(false);
+    router.push("/login");
+  }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-14 items-center justify-around border-t border-border bg-pearl/95 backdrop-blur-md sm:hidden">
@@ -38,7 +52,7 @@ export default function MobileBottomNav() {
             key={item.label}
             href={item.href}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 px-3 py-1",
+              "flex flex-col items-center justify-center gap-0.5 px-2 py-1",
               active ? "text-gold-deep" : "text-muted"
             )}
           >
@@ -50,6 +64,17 @@ export default function MobileBottomNav() {
           </Link>
         );
       })}
+
+      {signedIn && (
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="flex flex-col items-center justify-center gap-0.5 px-2 py-1 text-muted transition hover:text-rose-600"
+        >
+          <LogOut className="h-6 w-6" strokeWidth={1.8} />
+          <span className="text-[10px] font-medium">Out</span>
+        </button>
+      )}
     </nav>
   );
 }
