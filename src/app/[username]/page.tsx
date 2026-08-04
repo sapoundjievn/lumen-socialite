@@ -55,7 +55,7 @@ export default function ProfilePage() {
   const [editBio, setEditBio] = useState("");
   const [editLinks, setEditLinks] = useState<string[]>(["", "", ""]);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [profileTab, setProfileTab] = useState<"posts" | "reposts">("posts");
+  const [profileTab, setProfileTab] = useState<"posts" | "compose" | "reposts">("posts");
   const [reposts, setReposts] = useState<Post[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -554,48 +554,77 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Composer on own profile */}
-        {isOwnProfile && (
-          <Composer onPost={handleComposePost} />
-        )}
-
         {/* Tabs */}
-        <div className="border-b border-border">
-          <button type="button" className="relative px-4 py-4 text-[15px] font-bold text-charcoal">
+        <div className="flex border-b border-border">
+          <button
+            type="button"
+            onClick={() => setProfileTab("posts")}
+            className={`relative flex-1 px-4 py-3.5 text-[14px] font-bold sm:text-[15px] ${
+              profileTab === "posts" ? "text-charcoal" : "text-muted hover:bg-champagne/20"
+            }`}
+          >
             Enlightenments
-            <div className="absolute bottom-0 left-4 right-4 h-1 rounded-full bg-gold" />
+            {profileTab === "posts" && (
+              <div className="absolute bottom-0 left-4 right-4 h-1 rounded-full bg-gold" />
+            )}
           </button>
-        </div>
-
-        {/* Posts */}
-        <div>
-          {posts.length === 0 ? (
-            <div className="px-6 py-16 text-center text-muted">No enlightenments yet.</div>
-          ) : (
-            posts.map((post: any) => (
-              <div key={`${post.id}${post._isRepost ? "-rp" : ""}`}>
-                {post._isRepost ? (
-                  <div className="flex items-center gap-2 px-4 pt-3 text-[13px] font-medium text-muted">
-                    <span>↺</span>
-                    <span>Reposted</span>
-                  </div>
-                ) : null}
-                <PostCard
-                  post={post}
-                  onLike={handleLike}
-                  onRepost={handleRepost}
-                  currentUserId={currentUserId}
-                  onPostUpdated={(updated) =>
-                    setPosts((prev) =>
-                      prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
-                    )
-                  }
-                  onPostDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
-                />
-              </div>
-            ))
+          {isOwnProfile && (
+            <button
+              type="button"
+              onClick={() => setProfileTab("compose")}
+              className={`relative flex-1 px-4 py-3.5 text-[14px] font-bold sm:text-[15px] ${
+                profileTab === "compose" ? "text-charcoal" : "text-muted hover:bg-champagne/20"
+              }`}
+            >
+              Let me enlighten you
+              {profileTab === "compose" && (
+                <div className="absolute bottom-0 left-4 right-4 h-1 rounded-full bg-gold" />
+              )}
+            </button>
           )}
         </div>
+
+        {/* Compose tab */}
+        {isOwnProfile && profileTab === "compose" && (
+          <Composer
+            onPost={async (content) => {
+              await handleComposePost(content);
+              setProfileTab("posts");
+            }}
+          />
+        )}
+
+        {/* Posts tab */}
+        {profileTab === "posts" && (
+          <div>
+            {posts.length === 0 ? (
+              <div className="px-6 py-16 text-center text-muted">No enlightenments yet.</div>
+            ) : (
+              posts.map((post: any) => (
+                <div key={`${post.id}${post._isRepost ? "-rp" : ""}`}>
+                  {post._isRepost ? (
+                    <div className="flex items-center gap-2 px-4 pt-3 text-[13px] font-medium text-muted">
+                      <span>↺</span>
+                      <span>Reposted</span>
+                    </div>
+                  ) : null}
+                  <PostCard
+                    post={post}
+                    onLike={handleLike}
+                    onRepost={handleRepost}
+                    currentUserId={currentUserId}
+                    onPostUpdated={(updated) =>
+                      setPosts((prev) =>
+                        prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
+                      )
+                    }
+                    onPostDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </main>
 
       {editOpen ? (
