@@ -321,7 +321,7 @@ export default function ProfilePage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <div className="absolute -bottom-10 left-4">
+          <div className="absolute -bottom-6 left-4">
             <div className="relative">
               <img
                 src={avatar}
@@ -357,7 +357,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile info */}
-        <div className="px-4 pt-14 pb-4">
+        <div className="px-4 pt-12 pb-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1">
