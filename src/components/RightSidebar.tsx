@@ -39,10 +39,20 @@ export default function RightSidebar() {
           <span className="rounded-full bg-white/60 px-2.5 py-1">1B supply</span>
         </div>
         <a
-          href="https://lumen-socialite.vercel.app"
+          href="https://basescan.org/token/0xd5748c7addcAdE49643F9557CEc5e20Be4a1B2d8"
+          target="_blank"
+          rel="noopener noreferrer"
           className="mt-4 flex w-full items-center justify-center rounded-full bg-charcoal py-2.5 text-[14px] font-bold text-pearl transition hover:bg-charcoal-soft"
         >
-          Official token of Lumen
+          View on Base · Get KEN
+        </a>
+        <a
+          href="https://app.uniswap.org/explore/tokens/base/0xd5748c7addcAdE49643F9557CEc5e20Be4a1B2d8"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 flex w-full items-center justify-center rounded-full border border-charcoal/20 bg-white/70 py-2.5 text-[14px] font-bold text-charcoal transition hover:bg-white"
+        >
+          Trade on Uniswap
         </a>
       </div>
 
