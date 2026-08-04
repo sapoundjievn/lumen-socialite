@@ -311,7 +311,7 @@ export default function ProfilePage() {
       </div>
 
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-16 sm:pb-0">
-        {/* Banner + Avatar — back button on gold header */}
+        {/* Banner + Avatar — back on gold */}
         <div className="relative">
           <div className="h-40 bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]" />
           <Link
@@ -360,7 +360,7 @@ export default function ProfilePage() {
         <div className="px-4 pt-14 pb-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex items-center gap-1 flex-wrap">
+              <div className="flex flex-wrap items-center gap-1">
                 <h2 className="text-xl font-extrabold text-charcoal">
                   {profile.display_name}
                 </h2>
@@ -374,9 +374,10 @@ export default function ProfilePage() {
               <div className="mt-0.5 text-[15px] text-muted">@{profile.username}</div>
             </div>
 
-            {isOwnProfile && (
+            {isOwnProfile ? (
               <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
                 <button
+                  type="button"
                   onClick={() => {
                     setEditName(profile.display_name);
                     setEditBio(profile.bio || "");
@@ -397,11 +398,10 @@ export default function ProfilePage() {
                   Sign out
                 </button>
               </div>
-            )}
-
-            {!isOwnProfile && (
+            ) : (
               <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
                 <button
+                  type="button"
                   onClick={handleFollow}
                   disabled={followLoading}
                   className={`rounded-full px-4 py-1.5 text-[14px] font-bold transition ${
@@ -413,6 +413,7 @@ export default function ProfilePage() {
                   {followLoading ? "..." : following ? "Following" : "Follow"}
                 </button>
                 <button
+                  type="button"
                   onClick={async () => {
                     if (!currentUserId || !profile) {
                       alert("Please sign in");
@@ -433,6 +434,7 @@ export default function ProfilePage() {
                   Message
                 </button>
                 <button
+                  type="button"
                   onClick={handleFriend}
                   disabled={friendLoading}
                   className={`rounded-full px-4 py-1.5 text-[14px] font-bold transition ${
@@ -451,11 +453,11 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {profile.bio && (
-            <p className="mt-3 text-[15px] leading-5 text-charcoal whitespace-pre-wrap">
+          {profile.bio ? (
+            <p className="mt-3 whitespace-pre-wrap text-[15px] leading-5 text-charcoal">
               {profile.bio}
             </p>
-          )}
+          ) : null}
 
           <div className="mt-3 flex items-center gap-1 text-[15px] text-muted">
             <Calendar className="h-4 w-4" />
@@ -492,27 +494,25 @@ export default function ProfilePage() {
 
         {/* Tabs */}
         <div className="border-b border-border">
-          <button className="relative px-4 py-4 text-[15px] font-bold text-charcoal">
+          <button type="button" className="relative px-4 py-4 text-[15px] font-bold text-charcoal">
             Enlightenments
             <div className="absolute bottom-0 left-4 right-4 h-1 rounded-full bg-gold" />
           </button>
         </div>
 
-        {/* Posts + Reposts */}
+        {/* Posts */}
         <div>
           {posts.length === 0 ? (
-            <div className="px-6 py-16 text-center text-muted">
-              No enlightenments yet.
-            </div>
+            <div className="px-6 py-16 text-center text-muted">No enlightenments yet.</div>
           ) : (
             posts.map((post: any) => (
-              <div key={post.id + (post._isRepost ? "-rp" : "")}>
-                {post._isRepost && (
+              <div key={`${post.id}${post._isRepost ? "-rp" : ""}`}>
+                {post._isRepost ? (
                   <div className="flex items-center gap-2 px-4 pt-3 text-[13px] font-medium text-muted">
                     <span>↺</span>
                     <span>Reposted</span>
                   </div>
-                )}
+                ) : null}
                 <PostCard
                   post={post}
                   onLike={handleLike}
@@ -520,14 +520,10 @@ export default function ProfilePage() {
                   currentUserId={currentUserId}
                   onPostUpdated={(updated) =>
                     setPosts((prev) =>
-                      prev.map((p) =>
-                        p.id === updated.id ? { ...p, ...updated } : p
-                      )
+                      prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
                     )
                   }
-                  onPostDeleted={(id) =>
-                    setPosts((prev) => prev.filter((p) => p.id !== id))
-                  }
+                  onPostDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
                 />
               </div>
             ))
@@ -535,14 +531,13 @@ export default function ProfilePage() {
         </div>
       </main>
 
-      {/* Edit profile modal */}
-      {editOpen && (
+      {editOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-xl">
             <h3 className="text-xl font-bold text-charcoal">Edit profile</h3>
             <div className="mt-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Display name</label>
+                <label className="mb-1 block text-sm font-medium text-charcoal">Display name</label>
                 <input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
@@ -551,7 +546,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Bio</label>
+                <label className="mb-1 block text-sm font-medium text-charcoal">Bio</label>
                 <textarea
                   value={editBio}
                   onChange={(e) => setEditBio(e.target.value)}
@@ -563,12 +558,14 @@ export default function ProfilePage() {
             </div>
             <div className="mt-6 flex justify-end gap-2">
               <button
+                type="button"
                 onClick={() => setEditOpen(false)}
                 className="rounded-full px-4 py-1.5 text-[14px] font-bold text-muted hover:bg-champagne/40"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 disabled={savingProfile || !editName.trim()}
                 onClick={async () => {
                   if (!currentUserId || !profile) return;
@@ -592,7 +589,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
       <MobileBottomNav />
     </div>
