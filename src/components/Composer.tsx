@@ -130,16 +130,17 @@ export default function Composer({ onPost }: ComposerProps) {
               )}
 
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={!content.trim() || isOver}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-[15px] font-bold text-white transition",
+                  "rounded-full px-3 py-1 text-[12px] font-bold text-white transition sm:text-[13px]",
                   content.trim() && !isOver
                     ? "bg-gold hover:bg-gold-deep active:scale-95"
                     : "cursor-not-allowed bg-gold-soft/60"
                 )}
               >
-                Enlightenment
+                Enlighten every one
               </button>
             </div>
           </div>

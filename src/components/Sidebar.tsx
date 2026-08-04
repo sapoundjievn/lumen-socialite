@@ -119,10 +119,10 @@ export default function Sidebar() {
 
         <Link
           href="/"
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-3.5 font-bold text-white shadow-md transition hover:bg-gold-deep active:scale-[0.98] xl:px-6"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gold px-3 py-2.5 text-[13px] font-bold text-white shadow-md transition hover:bg-gold-deep active:scale-[0.98]"
         >
           <Feather className="h-5 w-5 xl:hidden" />
-          <span className="hidden xl:inline">Enlightenment</span>
+          <span className="hidden text-[13px] xl:inline">Enlighten every one</span>
         </Link>
       </div>
 
