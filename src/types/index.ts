@@ -4,6 +4,7 @@ export interface Profile {
   display_name: string;
   avatar_url: string | null;
   bio: string | null;
+  links?: string[] | null;
   verified: boolean;
   followers_count: number;
   following_count: number;
@@ -49,6 +50,7 @@ export interface User {
   displayName: string;
   avatar: string;
   bio?: string;
+  links?: string[] | null;
   verified?: boolean;
   followers: number;
   following: number;

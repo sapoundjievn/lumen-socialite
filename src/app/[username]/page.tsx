@@ -50,6 +50,7 @@ export default function ProfilePage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editBio, setEditBio] = useState("");
+  const [editLinks, setEditLinks] = useState<string[]>(["", "", ""]);
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileTab, setProfileTab] = useState<"posts" | "reposts">("posts");
   const [reposts, setReposts] = useState<Post[]>([]);
@@ -360,6 +361,12 @@ export default function ProfilePage() {
                 onClick={() => {
                   setEditName(profile.display_name);
                   setEditBio(profile.bio || "");
+                  const existing = (profile as any).links || [];
+                  setEditLinks([
+                    existing[0] || "",
+                    existing[1] || "",
+                    existing[2] || "",
+                  ]);
                   setEditOpen(true);
                 }}
                 className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
@@ -451,6 +458,30 @@ export default function ProfilePage() {
             </p>
           ) : null}
 
+          {Array.isArray((profile as any).links) &&
+            (profile as any).links.filter((l: string) => l && l.trim()).length > 0 && (
+              <div className="mt-2.5 flex flex-col gap-1">
+                {(profile as any).links
+                  .filter((l: string) => l && l.trim())
+                  .slice(0, 3)
+                  .map((link: string, i: number) => {
+                    const href = link.startsWith("http") ? link : `https://${link}`;
+                    const label = link.replace(/^https?:\/\//, "").replace(/\/$/, "");
+                    return (
+                      <a
+                        key={i}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="truncate text-[13px] font-medium text-gold-deep hover:underline sm:text-[14px]"
+                      >
+                        🔗 {label}
+                      </a>
+                    );
+                  })}
+              </div>
+            )}
+
           <div className="mt-2.5 flex items-center gap-1 text-[13px] text-muted sm:text-[15px]">
             <Calendar className="h-4 w-4" />
             <span>
@@ -525,7 +556,7 @@ export default function ProfilePage() {
 
       {editOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-xl">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-white p-6 shadow-xl">
             <h3 className="text-xl font-bold text-charcoal">Edit profile</h3>
             <div className="mt-4 space-y-4">
               <div>
@@ -547,6 +578,26 @@ export default function ProfilePage() {
                   className="w-full resize-none rounded-xl border border-border bg-pearl px-3 py-2 text-charcoal focus:border-gold-soft focus:outline-none"
                 />
               </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-charcoal">
+                  Website links (up to 3)
+                </label>
+                <div className="space-y-2">
+                  {[0, 1, 2].map((i) => (
+                    <input
+                      key={i}
+                      value={editLinks[i] || ""}
+                      onChange={(e) => {
+                        const next = [...editLinks];
+                        next[i] = e.target.value;
+                        setEditLinks(next);
+                      }}
+                      placeholder={i === 0 ? "Link 1 — https://..." : i === 1 ? "Link 2 — https://..." : "Link 3 — https://..."}
+                      className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px] text-charcoal focus:border-gold-soft focus:outline-none"
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
             <div className="mt-6 flex justify-end gap-2">
               <button
@@ -562,9 +613,14 @@ export default function ProfilePage() {
                 onClick={async () => {
                   if (!currentUserId || !profile) return;
                   setSavingProfile(true);
+                  const links = editLinks
+                    .map((l) => l.trim())
+                    .filter(Boolean)
+                    .slice(0, 3);
                   const { data, error } = await updateProfile(currentUserId, {
                     display_name: editName.trim(),
                     bio: editBio.trim(),
+                    links,
                   });
                   setSavingProfile(false);
                   if (error) {

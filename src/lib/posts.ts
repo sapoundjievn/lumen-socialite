@@ -379,7 +379,7 @@ export async function uploadAvatar(userId: string, file: File) {
 
 export async function updateProfile(
   userId: string,
-  updates: { display_name?: string; bio?: string }
+  updates: { display_name?: string; bio?: string; links?: string[] }
 ) {
   const { data, error } = await supabase
     .from("profiles")
