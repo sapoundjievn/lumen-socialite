@@ -16,6 +16,36 @@ export default function RightSidebar() {
         />
       </div>
 
+
+      {/* Ken Coin */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#F5E8D3] via-[#E8D5A3] to-[#C9A86C] p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-2xl shadow-sm">
+            ✨
+          </div>
+          <div className="min-w-0">
+            <div className="text-[16px] font-extrabold text-charcoal">Ken Coin</div>
+            <div className="text-[13px] font-medium text-[#6B5B3E]">
+              Lumen · Socialite
+            </div>
+          </div>
+        </div>
+        <p className="mt-3 text-[13px] leading-5 text-charcoal/80">
+          The official token of Lumen Socialite — powering the elegant social platform.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wide text-[#6B5B3E]">
+          <span className="rounded-full bg-white/60 px-2.5 py-1">Base</span>
+          <span className="rounded-full bg-white/60 px-2.5 py-1">KEN</span>
+          <span className="rounded-full bg-white/60 px-2.5 py-1">1B supply</span>
+        </div>
+        <a
+          href="https://lumen-socialite.vercel.app"
+          className="mt-4 flex w-full items-center justify-center rounded-full bg-charcoal py-2.5 text-[14px] font-bold text-pearl transition hover:bg-charcoal-soft"
+        >
+          Official token of Lumen
+        </a>
+      </div>
+
       {/* Trends */}
       <div className="overflow-hidden rounded-2xl border border-border bg-pearl-soft">
         <h2 className="px-4 py-3 text-xl font-extrabold text-charcoal">
