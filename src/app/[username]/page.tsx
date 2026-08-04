@@ -356,19 +356,21 @@ export default function ProfilePage() {
         {/* Profile info */}
         <div className="px-4 pt-12 pb-4">
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-1">
-                <h2 className="text-xl font-extrabold text-charcoal">
+            <div className="min-w-0 flex-1 pr-2">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <h2 className="truncate text-[17px] font-bold leading-tight tracking-tight text-charcoal sm:text-xl">
                   {profile.display_name}
                 </h2>
                 {profile.verified && (
-                  <BadgeCheck className="h-5 w-5 flex-shrink-0 fill-gold text-white" />
+                  <BadgeCheck className="h-[18px] w-[18px] flex-shrink-0 fill-gold text-white sm:h-5 sm:w-5" />
                 )}
               </div>
-              <div className="mt-1">
+              <div className="mt-1 min-w-0 overflow-hidden">
                 <SpecialStars username={profile.username} />
               </div>
-              <div className="mt-0.5 text-[15px] text-muted">@{profile.username}</div>
+              <div className="mt-0.5 truncate text-[14px] text-muted sm:text-[15px]">
+                @{profile.username}
+              </div>
             </div>
 
             {isOwnProfile ? (
@@ -451,12 +453,12 @@ export default function ProfilePage() {
           </div>
 
           {profile.bio ? (
-            <p className="mt-3 whitespace-pre-wrap text-[15px] leading-5 text-charcoal">
+            <p className="mt-2.5 whitespace-pre-wrap text-[14px] leading-5 text-charcoal sm:text-[15px]">
               {profile.bio}
             </p>
           ) : null}
 
-          <div className="mt-3 flex items-center gap-1 text-[15px] text-muted">
+          <div className="mt-2.5 flex items-center gap-1 text-[13px] text-muted sm:text-[15px]">
             <Calendar className="h-4 w-4" />
             <span>
               Joined{" "}
@@ -467,7 +469,7 @@ export default function ProfilePage() {
             </span>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-4 text-[15px]">
+          <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-[13px] sm:text-[15px]">
             <div>
               <span className="font-bold text-charcoal">
                 {formatNumber(posts.filter((p: any) => !p._isRepost).length)}

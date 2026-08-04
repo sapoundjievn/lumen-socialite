@@ -124,7 +124,7 @@ export default function PostCard({
               <div className="flex flex-wrap items-center gap-x-1">
                 <Link
                   href={profileHref}
-                  className="truncate font-bold text-charcoal hover:underline"
+                  className="truncate text-[14px] font-bold text-charcoal hover:underline sm:text-[15px]"
                 >
                   {displayName}
                 </Link>
