@@ -58,7 +58,7 @@ export default function SpecialStars({ username }: { username: string }) {
             >
               <svg
                 viewBox="0 0 24 24"
-                className="h-full w-full fill-[#E8A0BF]"
+                className="h-full w-full fill-[#E91E63]"
               >
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
@@ -73,7 +73,7 @@ export default function SpecialStars({ username }: { username: string }) {
           ))}
         </span>
         <span
-          className="text-[11px] font-medium leading-snug text-[#E8A0BF] sm:text-[12px] sm:leading-none"
+          className="text-[11px] font-semibold leading-snug text-[#C2185B] sm:text-[12px] sm:leading-none"
           style={{ fontFamily: "Times New Roman, Times, serif" }}
         >
           Identity Verified • VIP • Co-founder of the Platform
