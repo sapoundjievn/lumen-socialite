@@ -389,7 +389,7 @@ export default function ProfilePage() {
                   <BadgeCheck
                     className={
                       profile.username.toLowerCase() === "kendall.vip"
-                        ? "h-[18px] w-[18px] flex-shrink-0 fill-[#E8A0BF] text-white sm:h-5 sm:w-5"
+                        ? "h-[18px] w-[18px] flex-shrink-0 fill-[#C2185B] text-white sm:h-5 sm:w-5"
                         : "h-[18px] w-[18px] flex-shrink-0 fill-gold text-white sm:h-5 sm:w-5"
                     }
                   />

@@ -105,7 +105,7 @@ export default function MessagesPage() {
                       <BadgeCheck
                         className={
                           o.username.toLowerCase() === "kendall.vip"
-                            ? "h-4 w-4 flex-shrink-0 fill-[#E8A0BF] text-white"
+                            ? "h-4 w-4 flex-shrink-0 fill-[#C2185B] text-white"
                             : "h-4 w-4 flex-shrink-0 fill-gold text-white"
                         }
                       />

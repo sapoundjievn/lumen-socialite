@@ -139,7 +139,13 @@ function ExploreInner() {
                     {p.display_name}
                   </span>
                   {p.verified && (
-                    <BadgeCheck className="h-4 w-4 flex-shrink-0 fill-gold text-white" />
+                    <BadgeCheck
+                      className={
+                        p.username.toLowerCase() === "kendall.vip"
+                          ? "h-4 w-4 flex-shrink-0 fill-[#C2185B] text-white"
+                          : "h-4 w-4 flex-shrink-0 fill-gold text-white"
+                      }
+                    />
                   )}
                 </div>
                 <div className="text-[14px] text-muted">@{p.username}</div>

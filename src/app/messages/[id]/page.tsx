@@ -123,7 +123,7 @@ export default function ConversationPage() {
                       <BadgeCheck
                         className={
                           other.username.toLowerCase() === "kendall.vip"
-                            ? "h-4 w-4 fill-[#E8A0BF] text-white"
+                            ? "h-4 w-4 fill-[#C2185B] text-white"
                             : "h-4 w-4 fill-gold text-white"
                         }
                       />
