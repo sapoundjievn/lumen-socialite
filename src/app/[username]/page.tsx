@@ -321,12 +321,12 @@ export default function ProfilePage() {
     );
   }
 
-  async function handleComposePost(content: string) {
+  async function handleComposePost(content: string, mediaUrls: string[] = []) {
     if (!currentUserId) {
       alert("Please sign in");
       return;
     }
-    const { data, error } = await createPost(content, currentUserId);
+    const { data, error } = await createPost(content, currentUserId, mediaUrls);
     if (error) {
       alert(error.message || "Could not post");
       return;

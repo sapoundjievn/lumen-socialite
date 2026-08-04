@@ -32,13 +32,13 @@ export default function Feed() {
     setLoading(false);
   }
 
-  const handlePost = async (content: string) => {
+  const handlePost = async (content: string, mediaUrls: string[] = []) => {
     if (!currentUserId) {
       alert("Please sign in to post");
       return;
     }
 
-    const { data, error } = await createPost(content, currentUserId);
+    const { data, error } = await createPost(content, currentUserId, mediaUrls);
     if (error) {
       console.error(error);
       alert("Failed to post: " + error.message);

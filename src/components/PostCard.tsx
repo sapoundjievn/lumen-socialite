@@ -225,15 +225,22 @@ export default function PostCard({
 
           {post.media_urls && post.media_urls.length > 0 && (
             <div className="mt-3 overflow-hidden rounded-2xl border border-border">
+              <div className="bg-champagne/40 px-3 py-1 text-[11px] font-semibold tracking-wide text-gold-deep">
+                Illumination
+              </div>
               <img
                 src={post.media_urls[0]}
                 alt="Illumination"
-                className="w-full object-cover max-h-96"
+                className="max-h-96 w-full object-cover"
               />
             </div>
           )}
 
-          <div className="mt-3 flex max-w-md justify-between text-muted">
+          <p className="mt-2 text-[11px] font-medium tracking-wide text-muted/80">
+            I enlighten you
+          </p>
+
+          <div className="mt-2 flex max-w-md justify-between text-muted">
             <button
               onClick={() => router.push(`/post/${post.id}`)}
               className="group/btn flex items-center gap-1.5 transition hover:text-sky-500"
