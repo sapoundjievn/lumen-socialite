@@ -710,3 +710,57 @@ export async function searchProfiles(query: string) {
     error: exact.error || byUser.error || byName.error,
   };
 }
+
+export async function repostPost(postId: string, userId: string) {
+  const { error } = await supabase
+    .from("reposts")
+    .insert({ post_id: postId, user_id: userId });
+
+  if (!error) {
+    const { data: post } = await supabase
+      .from("posts")
+      .select("reposts_count")
+      .eq("id", postId)
+      .single();
+    if (post) {
+      await supabase
+        .from("posts")
+        .update({ reposts_count: (post.reposts_count || 0) + 1 })
+        .eq("id", postId);
+    }
+  }
+  return { error };
+}
+
+export async function unrepostPost(postId: string, userId: string) {
+  const { error } = await supabase
+    .from("reposts")
+    .delete()
+    .eq("post_id", postId)
+    .eq("user_id", userId);
+
+  if (!error) {
+    const { data: post } = await supabase
+      .from("posts")
+      .select("reposts_count")
+      .eq("id", postId)
+      .single();
+    if (post && (post.reposts_count || 0) > 0) {
+      await supabase
+        .from("posts")
+        .update({ reposts_count: post.reposts_count - 1 })
+        .eq("id", postId);
+    }
+  }
+  return { error };
+}
+
+export async function hasUserReposted(postId: string, userId: string) {
+  const { data } = await supabase
+    .from("reposts")
+    .select("id")
+    .eq("post_id", postId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return !!data;
+}

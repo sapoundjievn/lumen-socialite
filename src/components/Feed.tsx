@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Post } from "@/types";
-import { getFeed, createPost, likePost, unlikePost } from "@/lib/posts";
+import { getFeed, createPost, likePost, unlikePost, repostPost, unrepostPost } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import Composer from "./Composer";
 import PostCard from "./PostCard";
@@ -97,8 +97,27 @@ export default function Feed() {
     }
   };
 
-  const handleRepost = (id: string) => {
-    // Coming soon
+  const handleRepost = async (id: string) => {
+    if (!currentUserId) {
+      alert("Please sign in to repost");
+      return;
+    }
+    const post = posts.find((p) => p.id === id);
+    if (!post) return;
+    const was = !!(post as any).reposted_by_user;
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? ({
+              ...p,
+              reposted_by_user: !was,
+              reposts_count: (p.reposts_count || 0) + (was ? -1 : 1),
+            } as any)
+          : p
+      )
+    );
+    if (was) await unrepostPost(id, currentUserId);
+    else await repostPost(id, currentUserId);
   };
 
   return (

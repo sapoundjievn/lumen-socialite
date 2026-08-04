@@ -229,9 +229,19 @@ export default function PostCard({
 
             <button
               onClick={() => onRepost(post.id)}
-              className="group/btn flex items-center gap-1.5 transition hover:text-green-600"
+              className={cn(
+                "group/btn flex items-center gap-1.5 transition",
+                post.reposted_by_user ? "text-green-600" : "hover:text-green-600"
+              )}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full transition group-hover/btn:bg-green-600/10">
+              <div
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-full transition",
+                  post.reposted_by_user
+                    ? "bg-green-600/10"
+                    : "group-hover/btn:bg-green-600/10"
+                )}
+              >
                 <Repeat2 className="h-[18px] w-[18px]" />
               </div>
               <span className="text-[13px]">

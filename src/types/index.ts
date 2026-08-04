@@ -24,6 +24,7 @@ export interface Post {
   created_at: string;
   profiles?: Profile;
   liked_by_user?: boolean;
+  reposted_by_user?: boolean;
 }
 
 export interface Like {
