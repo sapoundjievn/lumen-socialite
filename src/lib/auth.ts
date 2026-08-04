@@ -2,7 +2,13 @@ import { supabase } from "./supabase";
 import type { Profile } from "@/types";
 import { autoFollowFounders } from "./posts";
 
-export async function signUp(email: string, password: string, username: string, displayName: string) {
+export async function signUp(
+  email: string,
+  password: string,
+  username: string,
+  displayName: string,
+  gender?: string
+) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -10,6 +16,7 @@ export async function signUp(email: string, password: string, username: string, 
       data: {
         username,
         display_name: displayName,
+        gender: gender || null,
       },
     },
   });

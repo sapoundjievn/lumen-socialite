@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import { getMyConversations } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
@@ -102,15 +103,7 @@ export default function MessagesPage() {
                       {o.display_name}
                     </span>
                     {o.verified && (
-                      <BadgeCheck
-                        className={
-                          o.username.toLowerCase() === "kendall.vip"
-                            ? "h-4 w-4 flex-shrink-0 fill-[#C2185B] text-white"
-                            : o.username.toLowerCase() === "igorpiven"
-                            ? "h-4 w-4 flex-shrink-0 fill-[#1D9BF0] text-white"
-                            : "h-4 w-4 flex-shrink-0 fill-[#C9A86C] text-white"
-                        }
-                      />
+                      <VerifiedBadge username={o.username} gender={(o as any).gender} />
                     )}
                     {c.last_message && (
                       <span className="ml-auto flex-shrink-0 text-[12px] text-muted">

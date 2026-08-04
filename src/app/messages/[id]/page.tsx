@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import { getMessages, sendMessage } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -120,15 +121,7 @@ export default function ConversationPage() {
                       {other.display_name}
                     </span>
                     {other.verified && (
-                      <BadgeCheck
-                        className={
-                          other.username.toLowerCase() === "kendall.vip"
-                            ? "h-4 w-4 fill-[#C2185B] text-white"
-                            : other.username.toLowerCase() === "igorpiven"
-                            ? "h-4 w-4 fill-[#1D9BF0] text-white"
-                            : "h-4 w-4 fill-[#C9A86C] text-white"
-                        }
-                      />
+                      <VerifiedBadge username={other.username} gender={(other as any).gender} />
                     )}
                   </div>
                   <div className="text-[12px] text-muted">@{other.username}</div>

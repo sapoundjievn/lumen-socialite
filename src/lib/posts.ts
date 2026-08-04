@@ -15,6 +15,7 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
         display_name,
         avatar_url,
         verified,
+        gender,
         followers_count,
         following_count
       )
@@ -79,7 +80,8 @@ export async function createPost(content: string, userId: string, mediaUrls: str
         username,
         display_name,
         avatar_url,
-        verified
+        verified,
+        gender
       )
     `)
     .single();
@@ -174,7 +176,8 @@ export async function getPostsByUserId(
         username,
         display_name,
         avatar_url,
-        verified
+        verified,
+        gender
       )
     `)
     .eq("user_id", userId)
@@ -415,7 +418,8 @@ export async function editPost(postId: string, content: string, userId: string) 
         username,
         display_name,
         avatar_url,
-        verified
+        verified,
+        gender
       )
     `)
     .single();
@@ -455,7 +459,8 @@ export async function createReply(
         username,
         display_name,
         avatar_url,
-        verified
+        verified,
+        gender
       )
     `)
     .single();
@@ -489,7 +494,8 @@ export async function getPostById(postId: string) {
         username,
         display_name,
         avatar_url,
-        verified
+        verified,
+        gender
       )
     `)
     .eq("id", postId)
@@ -507,7 +513,8 @@ export async function getReplies(postId: string) {
         username,
         display_name,
         avatar_url,
-        verified
+        verified,
+        gender
       )
     `)
     .eq("reply_to", postId)

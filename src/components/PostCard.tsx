@@ -11,12 +11,12 @@ import {
   Share,
   Bookmark,
   MoreHorizontal,
-  BadgeCheck,
   Pencil,
   Trash2,
 } from "lucide-react";
 import { Post } from "@/types";
 import { cn, formatNumber, formatTime } from "@/lib/utils";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import SpecialStars from "./SpecialStars";
 import { canEditPost, editPost, deletePost } from "@/lib/posts";
 
@@ -129,17 +129,7 @@ export default function PostCard({
                   {displayName}
                 </Link>
                 {verified && (
-                  <BadgeCheck
-                    className={
-                      (username || "").toLowerCase() === "kendall.vip"
-                        ? "h-4 w-4 flex-shrink-0 fill-[#C2185B] text-white"
-                        : (username || "").toLowerCase() === "igorpiven"
-                        ? "h-4 w-4 flex-shrink-0 fill-[#1D9BF0] text-white"
-                        : (username || "").toLowerCase() === "thevip"
-                        ? "h-4 w-4 flex-shrink-0 fill-[#C9A86C] text-white"
-                        : "h-4 w-4 flex-shrink-0 fill-[#C9A86C] text-white"
-                    }
-                  />
+                  <VerifiedBadge username={username} gender={(profile as any)?.gender} />
                 )}
                 <Link href={profileHref} className="truncate text-muted hover:underline">
                   @{username}

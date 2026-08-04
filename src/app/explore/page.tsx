@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, Search, BadgeCheck } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import { searchProfiles } from "@/lib/posts";
 import type { Profile } from "@/types";
 import Sidebar from "@/components/Sidebar";
@@ -139,15 +140,7 @@ function ExploreInner() {
                     {p.display_name}
                   </span>
                   {p.verified && (
-                    <BadgeCheck
-                      className={
-                        p.username.toLowerCase() === "kendall.vip"
-                          ? "h-4 w-4 flex-shrink-0 fill-[#C2185B] text-white"
-                          : p.username.toLowerCase() === "igorpiven"
-                          ? "h-4 w-4 flex-shrink-0 fill-[#1D9BF0] text-white"
-                          : "h-4 w-4 flex-shrink-0 fill-[#C9A86C] text-white"
-                      }
-                    />
+                    <VerifiedBadge username={p.username} gender={(p as any).gender} />
                   )}
                 </div>
                 <div className="text-[14px] text-muted">@{p.username}</div>

@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [gender, setGender] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -27,7 +28,13 @@ export default function SignupPage() {
       return;
     }
 
-    const { error } = await signUp(email, password, username, displayName);
+    if (!gender) {
+      setError("Please select your gender");
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await signUp(email, password, username, displayName, gender);
 
     if (error) {
       setError(error.message);
@@ -98,6 +105,24 @@ export default function SignupPage() {
                     placeholder="username"
                   />
                 </div>
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1.5">
+                  Gender
+                </label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  required
+                  className="w-full rounded-xl border border-border bg-pearl px-4 py-3 text-[15px] text-charcoal focus:border-gold-soft focus:outline-none focus:ring-1 focus:ring-gold-soft"
+                >
+                  <option value="">Select...</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
 
               <div>

@@ -4,7 +4,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { BadgeCheck, Calendar, ArrowLeft, Camera } from "lucide-react";
+import { Calendar, ArrowLeft, Camera } from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import {
   getProfileByUsername,
   getPostsByUserId,
@@ -386,15 +387,7 @@ export default function ProfilePage() {
                   {profile.display_name}
                 </h2>
                 {profile.verified && (
-                  <BadgeCheck
-                    className={
-                      profile.username.toLowerCase() === "kendall.vip"
-                        ? "h-[18px] w-[18px] flex-shrink-0 fill-[#C2185B] text-white sm:h-5 sm:w-5"
-                        : profile.username.toLowerCase() === "igorpiven"
-                        ? "h-[18px] w-[18px] flex-shrink-0 fill-[#1D9BF0] text-white sm:h-5 sm:w-5"
-                        : "h-[18px] w-[18px] flex-shrink-0 fill-[#C9A86C] text-white sm:h-5 sm:w-5"
-                    }
-                  />
+                  <VerifiedBadge username={profile.username} gender={(profile as any).gender} size="md" />
                 )}
               </div>
               <div className="mt-1 min-w-0 overflow-hidden">
