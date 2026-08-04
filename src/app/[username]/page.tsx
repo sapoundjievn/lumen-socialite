@@ -386,7 +386,13 @@ export default function ProfilePage() {
                   {profile.display_name}
                 </h2>
                 {profile.verified && (
-                  <BadgeCheck className="h-[18px] w-[18px] flex-shrink-0 fill-gold text-white sm:h-5 sm:w-5" />
+                  <BadgeCheck
+                    className={
+                      profile.username.toLowerCase() === "kendall.vip"
+                        ? "h-[18px] w-[18px] flex-shrink-0 fill-[#E8A0BF] text-white sm:h-5 sm:w-5"
+                        : "h-[18px] w-[18px] flex-shrink-0 fill-gold text-white sm:h-5 sm:w-5"
+                    }
+                  />
                 )}
               </div>
               <div className="mt-1 min-w-0 overflow-hidden">

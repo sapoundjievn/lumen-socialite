@@ -120,7 +120,13 @@ export default function ConversationPage() {
                       {other.display_name}
                     </span>
                     {other.verified && (
-                      <BadgeCheck className="h-4 w-4 fill-gold text-white" />
+                      <BadgeCheck
+                        className={
+                          other.username.toLowerCase() === "kendall.vip"
+                            ? "h-4 w-4 fill-[#E8A0BF] text-white"
+                            : "h-4 w-4 fill-gold text-white"
+                        }
+                      />
                     )}
                   </div>
                   <div className="text-[12px] text-muted">@{other.username}</div>

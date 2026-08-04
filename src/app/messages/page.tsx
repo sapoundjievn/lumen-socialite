@@ -102,7 +102,13 @@ export default function MessagesPage() {
                       {o.display_name}
                     </span>
                     {o.verified && (
-                      <BadgeCheck className="h-4 w-4 flex-shrink-0 fill-gold text-white" />
+                      <BadgeCheck
+                        className={
+                          o.username.toLowerCase() === "kendall.vip"
+                            ? "h-4 w-4 flex-shrink-0 fill-[#E8A0BF] text-white"
+                            : "h-4 w-4 flex-shrink-0 fill-gold text-white"
+                        }
+                      />
                     )}
                     {c.last_message && (
                       <span className="ml-auto flex-shrink-0 text-[12px] text-muted">

@@ -129,7 +129,13 @@ export default function PostCard({
                   {displayName}
                 </Link>
                 {verified && (
-                  <BadgeCheck className="h-4 w-4 flex-shrink-0 fill-gold text-white" />
+                  <BadgeCheck
+                    className={
+                      (username || "").toLowerCase() === "kendall.vip"
+                        ? "h-4 w-4 flex-shrink-0 fill-[#E8A0BF] text-white"
+                        : "h-4 w-4 flex-shrink-0 fill-gold text-white"
+                    }
+                  />
                 )}
                 <Link href={profileHref} className="truncate text-muted hover:underline">
                   @{username}
