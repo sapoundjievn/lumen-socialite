@@ -32,24 +32,25 @@ export default function Composer({ onPost }: ComposerProps) {
       let mediaUrls: string[] = [];
       if (file && profile) {
         const path = `${profile.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const { error: upErr } = await supabase.storage
-          .from("illuminations")
-          .upload(path, file, { upsert: true, contentType: file.type });
-        if (upErr) {
-          // fallback bucket name posts-media
-          const { error: up2 } = await supabase.storage
-            .from("posts-media")
-            .upload(path, file, { upsert: true, contentType: file.type });
-          if (up2) {
-            alert("Image upload failed: " + (upErr.message || up2.message) + "\nCreate storage bucket 'illuminations' in Supabase.");
-            setUploading(false);
-            return;
+        const buckets = ["Illuminations", "illuminations", "posts-media"];
+        let uploaded = false;
+        let lastErr: any = null;
+        for (const bucket of buckets) {
+          const { error: upErr } = await supabase.storage
+            .from(bucket)
+            .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+          if (!upErr) {
+            const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
+            mediaUrls = [pub.publicUrl];
+            uploaded = true;
+            break;
           }
-          const { data: pub } = supabase.storage.from("posts-media").getPublicUrl(path);
-          mediaUrls = [pub.publicUrl];
-        } else {
-          const { data: pub } = supabase.storage.from("illuminations").getPublicUrl(path);
-          mediaUrls = [pub.publicUrl];
+          lastErr = upErr;
+        }
+        if (!uploaded) {
+          alert("Image upload failed: " + (lastErr?.message || "error"));
+          setUploading(false);
+          return;
         }
       }
       await onPost(content.trim() || " ", mediaUrls);
