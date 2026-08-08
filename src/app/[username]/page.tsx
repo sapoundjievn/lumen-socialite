@@ -27,7 +27,7 @@ import {
   createPost,
   type FriendStatus,
 } from "@/lib/posts";
-import { getCurrentProfile, signOut } from "@/lib/auth";
+import { getCurrentProfile, signOut, updateUserEmail, updateUserPassword } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
@@ -55,6 +55,10 @@ export default function ProfilePage() {
   const [editName, setEditName] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editLinks, setEditLinks] = useState<string[]>(["", "", ""]);
+  const [editEmail, setEditEmail] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const [editPassword2, setEditPassword2] = useState("");
+  const [accountMsg, setAccountMsg] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileTab, setProfileTab] = useState<"posts" | "compose" | "reposts">("posts");
   const [reposts, setReposts] = useState<Post[]>([]);
@@ -461,7 +465,7 @@ export default function ProfilePage() {
               />
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   setEditName(profile.display_name);
                   setEditBio(profile.bio || "");
                   const existing = (profile as any).links || [];
@@ -470,6 +474,15 @@ export default function ProfilePage() {
                     existing[1] || "",
                     existing[2] || "",
                   ]);
+                  setEditPassword("");
+                  setEditPassword2("");
+                  setAccountMsg("");
+                  try {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    setEditEmail(user?.email || "");
+                  } catch {
+                    setEditEmail("");
+                  }
                   setEditOpen(true);
                 }}
                 className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
@@ -746,6 +759,50 @@ export default function ProfilePage() {
                   ))}
                 </div>
               </div>
+
+              <div className="border-t border-border pt-4">
+                <p className="mb-2 text-sm font-bold text-charcoal">Account security</p>
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-charcoal">Email</label>
+                    <input
+                      type="email"
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-charcoal focus:border-gold-soft focus:outline-none"
+                      placeholder="you@example.com"
+                    />
+                    <p className="mt-1 text-[11px] text-muted">
+                      Changing email may require confirmation in your inbox.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-charcoal">New password</label>
+                    <input
+                      type="password"
+                      value={editPassword}
+                      onChange={(e) => setEditPassword(e.target.value)}
+                      minLength={6}
+                      className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-charcoal focus:border-gold-soft focus:outline-none"
+                      placeholder="Leave blank to keep current"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-charcoal">Confirm new password</label>
+                    <input
+                      type="password"
+                      value={editPassword2}
+                      onChange={(e) => setEditPassword2(e.target.value)}
+                      minLength={6}
+                      className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-charcoal focus:border-gold-soft focus:outline-none"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                  {accountMsg && (
+                    <p className="text-[12px] text-muted">{accountMsg}</p>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="mt-6 flex justify-end gap-2">
               <button
@@ -761,6 +818,7 @@ export default function ProfilePage() {
                 onClick={async () => {
                   if (!currentUserId || !profile) return;
                   setSavingProfile(true);
+                  setAccountMsg("");
                   const links = editLinks
                     .map((l) => l.trim())
                     .filter(Boolean)
@@ -770,11 +828,39 @@ export default function ProfilePage() {
                     bio: editBio.trim(),
                     links,
                   });
-                  setSavingProfile(false);
                   if (error) {
+                    setSavingProfile(false);
                     alert(error.message || "Could not save");
                     return;
                   }
+                  if (editEmail.trim()) {
+                    const { error: emailErr } = await updateUserEmail(editEmail.trim());
+                    if (emailErr) {
+                      setSavingProfile(false);
+                      alert("Email: " + emailErr.message);
+                      return;
+                    }
+                    setAccountMsg("Check your inbox if email confirmation is required.");
+                  }
+                  if (editPassword) {
+                    if (editPassword.length < 6) {
+                      setSavingProfile(false);
+                      alert("Password must be at least 6 characters");
+                      return;
+                    }
+                    if (editPassword !== editPassword2) {
+                      setSavingProfile(false);
+                      alert("Passwords do not match");
+                      return;
+                    }
+                    const { error: pwErr } = await updateUserPassword(editPassword);
+                    if (pwErr) {
+                      setSavingProfile(false);
+                      alert("Password: " + pwErr.message);
+                      return;
+                    }
+                  }
+                  setSavingProfile(false);
                   if (data) setProfile(data);
                   setEditOpen(false);
                 }}

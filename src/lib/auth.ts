@@ -100,3 +100,23 @@ export function onAuthStateChange(callback: (user: any) => void) {
     callback(session?.user ?? null);
   });
 }
+
+
+export async function updateUserEmail(newEmail: string) {
+  const { data, error } = await supabase.auth.updateUser({ email: newEmail });
+  return { data, error };
+}
+
+export async function updateUserPassword(newPassword: string) {
+  const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+  return { data, error };
+}
+
+export async function resetPasswordForEmail(email: string) {
+  const redirectTo =
+    (typeof window !== "undefined" ? window.location.origin : "") + "/reset-password";
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+  return { data, error };
+}
