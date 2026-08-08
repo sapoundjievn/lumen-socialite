@@ -969,6 +969,8 @@ export async function createMusicTrack(
     audio_url: string;
     cover_url?: string;
     price_cents: number;
+    copyright_attested?: boolean;
+    copyright_owner_name?: string;
   }
 ) {
   const { data, error } = await supabase

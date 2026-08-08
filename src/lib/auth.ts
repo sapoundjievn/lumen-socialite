@@ -8,7 +8,8 @@ export async function signUp(
   username: string,
   displayName: string,
   gender?: string,
-  accountType: string = "personal"
+  accountType: string = "personal",
+  musicianAgreement?: { signature: string; agreeFee: boolean; agreeCopyright: boolean }
 ) {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -19,9 +20,29 @@ export async function signUp(
         display_name: displayName,
         gender: gender || null,
         account_type: accountType || "personal",
+        musician_signature: musicianAgreement?.signature || null,
+        musician_agree_fee: musicianAgreement?.agreeFee || false,
+        musician_agree_copyright: musicianAgreement?.agreeCopyright || false,
       },
     },
   });
+
+  // Persist signature on profile after signup
+  if (!error && data.user && musicianAgreement?.signature) {
+    setTimeout(async () => {
+      try {
+        await supabase
+          .from("profiles")
+          .update({
+            musician_agreement_signature: musicianAgreement.signature,
+            musician_agreement_signed_at: new Date().toISOString(),
+          })
+          .eq("id", data.user!.id);
+      } catch (e) {
+        console.error("Could not save musician agreement", e);
+      }
+    }, 2000);
+  }
 
   // After successful signup, auto-follow founders (thevip + kendall.vip)
   if (!error && data.user) {

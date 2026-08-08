@@ -17,6 +17,9 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState("");
   const [gender, setGender] = useState("");
   const [accountType, setAccountType] = useState<AccountType>("personal");
+  const [agreeFee, setAgreeFee] = useState(false);
+  const [agreeCopyright, setAgreeCopyright] = useState(false);
+  const [eSignature, setESignature] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -38,13 +41,29 @@ export default function SignupPage() {
       return;
     }
 
+    if (accountType === "musician") {
+      if (!agreeFee || !agreeCopyright) {
+        setError("You must accept the musician fee and copyright terms");
+        setLoading(false);
+        return;
+      }
+      if (!eSignature.trim() || eSignature.trim().length < 2) {
+        setError("Type your full legal name as electronic signature");
+        setLoading(false);
+        return;
+      }
+    }
+
     const { error } = await signUp(
       email,
       password,
       username,
       displayName,
       accountType === "personal" ? gender : undefined,
-      accountType
+      accountType,
+      accountType === "musician"
+        ? { signature: eSignature.trim(), agreeFee, agreeCopyright }
+        : undefined
     );
 
     if (error) {
@@ -192,10 +211,51 @@ export default function SignupPage() {
               </div>
 
               {accountType === "musician" && (
-                <p className="rounded-lg bg-champagne/40 px-3 py-2 text-[12px] text-muted">
-                  Musicians can upload tracks and sell them on Lumen. Platform fee:{" "}
-                  <span className="font-semibold text-charcoal">10% per sale</span>.
-                </p>
+                <div className="space-y-3 rounded-xl border border-border bg-champagne/30 p-3">
+                  <p className="text-[12px] font-bold text-charcoal">Musician Agreement</p>
+                  <p className="text-[12px] leading-5 text-muted">
+                    Musicians can upload tracks and sell them on Lumen. Platform fee:{" "}
+                    <span className="font-semibold text-charcoal">10% per sale</span>. You keep 90%.
+                    By signing, you agree this fee applies to every sale on Lumen.
+                  </p>
+                  <label className="flex items-start gap-2 text-[12px] text-charcoal">
+                    <input
+                      type="checkbox"
+                      checked={agreeFee}
+                      onChange={(e) => setAgreeFee(e.target.checked)}
+                      className="mt-0.5"
+                    />
+                    <span>I agree to the 10% platform fee on every music sale on Lumen Socialite.</span>
+                  </label>
+                  <label className="flex items-start gap-2 text-[12px] text-charcoal">
+                    <input
+                      type="checkbox"
+                      checked={agreeCopyright}
+                      onChange={(e) => setAgreeCopyright(e.target.checked)}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      I own the copyright (or have exclusive rights) to any music I upload. I will only
+                      upload tracks I have the legal right to sell. False claims may result in removal
+                      and account action.
+                    </span>
+                  </label>
+                  <div>
+                    <label className="mb-1 block text-[11px] font-medium text-muted">
+                      Electronic signature (type your full legal name)
+                    </label>
+                    <input
+                      type="text"
+                      value={eSignature}
+                      onChange={(e) => setESignature(e.target.value)}
+                      placeholder="Full legal name"
+                      className="w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px] text-charcoal"
+                    />
+                    <p className="mt-1 text-[10px] text-muted">
+                      Typing your name is your electronic signature and forms a binding agreement.
+                    </p>
+                  </div>
+                </div>
               )}
               {accountType === "business" && (
                 <p className="rounded-lg bg-champagne/40 px-3 py-2 text-[12px] text-muted">

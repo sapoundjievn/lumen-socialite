@@ -22,6 +22,8 @@ export default function MusicPage() {
   const [price, setPrice] = useState("0.99");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [copyrightOk, setCopyrightOk] = useState(false);
+  const [copyrightOwner, setCopyrightOwner] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -46,6 +48,14 @@ export default function MusicPage() {
       setError("Add a title first");
       return;
     }
+    if (!copyrightOk) {
+      setError("You must confirm you own the copyright to this track");
+      return;
+    }
+    if (!copyrightOwner.trim()) {
+      setError("Enter the copyright owner name (must match the rights holder)");
+      return;
+    }
     setUploading(true);
     setError("");
     try {
@@ -63,7 +73,9 @@ export default function MusicPage() {
         title: title.trim(),
         audio_url,
         price_cents,
-      });
+        copyright_attested: true,
+        copyright_owner_name: copyrightOwner.trim(),
+      } as any);
       if (insErr) {
         setError(insErr.message);
         return;
@@ -138,6 +150,24 @@ export default function MusicPage() {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="Price USD e.g. 0.99"
+                className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
+              />
+              <label className="mb-2 flex items-start gap-2 text-[12px] text-charcoal">
+                <input
+                  type="checkbox"
+                  checked={copyrightOk}
+                  onChange={(e) => setCopyrightOk(e.target.checked)}
+                  className="mt-0.5"
+                />
+                <span>
+                  I own the copyright to this recording / composition (or hold exclusive rights to sell
+                  it). I am not uploading someone else&apos;s music without permission.
+                </span>
+              </label>
+              <input
+                value={copyrightOwner}
+                onChange={(e) => setCopyrightOwner(e.target.value)}
+                placeholder="Copyright owner legal name"
                 className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
               />
               <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={handleUpload} />
