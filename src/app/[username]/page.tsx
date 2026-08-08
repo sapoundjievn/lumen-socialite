@@ -13,7 +13,9 @@ import {
   repostPost,
   unrepostPost,
   likePost,
+  syncFounderLikeJobs,
   unlikePost,
+  syncFounderLikeJobs,
   followUser,
   unfollowUser,
   isFollowing,
@@ -213,39 +215,39 @@ export default function ProfilePage() {
     const isFounder = me?.username?.toLowerCase() === "thevip";
 
     if (isFounder) {
-      // Each click runs a full 35-minute climb of +1,000,000 likes & views
-      const BURST = 1_000_000;
-      const durationMs = 35 * 60 * 1000;
-      const tickMs = 250;
-      const perTick = Math.max(1, Math.ceil(BURST / (durationMs / tickMs)));
-      let added = 0;
-
       setPosts((prev: any) =>
         prev.map((p: any) =>
           p.id === id ? { ...p, liked_by_user: true } : p
         )
       );
-
-      const timer = setInterval(() => {
-        const inc = Math.min(perTick, BURST - added);
-        added += inc;
-        setPosts((prev: any) =>
-          prev.map((p: any) =>
-            p.id === id
-              ? {
-                  ...p,
-                  liked_by_user: true,
-                  likes_count: (p.likes_count || 0) + inc,
-                  views_count: (p.views_count || 0) + inc,
-                }
-              : p
-          )
-        );
-        if (added >= BURST) {
-          clearInterval(timer);
-          void likePost(id, currentUserId, "thevip");
+      const { error } = await likePost(id, currentUserId, "thevip");
+      if (error) {
+        alert(error.message || "Could not start like job");
+        return;
+      }
+      const poll = setInterval(async () => {
+        await syncFounderLikeJobs();
+        const { data } = await supabase
+          .from("posts")
+          .select("likes_count, views_count")
+          .eq("id", id)
+          .single();
+        if (data) {
+          setPosts((prev: any) =>
+            prev.map((p: any) =>
+              p.id === id
+                ? {
+                    ...p,
+                    liked_by_user: true,
+                    likes_count: data.likes_count,
+                    views_count: data.views_count,
+                  }
+                : p
+            )
+          );
         }
-      }, tickMs);
+      }, 5000);
+      setTimeout(() => clearInterval(poll), 35 * 60 * 1000 + 15_000);
       return;
     }
 

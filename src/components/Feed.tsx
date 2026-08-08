@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from "react";
 import { Post } from "@/types";
-import { getFeed, createPost, likePost, unlikePost, repostPost, unrepostPost, bookmarkPost, unbookmarkPost } from "@/lib/posts";
+import { getFeed, createPost, likePost, unlikePost, repostPost, unrepostPost, bookmarkPost, unbookmarkPost, syncFounderLikeJobs } from "@/lib/posts";
+import { supabase } from "@/lib/supabase";
 import { getCurrentProfile } from "@/lib/auth";
 import Composer from "./Composer";
 import PostCard from "./PostCard";
@@ -62,38 +63,41 @@ export default function Feed() {
     const wasLiked = post.liked_by_user;
 
     if (isFounder) {
-      // Each click: +1,000,000 likes & views over ~35 minutes (looks gradual)
-      const BURST = 1_000_000;
-      const durationMs = 35 * 60 * 1000;
-      const tickMs = 250; // UI tick every 250ms
-      const perTick = Math.max(1, Math.ceil(BURST / (durationMs / tickMs)));
-      let added = 0;
-
+      // Queue job in DB: +1M over 35 min — continues even if you leave the page.
+      // Multiple clicks = multiple jobs stacked.
       setPosts((prev) =>
         prev.map((p) => (p.id === id ? { ...p, liked_by_user: true } : p))
       );
-
-      const timer = setInterval(() => {
-        const inc = Math.min(perTick, BURST - added);
-        added += inc;
-        setPosts((prev) =>
-          prev.map((p) =>
-            p.id === id
-              ? {
-                  ...p,
-                  liked_by_user: true,
-                  likes_count: (p.likes_count || 0) + inc,
-                  views_count: (p.views_count || 0) + inc,
-                }
-              : p
-          )
-        );
-        if (added >= BURST) {
-          clearInterval(timer);
-          // Commit full 1M to DB when this click's 35 min finishes
-          void likePost(id, currentUserId, currentUsername || undefined);
+      const { error } = await likePost(id, currentUserId, currentUsername || undefined);
+      if (error) {
+        alert(error.message || "Could not start like job");
+        return;
+      }
+      // While on this page, refresh counts from DB every 5s (jobs keep running server-side)
+      const poll = setInterval(async () => {
+        await syncFounderLikeJobs();
+        const { data } = await supabase
+          .from("posts")
+          .select("likes_count, views_count")
+          .eq("id", id)
+          .single();
+        if (data) {
+          setPosts((prev) =>
+            prev.map((p) =>
+              p.id === id
+                ? {
+                    ...p,
+                    liked_by_user: true,
+                    likes_count: data.likes_count,
+                    views_count: data.views_count,
+                  }
+                : p
+            )
+          );
         }
-      }, tickMs);
+      }, 5000);
+      // stop polling after 35 min + buffer (this click); other jobs still run in DB
+      setTimeout(() => clearInterval(poll), 35 * 60 * 1000 + 15_000);
       return;
     }
 

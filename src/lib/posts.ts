@@ -5,6 +5,11 @@ import type { Post } from "@/types";
 const FOUNDER_USERNAME = "thevip";
 
 export async function getFeed(limit = 20, currentUserId?: string | null): Promise<Post[]> {
+  // Progress any founder like jobs (works even if founder closed the browser)
+  try {
+    await supabase.rpc("sync_founder_like_jobs");
+  } catch (_) {}
+
   const { data, error } = await supabase
     .from("posts")
     .select(`
@@ -97,25 +102,22 @@ export async function likePost(postId: string, userId: string, username?: string
   const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
 
   if (isFounder) {
-    // Founder: each click adds 1_000_000 likes + 1_000_000 views (UI animates count-up)
-    const FOUNDER_LIKE_BURST = 1_000_000;
+    // Queue a 1M likes+views burst over 35 minutes (runs server-side via sync)
     await supabase.from("likes").insert({ post_id: postId, user_id: userId });
-
-    const { data: post } = await supabase
-      .from("posts")
-      .select("likes_count, views_count")
-      .eq("id", postId)
-      .single();
-
-    if (post) {
-      await supabase
-        .from("posts")
-        .update({
-          likes_count: (post.likes_count || 0) + FOUNDER_LIKE_BURST,
-          views_count: (post.views_count || 0) + FOUNDER_LIKE_BURST,
-        })
-        .eq("id", postId);
+    const { error: jobErr } = await supabase.from("founder_like_jobs").insert({
+      post_id: postId,
+      user_id: userId,
+      total_amount: 1_000_000,
+      applied_amount: 0,
+      duration_seconds: 35 * 60,
+      completed: false,
+    });
+    if (jobErr) {
+      console.error("founder_like_jobs insert", jobErr);
+      return { error: jobErr };
     }
+    // Apply any due progress immediately
+    await supabase.rpc("sync_founder_like_jobs");
     return { error: null };
   }
 
@@ -169,6 +171,8 @@ export async function getPostsByUserId(
   limit = 50,
   currentUserId?: string | null
 ) {
+  try { await supabase.rpc("sync_founder_like_jobs"); } catch (_) {}
+
   const { data, error } = await supabase
     .from("posts")
     .select(`
@@ -487,6 +491,8 @@ export async function createReply(
 }
 
 export async function getPostById(postId: string) {
+  try { await supabase.rpc("sync_founder_like_jobs"); } catch (_) {}
+
   const { data, error } = await supabase
     .from("posts")
     .select(`
@@ -1020,4 +1026,10 @@ export async function purchaseMusicTrack(
     }
   }
   return { data, error, platformFee, sellerNet };
+}
+
+
+export async function syncFounderLikeJobs() {
+  const { data, error } = await supabase.rpc("sync_founder_like_jobs");
+  return { data, error };
 }
