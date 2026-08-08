@@ -47,7 +47,7 @@ export default function MorePage() {
   const isBusiness = accountType === "business";
 
   const verifyLabel = isFounder
-    ? "Founder · already verified"
+    ? "Verified free for infinity · @thevip & @kendall.vip"
     : isBusiness
     ? "Verify Business account ($168/yr)"
     : accountType === "musician"
