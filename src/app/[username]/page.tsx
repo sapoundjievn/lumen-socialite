@@ -213,34 +213,38 @@ export default function ProfilePage() {
     const isFounder = me?.username?.toLowerCase() === "thevip";
 
     if (isFounder) {
+      // Each click runs a full 35-minute climb of +1,000,000 likes & views
       const BURST = 1_000_000;
-      const baseLikes = post.likes_count || 0;
-      const baseViews = post.views_count || 0;
+      const durationMs = 35 * 60 * 1000;
+      const tickMs = 250;
+      const perTick = Math.max(1, Math.ceil(BURST / (durationMs / tickMs)));
+      let added = 0;
+
       setPosts((prev: any) =>
         prev.map((p: any) =>
           p.id === id ? { ...p, liked_by_user: true } : p
         )
       );
-      void likePost(id, currentUserId, "thevip");
-      let added = 0;
-      const durationMs = 35 * 60 * 1000; // 35 minutes
-      const tickMs = 50;
-      const perTick = Math.max(1, Math.ceil(BURST / (durationMs / tickMs)));
+
       const timer = setInterval(() => {
-        added = Math.min(BURST, added + perTick);
+        const inc = Math.min(perTick, BURST - added);
+        added += inc;
         setPosts((prev: any) =>
           prev.map((p: any) =>
             p.id === id
               ? {
                   ...p,
                   liked_by_user: true,
-                  likes_count: baseLikes + added,
-                  views_count: baseViews + added,
+                  likes_count: (p.likes_count || 0) + inc,
+                  views_count: (p.views_count || 0) + inc,
                 }
               : p
           )
         );
-        if (added >= BURST) clearInterval(timer);
+        if (added >= BURST) {
+          clearInterval(timer);
+          void likePost(id, currentUserId, "thevip");
+        }
       }, tickMs);
       return;
     }

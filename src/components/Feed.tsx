@@ -62,38 +62,37 @@ export default function Feed() {
     const wasLiked = post.liked_by_user;
 
     if (isFounder) {
-      // One click = +1,000,000 likes & views, count up one-by-one on screen
+      // Each click: +1,000,000 likes & views over ~35 minutes (looks gradual)
       const BURST = 1_000_000;
-      const baseLikes = post.likes_count || 0;
-      const baseViews = post.views_count || 0;
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === id ? { ...p, liked_by_user: true } : p
-        )
-      );
-      // fire DB update (full +1,000,000) without waiting for animation
-      void likePost(id, currentUserId, currentUsername || undefined);
-
-      // Count up over ~60 seconds (one-by-one feel)
-      let added = 0;
-      const durationMs = 35 * 60 * 1000; // 35 minutes
-      const tickMs = 50; // same pacing feel as before
+      const durationMs = 35 * 60 * 1000;
+      const tickMs = 250; // UI tick every 250ms
       const perTick = Math.max(1, Math.ceil(BURST / (durationMs / tickMs)));
+      let added = 0;
+
+      setPosts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, liked_by_user: true } : p))
+      );
+
       const timer = setInterval(() => {
-        added = Math.min(BURST, added + perTick);
+        const inc = Math.min(perTick, BURST - added);
+        added += inc;
         setPosts((prev) =>
           prev.map((p) =>
             p.id === id
               ? {
                   ...p,
                   liked_by_user: true,
-                  likes_count: baseLikes + added,
-                  views_count: baseViews + added,
+                  likes_count: (p.likes_count || 0) + inc,
+                  views_count: (p.views_count || 0) + inc,
                 }
               : p
           )
         );
-        if (added >= BURST) clearInterval(timer);
+        if (added >= BURST) {
+          clearInterval(timer);
+          // Commit full 1M to DB when this click's 35 min finishes
+          void likePost(id, currentUserId, currentUsername || undefined);
+        }
       }, tickMs);
       return;
     }
