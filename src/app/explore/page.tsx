@@ -103,10 +103,10 @@ function ExploreInner() {
             </button>
             <button
               type="button"
-              onClick={() => runSearch("kendall")}
+              onClick={() => runSearch("kendall.vip")}
               className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal hover:bg-champagne/40"
             >
-              @kendall
+              @kendall.vip
             </button>
           </div>
         </div>

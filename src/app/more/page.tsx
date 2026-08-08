@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
 import type { Profile } from "@/types";
+import VerifiedBadge from "@/components/VerifiedBadge";
+import SpecialStars from "@/components/SpecialStars";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
@@ -44,12 +46,12 @@ export default function MorePage() {
   const isMusician = accountType === "musician" || isFounder;
   const isBusiness = accountType === "business";
 
-  const verifyLabel = isBusiness
+  const verifyLabel = isFounder
+    ? "Founder · already verified"
+    : isBusiness
     ? "Verify Business account ($168/yr)"
-    : isMusician && !isFounder
+    : accountType === "musician"
     ? "Verify Musician account ($168/yr)"
-    : isFounder
-    ? "Verification (founders)"
     : "Get verified ($60/yr)";
 
   const links = [
@@ -112,12 +114,24 @@ export default function MorePage() {
                     `https://api.dicebear.com/9.x/avataaars/svg?seed=${profile.id}`
                   }
                   alt={profile.display_name}
-                  className="h-14 w-14 rounded-full border border-border object-cover"
+                  className="h-14 w-14 flex-shrink-0 rounded-full border border-border object-cover"
                 />
-                <div className="min-w-0">
-                  <div className="truncate font-bold text-charcoal">
-                    {profile.display_name}
+                <div className="min-w-0 flex-1">
+                  <div className="flex min-w-0 items-center gap-1">
+                    <span className="truncate font-bold text-charcoal">
+                      {profile.display_name}
+                    </span>
+                    {(profile.verified ||
+                      ["thevip", "kendall.vip"].includes(
+                        (profile.username || "").toLowerCase()
+                      )) && (
+                      <VerifiedBadge
+                        username={profile.username}
+                        gender={(profile as any).gender}
+                      />
+                    )}
                   </div>
+                  <SpecialStars username={profile.username || ""} />
                   <div className="text-[14px] text-muted">@{profile.username}</div>
                 </div>
               </div>
