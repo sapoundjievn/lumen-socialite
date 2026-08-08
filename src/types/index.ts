@@ -8,7 +8,6 @@ export interface Profile {
   gender?: string | null;
   bio: string | null;
   links?: string[] | null;
-  gender?: string | null;
   verified: boolean;
   followers_count: number;
   following_count: number;
