@@ -38,10 +38,29 @@ export default function MorePage() {
     router.push("/login");
   }
 
+  const accountType = ((profile as any)?.account_type || "personal") as string;
+  const uname = (profile?.username || "").toLowerCase();
+  const isFounder = uname === "thevip" || uname === "kendall.vip";
+  const isMusician = accountType === "musician" || isFounder;
+  const isBusiness = accountType === "business";
+
+  const verifyLabel = isBusiness
+    ? "Verify Business account ($168/yr)"
+    : isMusician && !isFounder
+    ? "Verify Musician account ($168/yr)"
+    : isFounder
+    ? "Verification (founders)"
+    : "Get verified ($60/yr)";
+
   const links = [
-    { icon: ShieldCheck, label: "Get verified ($60/yr)", href: "/verify" },
+    { icon: ShieldCheck, label: verifyLabel, href: "/verify" },
+    ...(isBusiness
+      ? [{ icon: ShieldCheck, label: "Business verification $168/yr", href: "/verify" }]
+      : []),
+    ...(isMusician
+      ? [{ icon: Music, label: "Music · samples & sales", href: "/music" }]
+      : [{ icon: Music, label: "Music store (listen / buy)", href: "/music" }]),
     { icon: Search, label: "Explore", href: "/explore" },
-    { icon: Music, label: "Music", href: "/music" },
     { icon: Bell, label: "Notifications", href: "/notifications" },
     { icon: Mail, label: "Messages", href: "/messages" },
     { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
@@ -51,6 +70,14 @@ export default function MorePage() {
       href: profile?.username ? `/${profile.username}` : "/login",
     },
   ];
+  // de-dupe verify if business double
+  const seen = new Set<string>();
+  const uniqueLinks = links.filter((l) => {
+    const k = l.label + l.href;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
 
   return (
     <div className="mx-auto flex min-h-screen max-w-[1280px] justify-center">
@@ -97,7 +124,7 @@ export default function MorePage() {
             )}
 
             <div className="overflow-hidden rounded-2xl border border-border">
-              {links.map((item) => {
+              {uniqueLinks.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link

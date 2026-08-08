@@ -44,8 +44,11 @@ export default function MusicPage() {
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
-    if ((profile as any).account_type !== "musician" && profile.username?.toLowerCase() !== "thevip") {
-      setError("Only musician accounts can upload tracks");
+    const uname = (profile.username || "").toLowerCase();
+    const isFounder = uname === "thevip" || uname === "kendall.vip";
+    const isMusician = (profile as any).account_type === "musician";
+    if (!isFounder && !isMusician) {
+      setError("Only Musician accounts (or founders) can upload. Personal accounts cannot upload music.");
       return;
     }
     if (!title.trim()) {
@@ -60,11 +63,13 @@ export default function MusicPage() {
       setError("Enter the copyright owner name (must match the rights holder)");
       return;
     }
-    const limit = profile.verified ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
+    const uname2 = (profile.username || "").toLowerCase();
+    const isFounder2 = uname2 === "thevip" || uname2 === "kendall.vip";
+    const limit = isFounder2 || profile.verified ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
     if (tracks.length >= limit) {
       setError(
-        profile.verified
-          ? `Verified musicians can upload up to ${SAMPLE_LIMIT_VERIFIED} one-minute samples.`
+        isFounder2 || profile.verified
+          ? `You can upload up to ${SAMPLE_LIMIT_VERIFIED} one-minute samples.`
           : `Free musicians can upload up to ${SAMPLE_LIMIT_FREE} one-minute samples. Get verified ($168/year) for ${SAMPLE_LIMIT_VERIFIED}.`
       );
       return;
@@ -155,21 +160,36 @@ export default function MusicPage() {
             </span>
             .
           </p>
-          {profile && (
-            <p className="mb-4 text-[12px] text-muted">
-              Your slots: {tracks.length}/
-              {profile.verified ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE}
-              {profile.verified ? " (verified)" : " (free)"}
-              {!profile.verified && (
-                <>
-                  {" · "}
-                  <a href="/verify" className="font-semibold text-gold-deep hover:underline">
-                    Get verified $168/year
-                  </a>
-                </>
-              )}
-            </p>
-          )}
+          {profile && (() => {
+            const uname = (profile.username || "").toLowerCase();
+            const isFounder = uname === "thevip" || uname === "kendall.vip";
+            const isMusician = (profile as any).account_type === "musician";
+            const canUpload = isFounder || isMusician;
+            const limit = isFounder || profile.verified ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
+            if (!canUpload) {
+              return (
+                <p className="mb-4 rounded-xl bg-champagne/40 px-3 py-2 text-[12px] text-muted">
+                  Personal accounts cannot upload music. Create a{" "}
+                  <span className="font-semibold text-charcoal">Musician</span> account to sell
+                  samples, or use a founder account.
+                </p>
+              );
+            }
+            return (
+              <p className="mb-4 text-[12px] text-muted">
+                Your slots: {tracks.length}/{limit}
+                {isFounder ? " (founder)" : profile.verified ? " (verified)" : " (free)"}
+                {!profile.verified && !isFounder && (
+                  <>
+                    {" · "}
+                    <a href="/verify" className="font-semibold text-gold-deep hover:underline">
+                      Get verified $168/year
+                    </a>
+                  </>
+                )}
+              </p>
+            );
+          })()}
 
           {profile && (
             <div className="mb-6 rounded-2xl border border-border bg-pearl-soft p-4">
