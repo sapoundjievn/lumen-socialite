@@ -304,6 +304,26 @@ export default function ProfilePage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (notFound || !profile) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
+        <h1 className="text-2xl font-bold text-charcoal">This account doesn’t exist</h1>
+        <Link href="/" className="text-gold-deep hover:underline">
+          Back to Home
+        </Link>
+      </div>
+    );
+  }
+
+
   async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !currentUserId || !profile) return;
@@ -346,27 +366,6 @@ export default function ProfilePage() {
       setPosts((prev) => [data as any, ...prev]);
     }
   }
-
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (notFound || !profile) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <h1 className="text-2xl font-bold text-charcoal">This account doesn’t exist</h1>
-        <Link href="/" className="text-gold-deep hover:underline">
-          Back to Home
-        </Link>
-      </div>
-    );
-  }
-
 
   const avatar =
     profile.avatar_url ||
