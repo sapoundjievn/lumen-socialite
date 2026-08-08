@@ -20,6 +20,7 @@ export default function SignupPage() {
   const [agreeFee, setAgreeFee] = useState(false);
   const [agreeCopyright, setAgreeCopyright] = useState(false);
   const [eSignature, setESignature] = useState("");
+  const [agreeGuidelines, setAgreeGuidelines] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -31,6 +32,12 @@ export default function SignupPage() {
 
     if (!/^[a-zA-Z0-9_.]+$/.test(username)) {
       setError("Username can only contain letters, numbers, underscores and dots");
+      setLoading(false);
+      return;
+    }
+
+    if (!agreeGuidelines) {
+      setError("You must agree to the Community Guidelines to create an account");
       setLoading(false);
       return;
     }
@@ -263,6 +270,31 @@ export default function SignupPage() {
                   banner anytime.
                 </p>
               )}
+
+
+              <div className="space-y-2 rounded-xl border border-border bg-pearl p-3">
+                <p className="text-[12px] font-bold text-charcoal">Community Guidelines</p>
+                <ul className="list-disc space-y-1 pl-4 text-[11px] leading-4 text-muted">
+                  <li>Be respectful. No harassment, hate, or threats.</li>
+                  <li>No illegal content, scams, or spam.</li>
+                  <li>Only post content you have the right to share.</li>
+                  <li>No impersonation of others or fake identity for harm.</li>
+                  <li>Keep Lumen safe — report abuse when you see it.</li>
+                  <li>We may remove content or accounts that break these rules.</li>
+                </ul>
+                <label className="flex items-start gap-2 pt-1 text-[12px] text-charcoal">
+                  <input
+                    type="checkbox"
+                    checked={agreeGuidelines}
+                    onChange={(e) => setAgreeGuidelines(e.target.checked)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    I have read and agree to the Lumen · Socialite Community Guidelines. This applies
+                    to Personal, Business, and Musician accounts.
+                  </span>
+                </label>
+              </div>
 
               {error && (
                 <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>

@@ -20,6 +20,7 @@ export async function signUp(
         display_name: displayName,
         gender: gender || null,
         account_type: accountType || "personal",
+        guidelines_accepted: true,
         musician_signature: musicianAgreement?.signature || null,
         musician_agree_fee: musicianAgreement?.agreeFee || false,
         musician_agree_copyright: musicianAgreement?.agreeCopyright || false,
@@ -27,19 +28,19 @@ export async function signUp(
     },
   });
 
-  // Persist signature on profile after signup
-  if (!error && data.user && musicianAgreement?.signature) {
+  if (!error && data.user) {
     setTimeout(async () => {
       try {
-        await supabase
-          .from("profiles")
-          .update({
-            musician_agreement_signature: musicianAgreement.signature,
-            musician_agreement_signed_at: new Date().toISOString(),
-          })
-          .eq("id", data.user!.id);
+        const patch: Record<string, unknown> = {
+          guidelines_accepted_at: new Date().toISOString(),
+        };
+        if (musicianAgreement?.signature) {
+          patch.musician_agreement_signature = musicianAgreement.signature;
+          patch.musician_agreement_signed_at = new Date().toISOString();
+        }
+        await supabase.from("profiles").update(patch).eq("id", data.user!.id);
       } catch (e) {
-        console.error("Could not save musician agreement", e);
+        console.error("Could not save agreements", e);
       }
     }, 2000);
   }
