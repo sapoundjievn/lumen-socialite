@@ -15,7 +15,6 @@ import {
   likePost,
   syncFounderLikeJobs,
   unlikePost,
-  syncFounderLikeJobs,
   followUser,
   unfollowUser,
   isFollowing,
