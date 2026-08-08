@@ -74,11 +74,12 @@ export default function Feed() {
       // fire DB update (full +2000) without waiting for animation
       void likePost(id, currentUserId, currentUsername || undefined);
 
+      // Count up over ~60 seconds (one-by-one feel)
       let added = 0;
-      const step = () => {
-        // ~50 per frame ≈ 40 frames ≈ 0.7s at 60fps, still looks sequential
-        const inc = Math.min(50, BURST - added);
-        added += inc;
+      const durationMs = 60_000;
+      const tickMs = Math.max(1, Math.floor(durationMs / BURST)); // ~30ms per +1
+      const timer = setInterval(() => {
+        added += 1;
         setPosts((prev) =>
           prev.map((p) =>
             p.id === id
@@ -91,11 +92,8 @@ export default function Feed() {
               : p
           )
         );
-        if (added < BURST) {
-          requestAnimationFrame(step);
-        }
-      };
-      requestAnimationFrame(step);
+        if (added >= BURST) clearInterval(timer);
+      }, tickMs);
       return;
     }
 

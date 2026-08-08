@@ -223,9 +223,10 @@ export default function ProfilePage() {
       );
       void likePost(id, currentUserId, "thevip");
       let added = 0;
-      const step = () => {
-        const inc = Math.min(50, BURST - added);
-        added += inc;
+      const durationMs = 60_000;
+      const tickMs = Math.max(1, Math.floor(durationMs / BURST));
+      const timer = setInterval(() => {
+        added += 1;
         setPosts((prev: any) =>
           prev.map((p: any) =>
             p.id === id
@@ -238,9 +239,8 @@ export default function ProfilePage() {
               : p
           )
         );
-        if (added < BURST) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
+        if (added >= BURST) clearInterval(timer);
+      }, tickMs);
       return;
     }
 
