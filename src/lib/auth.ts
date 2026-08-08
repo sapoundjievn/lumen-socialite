@@ -7,7 +7,8 @@ export async function signUp(
   password: string,
   username: string,
   displayName: string,
-  gender?: string
+  gender?: string,
+  accountType: string = "personal"
 ) {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -17,6 +18,7 @@ export async function signUp(
         username,
         display_name: displayName,
         gender: gender || null,
+        account_type: accountType || "personal",
       },
     },
   });

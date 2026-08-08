@@ -3,6 +3,9 @@ export interface Profile {
   username: string;
   display_name: string;
   avatar_url: string | null;
+  banner_url?: string | null;
+  account_type?: "personal" | "business" | "musician" | null;
+  gender?: string | null;
   bio: string | null;
   links?: string[] | null;
   gender?: string | null;
@@ -62,4 +65,19 @@ export interface Trend {
   category: string;
   title: string;
   posts: string;
+}
+
+
+export interface MusicTrack {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string | null;
+  audio_url: string;
+  cover_url?: string | null;
+  price_cents: number;
+  currency?: string;
+  plays_count?: number;
+  sales_count?: number;
+  created_at?: string;
 }

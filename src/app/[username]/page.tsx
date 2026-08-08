@@ -304,26 +304,6 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (notFound || !profile) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <h1 className="text-2xl font-bold text-charcoal">This account doesn’t exist</h1>
-        <Link href="/" className="text-gold-deep hover:underline">
-          Back to Home
-        </Link>
-      </div>
-    );
-  }
-
-
   async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !currentUserId || !profile) return;
@@ -367,10 +347,34 @@ export default function ProfilePage() {
     }
   }
 
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (notFound || !profile) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
+        <h1 className="text-2xl font-bold text-charcoal">This account doesn’t exist</h1>
+        <Link href="/" className="text-gold-deep hover:underline">
+          Back to Home
+        </Link>
+      </div>
+    );
+  }
+
+
   const avatar =
     profile.avatar_url ||
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${profile.id}`;
   const isOwnProfile = currentUserId === profile.id;
+  const accountType = ((profile as any).account_type || "personal") as string;
+  const isBusiness = accountType === "business";
+  const isMusician = accountType === "musician";
 
   return (
     <div className="mx-auto flex min-h-screen max-w-[1280px] justify-center">
@@ -400,39 +404,41 @@ export default function ProfilePage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <div className="absolute -bottom-8 left-4">
-            <div className="relative">
-              <img
-                src={avatar}
-                alt={profile.display_name}
-                className="h-32 w-32 rounded-full border-4 border-pearl bg-champagne object-cover"
-              />
-              {isOwnProfile && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
-                    title="Change photo"
-                  >
-                    {uploading ? (
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    ) : (
-                      <Camera className="h-4 w-4" />
-                    )}
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarChange}
-                  />
-                </>
-              )}
+          {!isBusiness && (
+            <div className="absolute -bottom-8 left-4">
+              <div className="relative">
+                <img
+                  src={avatar}
+                  alt={profile.display_name}
+                  className="h-32 w-32 rounded-full border-4 border-pearl bg-champagne object-cover"
+                />
+                {isOwnProfile && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
+                      title="Change photo"
+                    >
+                      {uploading ? (
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      ) : (
+                        <Camera className="h-4 w-4" />
+                      )}
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                    />
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Own profile actions under banner */}
           {isOwnProfile && (
@@ -475,7 +481,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile info */}
-        <div className="px-4 pt-10 pb-4">
+        <div className={`px-4 pb-4 ${isBusiness ? "pt-5" : "pt-10"}`}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1 pr-2">
               <div className="flex min-w-0 items-center gap-1.5">
@@ -611,6 +617,17 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {isMusician && (
+          <div className="border-b border-border px-4 py-3">
+            <a
+              href="/music"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-pearl px-4 py-2 text-[13px] font-semibold text-charcoal hover:bg-champagne/40"
+            >
+              Music store · sell tracks (10% platform fee)
+            </a>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex border-b border-border">

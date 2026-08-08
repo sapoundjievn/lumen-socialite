@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { User, Building2, Music } from "lucide-react";
 import { signUp } from "@/lib/auth";
+import { cn } from "@/lib/utils";
+
+type AccountType = "personal" | "business" | "musician";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -12,6 +16,7 @@ export default function SignupPage() {
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [gender, setGender] = useState("");
+  const [accountType, setAccountType] = useState<AccountType>("personal");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -21,20 +26,26 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
-    // Basic username validation
     if (!/^[a-zA-Z0-9_.]+$/.test(username)) {
       setError("Username can only contain letters, numbers, underscores and dots");
       setLoading(false);
       return;
     }
 
-    if (!gender) {
+    if (accountType === "personal" && !gender) {
       setError("Please select your gender");
       setLoading(false);
       return;
     }
 
-    const { error } = await signUp(email, password, username, displayName, gender);
+    const { error } = await signUp(
+      email,
+      password,
+      username,
+      displayName,
+      accountType === "personal" ? gender : undefined,
+      accountType
+    );
 
     if (error) {
       setError(error.message);
@@ -44,19 +55,22 @@ export default function SignupPage() {
 
     setSuccess(true);
     setLoading(false);
-
-    // Redirect after short delay
     setTimeout(() => {
       router.push("/");
       router.refresh();
     }, 1500);
   };
 
+  const types: { id: AccountType; label: string; desc: string; icon: typeof User }[] = [
+    { id: "personal", label: "Personal", desc: "For individuals", icon: User },
+    { id: "business", label: "Business", desc: "Companies · banner only", icon: Building2 },
+    { id: "musician", label: "Musician", desc: "Upload & sell music · 10% fee", icon: Music },
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pearl px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-pearl px-4 py-10">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="mb-8 text-center">
           <img
             src="/logo.jpg"
             alt="Lumen Socialite"
@@ -66,19 +80,43 @@ export default function SignupPage() {
           <p className="mt-1 text-sm text-muted">Create your account</p>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl border border-border bg-white p-8 shadow-sm">
           {success ? (
-            <div className="text-center py-6">
-              <div className="text-4xl mb-3">✨</div>
+            <div className="py-6 text-center">
+              <div className="mb-3 text-4xl">✨</div>
               <h2 className="text-xl font-bold text-charcoal">Welcome to Lumen</h2>
               <p className="mt-2 text-muted">Your account has been created.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1.5">
-                  Display Name
+                <label className="mb-2 block text-sm font-medium text-charcoal">
+                  Account type
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {types.map(({ id, label, desc, icon: Icon }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setAccountType(id)}
+                      className={cn(
+                        "flex flex-col items-center gap-1 rounded-xl border px-2 py-3 text-center transition",
+                        accountType === id
+                          ? "border-gold bg-gold/10 text-charcoal"
+                          : "border-border text-muted hover:bg-champagne/30"
+                      )}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span className="text-[12px] font-bold leading-tight">{label}</span>
+                      <span className="text-[10px] leading-tight text-muted">{desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-charcoal">
+                  {accountType === "business" ? "Company name" : "Display name"}
                 </label>
                 <input
                   type="text"
@@ -86,49 +124,50 @@ export default function SignupPage() {
                   onChange={(e) => setDisplayName(e.target.value)}
                   required
                   className="w-full rounded-xl border border-border bg-pearl px-4 py-3 text-[15px] text-charcoal placeholder:text-muted-light focus:border-gold-soft focus:outline-none focus:ring-1 focus:ring-gold-soft"
-                  placeholder="Your name"
+                  placeholder={
+                    accountType === "business"
+                      ? "Company name"
+                      : accountType === "musician"
+                      ? "Artist name"
+                      : "Your name"
+                  }
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1.5">
-                  Username
-                </label>
+                <label className="mb-1.5 block text-sm font-medium text-charcoal">Username</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">@</span>
                   <input
                     type="text"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
-                    className="w-full rounded-xl border border-border bg-pearl pl-8 pr-4 py-3 text-[15px] text-charcoal placeholder:text-muted-light focus:border-gold-soft focus:outline-none focus:ring-1 focus:ring-gold-soft"
+                    className="w-full rounded-xl border border-border bg-pearl py-3 pl-8 pr-4 text-[15px] text-charcoal placeholder:text-muted-light focus:border-gold-soft focus:outline-none focus:ring-1 focus:ring-gold-soft"
                     placeholder="username"
                   />
                 </div>
               </div>
 
+              {accountType === "personal" && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-charcoal">Gender</label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    required
+                    className="w-full rounded-xl border border-border bg-pearl px-4 py-3 text-[15px] text-charcoal focus:border-gold-soft focus:outline-none focus:ring-1 focus:ring-gold-soft"
+                  >
+                    <option value="">Select...</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              )}
 
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1.5">
-                  Gender
-                </label>
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  required
-                  className="w-full rounded-xl border border-border bg-pearl px-4 py-3 text-[15px] text-charcoal focus:border-gold-soft focus:outline-none focus:ring-1 focus:ring-gold-soft"
-                >
-                  <option value="">Select...</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1.5">
-                  Email
-                </label>
+                <label className="mb-1.5 block text-sm font-medium text-charcoal">Email</label>
                 <input
                   type="email"
                   value={email}
@@ -140,9 +179,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1.5">
-                  Password
-                </label>
+                <label className="mb-1.5 block text-sm font-medium text-charcoal">Password</label>
                 <input
                   type="password"
                   value={password}
@@ -154,10 +191,21 @@ export default function SignupPage() {
                 />
               </div>
 
+              {accountType === "musician" && (
+                <p className="rounded-lg bg-champagne/40 px-3 py-2 text-[12px] text-muted">
+                  Musicians can upload tracks and sell them on Lumen. Platform fee:{" "}
+                  <span className="font-semibold text-charcoal">10% per sale</span>.
+                </p>
+              )}
+              {accountType === "business" && (
+                <p className="rounded-lg bg-champagne/40 px-3 py-2 text-[12px] text-muted">
+                  Business profiles use a company banner (no profile photo). You can change the
+                  banner anytime.
+                </p>
+              )}
+
               {error && (
-                <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
-                  {error}
-                </div>
+                <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
               )}
 
               <button

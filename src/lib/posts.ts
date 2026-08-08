@@ -947,3 +947,71 @@ export async function getTrends(limit = 5) {
   }
   return { data: trends.slice(0, limit) };
 }
+
+
+/** Platform fee: 10% of sale price */
+export const MUSIC_PLATFORM_FEE_RATE = 0.1;
+
+export async function getMusicTracks(userId: string) {
+  const { data, error } = await supabase
+    .from("music_tracks")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  return { data: data || [], error };
+}
+
+export async function createMusicTrack(
+  userId: string,
+  payload: {
+    title: string;
+    description?: string;
+    audio_url: string;
+    cover_url?: string;
+    price_cents: number;
+  }
+) {
+  const { data, error } = await supabase
+    .from("music_tracks")
+    .insert({ user_id: userId, ...payload })
+    .select("*")
+    .single();
+  return { data, error };
+}
+
+export async function purchaseMusicTrack(
+  trackId: string,
+  buyerId: string,
+  sellerId: string,
+  priceCents: number
+) {
+  const platformFee = Math.round(priceCents * MUSIC_PLATFORM_FEE_RATE);
+  const sellerNet = priceCents - platformFee;
+  const { data, error } = await supabase
+    .from("music_purchases")
+    .insert({
+      track_id: trackId,
+      buyer_id: buyerId,
+      seller_id: sellerId,
+      price_cents: priceCents,
+      platform_fee_cents: platformFee,
+      seller_net_cents: sellerNet,
+      status: "completed",
+    })
+    .select("*")
+    .single();
+  if (!error) {
+    const { data: track } = await supabase
+      .from("music_tracks")
+      .select("sales_count")
+      .eq("id", trackId)
+      .single();
+    if (track) {
+      await supabase
+        .from("music_tracks")
+        .update({ sales_count: (track.sales_count || 0) + 1 })
+        .eq("id", trackId);
+    }
+  }
+  return { data, error, platformFee, sellerNet };
+}
