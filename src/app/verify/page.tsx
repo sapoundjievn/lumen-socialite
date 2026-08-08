@@ -88,7 +88,7 @@ export default function VerifyPage() {
         selfie_url: selfieUrl,
         status: "pending_payment",
         paid: false,
-        amount_cents: 6000,
+        amount_cents: amountCents,
         currency: "usd",
       });
       if (insErr) throw insErr;
@@ -129,6 +129,17 @@ export default function VerifyPage() {
     alert("Payment recorded (demo). Stripe live checkout can be connected next. Status: pending review.");
   }
 
+  const accountType = ((profile as any)?.account_type || "personal") as string;
+  const isBizOrMusic = accountType === "business" || accountType === "musician";
+  const priceYear = isBizOrMusic ? 168 : 60;
+  const amountCents = priceYear * 100;
+  const planLabel =
+    accountType === "business"
+      ? "Business verification"
+      : accountType === "musician"
+      ? "Musician verification"
+      : "Identity verification";
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -163,7 +174,14 @@ export default function VerifyPage() {
               <h2 className="text-lg font-bold text-charcoal">Lumen Identity Verification</h2>
               <p className="mt-1 text-[14px] leading-5 text-muted">
                 Verify with government ID and a live selfie.{" "}
-                <span className="font-semibold text-charcoal">$60 / year</span> per account.
+                <span className="font-semibold text-charcoal">${priceYear} / year</span>
+                {" "}
+                ({planLabel}).
+                {isBizOrMusic && accountType === "musician" && (
+                  <span className="block mt-1 text-[13px] text-muted">
+                    Verified musicians can upload 14 one-minute samples (free accounts: 7).
+                  </span>
+                )}
                 Badge color follows your gender setting (or special founder colors).
               </p>
             </div>
@@ -355,7 +373,7 @@ export default function VerifyPage() {
               {(step === 4 || done) && (
                 <div className="space-y-4 text-center">
                   <CreditCard className="mx-auto h-10 w-10 text-gold-deep" />
-                  <h3 className="text-lg font-bold text-charcoal">Pay $60 / year</h3>
+                  <h3 className="text-lg font-bold text-charcoal">Pay ${priceYear} / year</h3>
                   <p className="text-sm text-muted">
                     Documents uploaded. Complete payment to start review. Stripe live payments can be
                     connected next — demo records payment for now.
@@ -366,7 +384,7 @@ export default function VerifyPage() {
                     onClick={markPaidDemo}
                     className="w-full rounded-full bg-gold py-3.5 font-bold text-white hover:bg-gold-deep disabled:opacity-60"
                   >
-                    {submitting ? "Processing..." : "Pay $60 (demo)"}
+                    {submitting ? "Processing..." : `Pay $${priceYear} (demo)`}
                   </button>
                   <p className="text-[12px] text-muted">
                     Real card checkout (Stripe) can be added when you provide keys.

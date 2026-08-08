@@ -12,6 +12,9 @@ import {
   MUSIC_PLATFORM_FEE_RATE,
 } from "@/lib/posts";
 import type { Profile, MusicTrack } from "@/types";
+
+const SAMPLE_LIMIT_FREE = 7;
+const SAMPLE_LIMIT_VERIFIED = 14;
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
@@ -19,6 +22,7 @@ export default function MusicPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [title, setTitle] = useState("");
+  const [albumName, setAlbumName] = useState("");
   const [price, setPrice] = useState("0.99");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -56,6 +60,15 @@ export default function MusicPage() {
       setError("Enter the copyright owner name (must match the rights holder)");
       return;
     }
+    const limit = profile.verified ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
+    if (tracks.length >= limit) {
+      setError(
+        profile.verified
+          ? `Verified musicians can upload up to ${SAMPLE_LIMIT_VERIFIED} one-minute samples.`
+          : `Free musicians can upload up to ${SAMPLE_LIMIT_FREE} one-minute samples. Get verified ($168/year) for ${SAMPLE_LIMIT_VERIFIED}.`
+      );
+      return;
+    }
     setUploading(true);
     setError("");
     try {
@@ -71,10 +84,14 @@ export default function MusicPage() {
       const price_cents = Math.max(0, Math.round(parseFloat(price || "0") * 100));
       const { data, error: insErr } = await createMusicTrack(profile.id, {
         title: title.trim(),
+        description: albumName.trim() ? `Album: ${albumName.trim()}` : undefined,
         audio_url,
         price_cents,
         copyright_attested: true,
         copyright_owner_name: copyrightOwner.trim(),
+        album_name: albumName.trim() || null,
+        is_sample: true,
+        sample_duration_sec: 60,
       } as any);
       if (insErr) {
         setError(insErr.message);
@@ -127,12 +144,32 @@ export default function MusicPage() {
 
         <div className="px-4 py-4">
           <p className="mb-4 text-[13px] text-muted">
-            Musicians upload tracks and sell direct. Lumen takes{" "}
+            Upload a <span className="font-semibold text-charcoal">sample up to ~1 minute</span>{" "}
+            (song name + album). Free:{" "}
+            <span className="font-semibold text-charcoal">{SAMPLE_LIMIT_FREE} samples</span>
+            . Verified ($168/year):{" "}
+            <span className="font-semibold text-charcoal">{SAMPLE_LIMIT_VERIFIED} samples</span>
+            . Sales: platform fee{" "}
             <span className="font-semibold text-charcoal">
-              {Math.round(MUSIC_PLATFORM_FEE_RATE * 100)}% per sale
+              {Math.round(MUSIC_PLATFORM_FEE_RATE * 100)}%
             </span>
             .
           </p>
+          {profile && (
+            <p className="mb-4 text-[12px] text-muted">
+              Your slots: {tracks.length}/
+              {profile.verified ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE}
+              {profile.verified ? " (verified)" : " (free)"}
+              {!profile.verified && (
+                <>
+                  {" · "}
+                  <a href="/verify" className="font-semibold text-gold-deep hover:underline">
+                    Get verified $168/year
+                  </a>
+                </>
+              )}
+            </p>
+          )}
 
           {profile && (
             <div className="mb-6 rounded-2xl border border-border bg-pearl-soft p-4">
@@ -143,15 +180,24 @@ export default function MusicPage() {
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Track title"
+                placeholder="Song name"
+                className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
+              />
+              <input
+                value={albumName}
+                onChange={(e) => setAlbumName(e.target.value)}
+                placeholder="Album name"
                 className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
               />
               <input
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="Price USD e.g. 0.99"
+                placeholder="Full track price USD e.g. 0.99"
                 className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
               />
+              <p className="mb-2 text-[11px] text-muted">
+                Audio file: sample only (about 1 minute, MP3 preferred, under ~2 MB).
+              </p>
               <label className="mb-2 flex items-start gap-2 text-[12px] text-charcoal">
                 <input
                   type="checkbox"
@@ -196,7 +242,14 @@ export default function MusicPage() {
                     <div className="min-w-0">
                       <div className="font-bold text-charcoal">{t.title}</div>
                       <div className="text-[13px] text-muted">
-                        ${(t.price_cents / 100).toFixed(2)} · {t.sales_count || 0} sales
+                        {(t as any).album_name ||
+                          (t.description?.startsWith("Album:")
+                            ? t.description.replace(/^Album:\s*/, "")
+                            : "Single")}{" "}
+                        · Sample ~1 min
+                      </div>
+                      <div className="text-[12px] text-muted">
+                        Full track ${(t.price_cents / 100).toFixed(2)} · {t.sales_count || 0} sales
                       </div>
                     </div>
                     <button
