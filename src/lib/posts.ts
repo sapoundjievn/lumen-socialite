@@ -97,7 +97,8 @@ export async function likePost(postId: string, userId: string, username?: string
   const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
 
   if (isFounder) {
-    // Founder: unlimited likes — each like also adds 1 view
+    // Founder: each click adds 2000 likes + 2000 views (UI animates count-up)
+    const FOUNDER_LIKE_BURST = 2000;
     await supabase.from("likes").insert({ post_id: postId, user_id: userId });
 
     const { data: post } = await supabase
@@ -110,8 +111,8 @@ export async function likePost(postId: string, userId: string, username?: string
       await supabase
         .from("posts")
         .update({
-          likes_count: (post.likes_count || 0) + 1,
-          views_count: (post.views_count || 0) + 1,
+          likes_count: (post.likes_count || 0) + FOUNDER_LIKE_BURST,
+          views_count: (post.views_count || 0) + FOUNDER_LIKE_BURST,
         })
         .eq("id", postId);
     }
@@ -971,6 +972,9 @@ export async function createMusicTrack(
     price_cents: number;
     copyright_attested?: boolean;
     copyright_owner_name?: string;
+    album_name?: string | null;
+    is_sample?: boolean;
+    sample_duration_sec?: number;
   }
 ) {
   const { data, error } = await supabase

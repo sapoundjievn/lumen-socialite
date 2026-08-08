@@ -62,20 +62,40 @@ export default function Feed() {
     const wasLiked = post.liked_by_user;
 
     if (isFounder) {
-      // Founder: every like +1 like and +1 view
+      // One click = +2000 likes & +2000 views, count up one-by-one on screen
+      const BURST = 2000;
+      const baseLikes = post.likes_count || 0;
+      const baseViews = post.views_count || 0;
       setPosts((prev) =>
         prev.map((p) =>
-          p.id === id
-            ? {
-                ...p,
-                liked_by_user: true,
-                likes_count: (p.likes_count || 0) + 1,
-                views_count: (p.views_count || 0) + 1,
-              }
-            : p
+          p.id === id ? { ...p, liked_by_user: true } : p
         )
       );
-      await likePost(id, currentUserId, currentUsername || undefined);
+      // fire DB update (full +2000) without waiting for animation
+      void likePost(id, currentUserId, currentUsername || undefined);
+
+      let added = 0;
+      const step = () => {
+        // ~50 per frame ≈ 40 frames ≈ 0.7s at 60fps, still looks sequential
+        const inc = Math.min(50, BURST - added);
+        added += inc;
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === id
+              ? {
+                  ...p,
+                  liked_by_user: true,
+                  likes_count: baseLikes + added,
+                  views_count: baseViews + added,
+                }
+              : p
+          )
+        );
+        if (added < BURST) {
+          requestAnimationFrame(step);
+        }
+      };
+      requestAnimationFrame(step);
       return;
     }
 

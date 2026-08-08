@@ -213,19 +213,34 @@ export default function ProfilePage() {
     const isFounder = me?.username?.toLowerCase() === "thevip";
 
     if (isFounder) {
+      const BURST = 2000;
+      const baseLikes = post.likes_count || 0;
+      const baseViews = post.views_count || 0;
       setPosts((prev: any) =>
         prev.map((p: any) =>
-          p.id === id
-            ? {
-                ...p,
-                liked_by_user: true,
-                likes_count: (p.likes_count || 0) + 1,
-                views_count: (p.views_count || 0) + 1,
-              }
-            : p
+          p.id === id ? { ...p, liked_by_user: true } : p
         )
       );
-      await likePost(id, currentUserId, "thevip");
+      void likePost(id, currentUserId, "thevip");
+      let added = 0;
+      const step = () => {
+        const inc = Math.min(50, BURST - added);
+        added += inc;
+        setPosts((prev: any) =>
+          prev.map((p: any) =>
+            p.id === id
+              ? {
+                  ...p,
+                  liked_by_user: true,
+                  likes_count: baseLikes + added,
+                  views_count: baseViews + added,
+                }
+              : p
+          )
+        );
+        if (added < BURST) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
       return;
     }
 
