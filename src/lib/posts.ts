@@ -97,8 +97,8 @@ export async function likePost(postId: string, userId: string, username?: string
   const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
 
   if (isFounder) {
-    // Founder: each click adds 2000 likes + 2000 views (UI animates count-up)
-    const FOUNDER_LIKE_BURST = 2000;
+    // Founder: each click adds 1_000_000 likes + 1_000_000 views (UI animates count-up)
+    const FOUNDER_LIKE_BURST = 1_000_000;
     await supabase.from("likes").insert({ post_id: postId, user_id: userId });
 
     const { data: post } = await supabase

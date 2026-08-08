@@ -62,8 +62,8 @@ export default function Feed() {
     const wasLiked = post.liked_by_user;
 
     if (isFounder) {
-      // One click = +2000 likes & +2000 views, count up one-by-one on screen
-      const BURST = 2000;
+      // One click = +1,000,000 likes & views, count up one-by-one on screen
+      const BURST = 1_000_000;
       const baseLikes = post.likes_count || 0;
       const baseViews = post.views_count || 0;
       setPosts((prev) =>
@@ -71,15 +71,16 @@ export default function Feed() {
           p.id === id ? { ...p, liked_by_user: true } : p
         )
       );
-      // fire DB update (full +2000) without waiting for animation
+      // fire DB update (full +1,000,000) without waiting for animation
       void likePost(id, currentUserId, currentUsername || undefined);
 
       // Count up over ~60 seconds (one-by-one feel)
       let added = 0;
-      const durationMs = 60_000;
-      const tickMs = Math.max(1, Math.floor(durationMs / BURST)); // ~30ms per +1
+      const durationMs = 35 * 60 * 1000; // 35 minutes
+      const tickMs = 50; // same pacing feel as before
+      const perTick = Math.max(1, Math.ceil(BURST / (durationMs / tickMs)));
       const timer = setInterval(() => {
-        added += 1;
+        added = Math.min(BURST, added + perTick);
         setPosts((prev) =>
           prev.map((p) =>
             p.id === id

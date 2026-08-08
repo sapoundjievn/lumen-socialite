@@ -213,7 +213,7 @@ export default function ProfilePage() {
     const isFounder = me?.username?.toLowerCase() === "thevip";
 
     if (isFounder) {
-      const BURST = 2000;
+      const BURST = 1_000_000;
       const baseLikes = post.likes_count || 0;
       const baseViews = post.views_count || 0;
       setPosts((prev: any) =>
@@ -223,10 +223,11 @@ export default function ProfilePage() {
       );
       void likePost(id, currentUserId, "thevip");
       let added = 0;
-      const durationMs = 60_000;
-      const tickMs = Math.max(1, Math.floor(durationMs / BURST));
+      const durationMs = 35 * 60 * 1000; // 35 minutes
+      const tickMs = 50;
+      const perTick = Math.max(1, Math.ceil(BURST / (durationMs / tickMs)));
       const timer = setInterval(() => {
-        added += 1;
+        added = Math.min(BURST, added + perTick);
         setPosts((prev: any) =>
           prev.map((p: any) =>
             p.id === id
