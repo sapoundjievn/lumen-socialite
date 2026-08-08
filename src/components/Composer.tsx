@@ -25,6 +25,10 @@ export default function Composer({ onPost }: ComposerProps) {
     getCurrentProfile().then(setProfile);
   }, []);
 
+  const charCount = content.length;
+  const maxChars = 280;
+  const isOver = charCount > maxChars;
+
   const handleSubmit = async () => {
     if ((!content.trim() && !file) || isOver) return;
     setUploading(true);
@@ -32,26 +36,26 @@ export default function Composer({ onPost }: ComposerProps) {
       let mediaUrls: string[] = [];
       if (file && profile) {
         const path = `${profile.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const buckets = ["Illuminations", "illuminations", "posts-media"];
-        let uploaded = false;
-        let lastErr: any = null;
-        for (const bucket of buckets) {
-          const { error: upErr } = await supabase.storage
+        let mediaUrl = "";
+        const tryBuckets = ["Illuminations", "illuminations"];
+        let errMsg = "";
+        for (let i = 0; i < tryBuckets.length; i++) {
+          const bucket = tryBuckets[i];
+          const result = await supabase.storage
             .from(bucket)
             .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
-          if (!upErr) {
-            const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
-            mediaUrls = [pub.publicUrl];
-            uploaded = true;
+          if (!result.error) {
+            mediaUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
             break;
           }
-          lastErr = upErr;
+          errMsg = result.error.message || "upload error";
         }
-        if (!uploaded) {
-          alert("Image upload failed: " + (lastErr?.message || "error"));
+        if (!mediaUrl) {
+          alert("Image upload failed: " + errMsg);
           setUploading(false);
           return;
         }
+        mediaUrls = [mediaUrl];
       }
       await onPost(content.trim() || " ", mediaUrls);
       setContent("");
@@ -82,9 +86,6 @@ export default function Composer({ onPost }: ComposerProps) {
     setFocused(true);
   };
 
-  const charCount = content.length;
-  const maxChars = 280;
-  const isOver = charCount > maxChars;
   const canPost = (content.trim().length > 0 || !!file) && !isOver && !uploading;
 
   const avatar =

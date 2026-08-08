@@ -28,6 +28,7 @@ import {
   type FriendStatus,
 } from "@/lib/posts";
 import { getCurrentProfile, signOut } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import Composer from "@/components/Composer";
@@ -58,6 +59,7 @@ export default function ProfilePage() {
   const [profileTab, setProfileTab] = useState<"posts" | "compose" | "reposts">("posts");
   const [reposts, setReposts] = useState<Post[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!username) return;
@@ -302,6 +304,50 @@ export default function ProfilePage() {
     }
   }
 
+  async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !currentUserId || !profile) return;
+    setUploading(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${currentUserId}/banner-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("banners")
+        .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+      if (upErr) {
+        alert("Banner upload failed: " + upErr.message + " — create a public Storage bucket named banners");
+        return;
+      }
+      const { data: pub } = supabase.storage.from("banners").getPublicUrl(path);
+      const url = pub.publicUrl;
+      const { error } = await updateProfile(currentUserId, { banner_url: url } as any);
+      if (error) {
+        alert(error.message || "Could not save banner");
+        return;
+      }
+      setProfile({ ...profile, banner_url: url } as any);
+    } finally {
+      setUploading(false);
+      if (bannerInputRef.current) bannerInputRef.current.value = "";
+    }
+  }
+
+  async function handleComposePost(content: string, mediaUrls: string[] = []) {
+    if (!currentUserId) {
+      alert("Please sign in");
+      return;
+    }
+    const { data, error } = await createPost(content, currentUserId, mediaUrls);
+    if (error) {
+      alert(error.message || "Could not post");
+      return;
+    }
+    if (data) {
+      setPosts((prev) => [data as any, ...prev]);
+    }
+  }
+
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -321,20 +367,6 @@ export default function ProfilePage() {
     );
   }
 
-  async function handleComposePost(content: string, mediaUrls: string[] = []) {
-    if (!currentUserId) {
-      alert("Please sign in");
-      return;
-    }
-    const { data, error } = await createPost(content, currentUserId, mediaUrls);
-    if (error) {
-      alert(error.message || "Could not post");
-      return;
-    }
-    if (data) {
-      setPosts((prev) => [data as any, ...prev]);
-    }
-  }
 
   const avatar =
     profile.avatar_url ||
@@ -350,7 +382,18 @@ export default function ProfilePage() {
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-16 sm:pb-0">
         {/* Banner + Avatar — back on gold */}
         <div className="relative">
-          <div className="h-28 bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]" />
+          {(profile as any).banner_url ? (
+            <div className="relative h-36 w-full overflow-hidden sm:h-44">
+              <img
+                src={(profile as any).banner_url}
+                alt=""
+                className="h-full w-full object-cover object-center"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
+            </div>
+          ) : (
+            <div className="h-28 bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]" />
+          )}
           <Link
             href="/"
             className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
@@ -395,6 +438,22 @@ export default function ProfilePage() {
           {/* Own profile actions under banner */}
           {isOwnProfile && (
             <div className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => bannerInputRef.current?.click()}
+                disabled={uploading}
+                className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
+                title="Change banner"
+              >
+                Banner
+              </button>
+              <input
+                ref={bannerInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleBannerChange}
+              />
               <button
                 type="button"
                 onClick={() => {
