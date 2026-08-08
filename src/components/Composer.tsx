@@ -43,7 +43,7 @@ export default function Composer({ onPost }: ComposerProps) {
           const bucket = tryBuckets[i];
           const result = await supabase.storage
             .from(bucket)
-            .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+            .upload(path, file, { upsert: true, contentType: file.type || (file.name.match(/\.(mp4|webm|mov)$/i) ? "video/mp4" : "image/jpeg") });
           if (!result.error) {
             mediaUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
             break;
@@ -74,11 +74,18 @@ export default function Composer({ onPost }: ComposerProps) {
     e.target.style.height = Math.min(e.target.scrollHeight, 200) + "px";
   };
 
-  const onPickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onPickMedia = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (!f.type.startsWith("image/")) {
-      alert("Please choose an image");
+    const isImage = f.type.startsWith("image/");
+    const isVideo = f.type.startsWith("video/");
+    if (!isImage && !isVideo) {
+      alert("Please choose an image or short video (Illumination)");
+      return;
+    }
+    // Soft limit ~60s / ~40MB for shorts
+    if (isVideo && f.size > 40 * 1024 * 1024) {
+      alert("Video Illumination must be under 40 MB (short clip)");
       return;
     }
     setFile(f);
@@ -93,7 +100,7 @@ export default function Composer({ onPost }: ComposerProps) {
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${profile?.id || "guest"}`;
 
   const tools = [
-    { icon: Image, label: "Illumination", action: () => fileRef.current?.click() },
+    { icon: Image, label: "Illumination (photo or short video)", action: () => fileRef.current?.click() },
     { icon: BarChart2, label: "Poll", action: () => {} },
     { icon: Smile, label: "Emoji", action: () => {} },
     { icon: Calendar, label: "Schedule", action: () => {} },
@@ -137,7 +144,15 @@ export default function Composer({ onPost }: ComposerProps) {
               >
                 <X className="h-4 w-4" />
               </button>
-              <img src={preview} alt="Illumination preview" className="max-h-80 w-full object-cover" />
+              {file?.type.startsWith("video/") ? (
+                <video
+                  src={preview}
+                  controls
+                  className="max-h-80 w-full bg-black object-contain"
+                />
+              ) : (
+                <img src={preview} alt="Illumination preview" className="max-h-80 w-full object-cover" />
+              )}
             </div>
           )}
 
@@ -168,9 +183,9 @@ export default function Composer({ onPost }: ComposerProps) {
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,video/mp4,video/webm,video/quicktime"
                 className="hidden"
-                onChange={onPickImage}
+                onChange={onPickMedia}
               />
             </div>
 

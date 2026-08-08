@@ -228,11 +228,21 @@ export default function PostCard({
               <div className="bg-champagne/40 px-3 py-1 text-[11px] font-semibold tracking-wide text-gold-deep">
                 Illumination
               </div>
-              <img
-                src={post.media_urls[0]}
-                alt="Illumination"
-                className="max-h-96 w-full object-cover"
-              />
+              {/\.(mp4|webm|mov)(\?|$)/i.test(post.media_urls[0]) ||
+              post.media_urls[0].includes("/video") ? (
+                <video
+                  src={post.media_urls[0]}
+                  controls
+                  playsInline
+                  className="max-h-96 w-full bg-black object-contain"
+                />
+              ) : (
+                <img
+                  src={post.media_urls[0]}
+                  alt="Illumination"
+                  className="max-h-96 w-full object-cover"
+                />
+              )}
             </div>
           )}
 
