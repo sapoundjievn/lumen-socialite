@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn, resetPasswordForEmail } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
+import {
+  loginWithBiometrics,
+  enableBiometricLogin,
+  platformAuthenticatorAvailable,
+  hasBiometricEnrollment,
+} from "@/lib/biometrics";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +20,15 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [mode, setMode] = useState<"login" | "forgot">("login");
+  const [bioOk, setBioOk] = useState(false);
+  const [bioEnrolled, setBioEnrolled] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setBioOk(await platformAuthenticatorAvailable());
+      setBioEnrolled(hasBiometricEnrollment());
+    })();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +53,58 @@ export default function LoginPage() {
       setLoading(false);
       return;
     }
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && bioOk && !hasBiometricEnrollment()) {
+        const enable = window.confirm(
+          "Enable fingerprint / Face ID / Windows Hello for faster sign-in on this device?"
+        );
+        if (enable) {
+          const r = await enableBiometricLogin({
+            userId: session.user.id,
+            email: session.user.email || email,
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+          });
+          if (!r.ok) console.warn(r.error);
+        }
+      } else if (session && hasBiometricEnrollment()) {
+        // refresh stored tokens
+        await enableBiometricLogin({
+          userId: session.user.id,
+          email: session.user.email || email,
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        });
+      }
+    } catch {
+      /* ignore */
+    }
     router.push("/");
     router.refresh();
   };
+
+  async function handleBiometric() {
+    setLoading(true);
+    setError("");
+    const r = await loginWithBiometrics();
+    if (!r.ok || !r.refresh_token || !r.access_token) {
+      setError(r.error || "Biometric sign-in failed");
+      setLoading(false);
+      return;
+    }
+    const { error } = await supabase.auth.setSession({
+      access_token: r.access_token,
+      refresh_token: r.refresh_token,
+    });
+    if (error) {
+      setError(error.message + " — sign in with password once to refresh biometrics.");
+      setLoading(false);
+      return;
+    }
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-pearl px-4">

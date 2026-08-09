@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Building2, Music } from "lucide-react";
 import { signUp } from "@/lib/auth";
+import { checkPasswordStrength } from "@/lib/password";
 import { cn } from "@/lib/utils";
 
 type AccountType = "personal" | "business" | "musician";
@@ -59,6 +60,13 @@ export default function SignupPage() {
         setLoading(false);
         return;
       }
+    }
+
+    const strength = checkPasswordStrength(password);
+    if (!strength.ok) {
+      setError("Stronger password needed: " + strength.messages.join(" · "));
+      setLoading(false);
+      return;
     }
 
     const { error } = await signUp(
@@ -210,7 +218,7 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={10}
                   className="w-full rounded-xl border border-border bg-pearl px-4 py-3 text-[15px] text-charcoal placeholder:text-muted-light focus:border-gold-soft focus:outline-none focus:ring-1 focus:ring-gold-soft"
                   placeholder="At least 6 characters"
                 />
