@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Plus, X, Camera, SwitchCamera, Circle } from "lucide-react";
+import { Plus, X, Camera, SwitchCamera, Circle, Trash2 } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth";
-import { createStory, getActiveStories, type Story } from "@/lib/stories";
+import { createStory, getActiveStories, deleteStory, type Story } from "@/lib/stories";
 import { supabase } from "@/lib/supabase";
 import VerifiedBadge from "@/components/VerifiedBadge";
 
@@ -433,9 +433,37 @@ export default function StoriesBar() {
                 <VerifiedBadge username={current.profiles.username} size="sm" />
               )}
             </Link>
-            <button type="button" onClick={() => setViewer(null)} className="p-2">
-              <X className="h-6 w-6" />
-            </button>
+            <div className="flex items-center gap-1">
+              {me && current.user_id === me.id && (
+                <button
+                  type="button"
+                  title="Delete story"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (!confirm("Delete this live story now?")) return;
+                    const { error } = await deleteStory(current.id, me.id);
+                    if (error) {
+                      alert(error.message);
+                      return;
+                    }
+                    const next = viewer.filter((s) => s.id !== current.id);
+                    await reload();
+                    if (next.length === 0) {
+                      setViewer(null);
+                    } else {
+                      setViewer(next);
+                      setIdx(Math.min(idx, next.length - 1));
+                    }
+                  }}
+                  className="rounded-full p-2 hover:bg-white/10"
+                >
+                  <Trash2 className="h-5 w-5 text-rose-400" />
+                </button>
+              )}
+              <button type="button" onClick={() => setViewer(null)} className="p-2">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
           </div>
           <div
             className="relative flex flex-1 items-center justify-center"

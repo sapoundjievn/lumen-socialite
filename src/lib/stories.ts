@@ -61,3 +61,13 @@ export async function createStory(opts: {
     .single();
   return { data, error };
 }
+
+
+export async function deleteStory(storyId: string, userId: string) {
+  const { error } = await supabase
+    .from("stories")
+    .delete()
+    .eq("id", storyId)
+    .eq("user_id", userId);
+  return { error };
+}
