@@ -412,7 +412,7 @@ export default function ProfilePage() {
         {/* Banner + Avatar — back on gold */}
         <div className="relative">
           {(profile as any).banner_url ? (
-            <div className="relative h-36 w-full overflow-hidden sm:h-44">
+            <div className={`relative w-full overflow-hidden ${isMusician ? "h-40 sm:h-48" : "h-36 sm:h-44"}`}>
               <img
                 src={(profile as any).banner_url}
                 alt=""
@@ -421,7 +421,7 @@ export default function ProfilePage() {
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
             </div>
           ) : (
-            <div className="h-28 bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]" />
+            <div className={`${isMusician ? "h-40 sm:h-48" : "h-28"} bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]`} />
           )}
           <Link
             href="/"
@@ -475,7 +475,7 @@ export default function ProfilePage() {
                   <img
                     src={avatar}
                     alt={profile.display_name}
-                    className="h-28 w-28 rounded-full border-4 border-pearl bg-champagne object-cover shadow-lg sm:h-32 sm:w-32"
+                    className="h-20 w-20 rounded-full border-[3px] border-pearl bg-champagne object-cover shadow-md sm:h-24 sm:w-24"
                   />
                   {isOwnProfile && (
                     <>
