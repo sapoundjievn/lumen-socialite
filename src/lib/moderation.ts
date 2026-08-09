@@ -11,7 +11,7 @@ export type ModerationResult = {
 };
 
 const BLOCK_REASON =
-  "This enlightenment was blocked. Lumen · Socialite does not allow hate, sexual, or violent content.";
+  "This enlightenment was blocked. Lumen · Socialite does not allow hate, sexual, violent, or abusive language.";
 
 const HATE = [
   "nigger", "niggers", "nigga", "niggas", "kike", "spic", "chink", "gook", "wetback",
@@ -26,8 +26,17 @@ const SEXUAL = [
   "teen porn", "loli", "lolita porn", "revenge porn", "nonconsensual porn",
   "rape her", "rape you", "force sex", "forced sex", "sexual assault",
   "onlyfans leak", "nudes of minors", "jailbait",
-  // explicit spam-style
   "suck my dick", "eat my pussy", "send nudes now", "hookers near me",
+  "pussy", "dick", "cock", "blowjob", "handjob", "cumshot", "onlyfans",
+  "nude pic", "nudes", "sex tape", "porn", "porno", "xxx",
+  "fuck you", "fuck u", "fck you", "f u ck",
+];
+
+/** Strong profanity / harassment-style language */
+const PROFANITY = [
+  "fuck you", "fuck u", "fucking bitch", "son of a bitch",
+  "piece of shit", "dumb fuck", "motherfucker", "mother fucker",
+  "go to hell bitch", "slut", "whore", "hoe ",
 ];
 
 const VIOLENCE = [
@@ -74,6 +83,7 @@ export function moderateContentLocal(content: string): ModerationResult {
   const categories: ModerationCategory[] = [];
   if (matchList(content, HATE)) categories.push("hate");
   if (matchList(content, SEXUAL)) categories.push("sexual");
+  if (matchList(content, PROFANITY)) categories.push("sexual");
   if (matchList(content, VIOLENCE)) categories.push("violence");
 
   if (categories.length) {
