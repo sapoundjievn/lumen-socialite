@@ -85,9 +85,9 @@ export default function SpecialStars({ username }: { username: string }) {
 
   if (u === "kennicktechnologies" || u === "kennick" || u === "kennicktechnologiesllc") {
     return (
-      <div className="flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
+      <div className="flex w-full min-w-0 flex-col gap-0.5">
         <span
-          className="inline-flex shrink-0 items-center gap-0.5"
+          className="inline-flex items-center gap-0.5"
           title="Company · Operated by founders"
           style={{ fontFamily: "Times New Roman, Times, serif" }}
         >
@@ -121,9 +121,11 @@ export default function SpecialStars({ username }: { username: string }) {
           ))}
         </span>
         <span
-          className="min-w-0 flex-1 truncate whitespace-nowrap text-[10px] font-semibold leading-none text-charcoal sm:text-[11px]"
-          style={{ fontFamily: "Times New Roman, Times, serif" }}
-          title="Identity Verified • Company • Operated by @thevip & @kendall.vip"
+          className="block w-full whitespace-nowrap text-[9px] font-semibold leading-tight text-charcoal sm:text-[10px]"
+          style={{
+            fontFamily: "Times New Roman, Times, serif",
+            letterSpacing: "-0.01em",
+          }}
         >
           Identity Verified • Company • Operated by @thevip & @kendall.vip
         </span>
