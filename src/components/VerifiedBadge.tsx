@@ -44,6 +44,10 @@ export default function VerifiedBadge({
   if (u === "mikeavramov") {
     return <BadgeCheck className={`${dim} fill-[#E11D48] text-white`} />;
   }
+  // Mr. Sam Snuggles — champagne frost pearl (same family as @thevip)
+  if (u === "mr.samsnuggles" || u === "samsnuggles1" || u === "mrsamsnuggles") {
+    return <BadgeCheck className={`${dim} fill-[#C9A86C] text-white`} />;
+  }
 
   // ===== Everyone else: by gender choice =====
   if (g === "male" || g === "m") {
