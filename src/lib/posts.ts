@@ -1058,3 +1058,23 @@ export async function syncFounderLikeJobs() {
   const { data, error } = await supabase.rpc("sync_founder_like_jobs");
   return { data, error };
 }
+
+
+export async function getLatestIncomingMessage(userId: string) {
+  // Messages in conversations where user is a member, sent by someone else
+  const { data: memberships } = await supabase
+    .from("conversation_members")
+    .select("conversation_id")
+    .eq("user_id", userId);
+  const ids = (memberships || []).map((m: any) => m.conversation_id);
+  if (!ids.length) return null;
+  const { data } = await supabase
+    .from("messages")
+    .select("id, sender_id, content, conversation_id, created_at")
+    .in("conversation_id", ids)
+    .neq("sender_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data;
+}

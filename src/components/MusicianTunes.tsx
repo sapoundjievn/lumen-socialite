@@ -144,7 +144,7 @@ export default function MusicianTunes({
               ? "Unlock with verification"
               : "Upload 1-min sample"
           }
-          className={`max-w-[4.5rem] truncate rounded-full border px-1.5 py-1 text-[9px] font-semibold leading-tight transition sm:max-w-[5.25rem] sm:text-[10px] ${
+          className={`w-full truncate rounded-full border px-1 py-1.5 text-[9px] font-semibold leading-tight transition sm:text-[10px] ${
             t
               ? "border-gold/50 bg-champagne/50 text-charcoal hover:bg-gold/20"
               : locked
@@ -184,29 +184,34 @@ export default function MusicianTunes({
     );
   }
 
-  const left = [0, 1, 2, 3, 4, 5, 6];
-  const right = [7, 8, 9, 10, 11, 12, 13];
+  const row1 = [0, 1, 2, 3, 4, 5, 6];
+  const row2 = [7, 8, 9, 10, 11, 12, 13];
 
   return (
-    <div className="w-full">
+    <div className="w-full px-0">
       <p className="mb-2 text-center text-[11px] font-bold tracking-wide text-gold-deep">
         LumenTunes · 1-min samples
       </p>
-      <div className="flex items-start justify-center gap-2 sm:gap-3">
-        <div className="flex max-w-[42%] flex-wrap justify-end gap-1">
-          {left.map((s) => (
-            <SlotButton key={s} slot={s} />
-          ))}
-        </div>
-        <div className="flex max-w-[42%] flex-wrap justify-start gap-1">
-          {right.map((s) => (
-            <SlotButton key={s} slot={s} />
-          ))}
-        </div>
+      {/* Row 1: samples 1–7 evenly across full width */}
+      <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">
+        {row1.map((s) => (
+          <div key={s} className="min-w-0">
+            <SlotButton slot={s} />
+          </div>
+        ))}
+      </div>
+      {/* Row 2: samples 8–14 evenly across full width */}
+      <div className="mt-1.5 grid w-full grid-cols-7 gap-1.5 sm:gap-2">
+        {row2.map((s) => (
+          <div key={s} className="min-w-0">
+            <SlotButton slot={s} />
+          </div>
+        ))}
       </div>
       {isOwner && (
         <p className="mt-2 text-center text-[10px] text-muted">
-          Slots 1–7 free · 8–14 when verified · click empty to upload · edit to rename
+          Profile samples only (1 min). Full songs: LumenTunes Store link below.
+          Slots 1–7 free · 8–14 verified · empty slot = upload · edit = rename
         </p>
       )}
     </div>
