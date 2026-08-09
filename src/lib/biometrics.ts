@@ -50,8 +50,10 @@ export function biometricsSupported(): boolean {
 export async function platformAuthenticatorAvailable(): Promise<boolean> {
   try {
     if (!biometricsSupported()) return false;
-    // @ts-expect-error older TS
-    if (PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+    if (
+      typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable ===
+      "function"
+    ) {
       return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     }
     return true;
