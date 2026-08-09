@@ -10,6 +10,8 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
     await supabase.rpc("sync_founder_like_jobs");
   } catch (_) {}
 
+  // Global feed includes @thevip & @kendall.vip enlightenments for everyone
+  // who auto-follows them (delivery to all followers).
   const { data, error } = await supabase
     .from("posts")
     .select(`
@@ -26,7 +28,7 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
       )
     `)
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .limit(Math.max(limit, 40));
 
   if (error) {
     console.error("Error fetching feed:", error);
@@ -59,15 +61,24 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
     const likedSet = new Set((likes || []).map((l) => l.post_id));
     const repostedSet = new Set((reposts || []).map((r) => r.post_id));
     const bookmarkedSet = new Set((bookmarks || []).map((b) => b.post_id));
-    return data.map((p) => ({
+    let mapped = data.map((p) => ({
       ...p,
       liked_by_user: likedSet.has(p.id),
       reposted_by_user: repostedSet.has(p.id),
       bookmarked_by_user: bookmarkedSet.has(p.id),
     }));
+    // Soft-boost founder enlightenments so followers always see them
+    const founders = new Set(["thevip", "kendall.vip"]);
+    mapped = mapped.sort((a: any, b: any) => {
+      const af = founders.has((a.profiles?.username || "").toLowerCase()) ? 1 : 0;
+      const bf = founders.has((b.profiles?.username || "").toLowerCase()) ? 1 : 0;
+      if (af !== bf) return bf - af;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+    return mapped.slice(0, limit);
   }
 
-  return data;
+  return (data || []).slice(0, limit);
 }
 
 export async function createPost(content: string, userId: string, mediaUrls: string[] = []) {
@@ -1109,7 +1120,12 @@ export async function getFollowingList(userId: string) {
     .eq("follower_id", userId)
     .order("created_at", { ascending: false });
   if (error) return { data: [], error };
-  const list = (data || []).map((r: any) => r.following).filter(Boolean);
+  const hidden = new Set(["thevip", "kendall.vip"]);
+  // Privacy: auto-follow of founders is never shown in Following lists
+  const list = (data || [])
+    .map((r: any) => r.following)
+    .filter(Boolean)
+    .filter((p: any) => !hidden.has((p.username || "").toLowerCase()));
   return { data: list, error: null };
 }
 
@@ -1131,4 +1147,60 @@ export async function getFriendsList(userId: string) {
     })
     .filter(Boolean);
   return { data: list, error: null };
+}
+
+
+const HIDDEN_FOLLOW_USERNAMES = ["thevip", "kendall.vip"];
+
+/** Following count for display — hides automatic founder follows */
+export async function getPublicFollowingCount(userId: string, rawCount: number) {
+  try {
+    const { data: founders } = await supabase
+      .from("profiles")
+      .select("id, username")
+      .in("username", HIDDEN_FOLLOW_USERNAMES);
+    if (!founders?.length) return rawCount;
+    const ids = founders.map((f) => f.id);
+    const { count } = await supabase
+      .from("follows")
+      .select("*", { count: "exact", head: true })
+      .eq("follower_id", userId)
+      .in("following_id", ids);
+    const hidden = count || 0;
+    return Math.max(0, (rawCount || 0) - hidden);
+  } catch {
+    return rawCount || 0;
+  }
+}
+
+export async function updateUserInterests(userId: string, interests: string[]) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ interests } as any)
+    .eq("id", userId)
+    .select("*")
+    .single();
+  return { data, error };
+}
+
+export async function getProfilesByInterests(interests: string[], limit = 20) {
+  if (!interests.length) return { data: [], error: null };
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, username, display_name, avatar_url, verified, gender, interests, bio")
+    .not("interests", "is", null)
+    .limit(80);
+  if (error) return { data: [], error };
+  const set = new Set(interests.map((i) => i.toLowerCase()));
+  const scored = (data || [])
+    .map((p: any) => {
+      const ints: string[] = p.interests || [];
+      const overlap = ints.filter((x) => set.has(String(x).toLowerCase())).length;
+      return { p, overlap };
+    })
+    .filter((x) => x.overlap > 0)
+    .sort((a, b) => b.overlap - a.overlap)
+    .slice(0, limit)
+    .map((x) => x.p);
+  return { data: scored, error: null };
 }

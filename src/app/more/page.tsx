@@ -22,14 +22,44 @@ import SpecialStars from "@/components/SpecialStars";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
+const INTEREST_OPTIONS = [
+  "Music",
+  "Sports",
+  "Business",
+  "Technology",
+  "Fashion",
+  "Food",
+  "Travel",
+  "Art",
+  "Fitness",
+  "Gaming",
+  "Real estate",
+  "Crypto",
+  "Film",
+  "Education",
+  "Health",
+];
+
 export default function MorePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [savingInt, setSavingInt] = useState(false);
+  const [matches, setMatches] = useState<any[]>([]);
 
   useEffect(() => {
     getCurrentProfile().then((p) => {
       setProfile(p);
+      if (p) {
+        const ints = ((p as any).interests || []) as string[];
+        setInterests(ints);
+        if (ints.length) {
+          getProfilesByInterests(ints, 12).then(({ data }) =>
+            setMatches((data || []).filter((x: any) => x.id !== p.id))
+          );
+        }
+      }
       setLoading(false);
     });
   }, []);
@@ -138,7 +168,94 @@ export default function MorePage() {
             )}
 
             <div className="overflow-hidden rounded-2xl border border-border">
-              {uniqueLinks.map((item) => {
+              
+            {profile && (
+              <div className="mb-6 rounded-2xl border border-border bg-white p-4">
+                <h2 className="text-[15px] font-bold text-charcoal">Your interests</h2>
+                <p className="mt-1 text-[12px] text-muted">
+                  Pick topics you care about. We match you with people who share them.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {INTEREST_OPTIONS.map((opt) => {
+                    const on = interests.includes(opt);
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() =>
+                          setInterests((prev) =>
+                            on ? prev.filter((x) => x !== opt) : [...prev, opt]
+                          )
+                        }
+                        className={`rounded-full px-3 py-1 text-[12px] font-semibold transition ${
+                          on
+                            ? "bg-gold text-white"
+                            : "border border-border bg-pearl text-charcoal hover:bg-champagne/40"
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  disabled={savingInt}
+                  onClick={async () => {
+                    if (!profile) return;
+                    setSavingInt(true);
+                    const { data, error } = await updateUserInterests(profile.id, interests);
+                    setSavingInt(false);
+                    if (error) {
+                      alert(error.message);
+                      return;
+                    }
+                    if (data) setProfile(data);
+                    const { data: m } = await getProfilesByInterests(interests, 12);
+                    setMatches((m || []).filter((x: any) => x.id !== profile.id));
+                  }}
+                  className="mt-3 rounded-full bg-charcoal px-4 py-1.5 text-[13px] font-bold text-pearl hover:bg-charcoal-soft disabled:opacity-50"
+                >
+                  {savingInt ? "Saving…" : "Save interests"}
+                </button>
+                {matches.length > 0 && (
+                  <div className="mt-4 border-t border-border pt-3">
+                    <p className="text-[12px] font-semibold text-muted">Matched for you</p>
+                    <div className="mt-2 space-y-2">
+                      {matches.map((u) => (
+                        <Link
+                          key={u.id}
+                          href={`/${u.username}`}
+                          className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-champagne/40"
+                        >
+                          <img
+                            src={
+                              u.avatar_url ||
+                              `https://api.dicebear.com/9.x/avataaars/svg?seed=${u.id}`
+                            }
+                            alt=""
+                            className="h-8 w-8 rounded-full object-cover"
+                          />
+                          <div className="min-w-0">
+                            <div className="truncate text-[13px] font-bold text-charcoal">
+                              {u.display_name}
+                            </div>
+                            <div className="truncate text-[11px] text-muted">
+                              @{(u.username || "")}
+                              {Array.isArray(u.interests)
+                                ? " · " + u.interests.slice(0, 3).join(", ")
+                                : ""}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {uniqueLinks.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link

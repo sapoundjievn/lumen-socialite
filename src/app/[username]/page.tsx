@@ -27,6 +27,7 @@ import {
   getFollowersList,
   getFollowingList,
   getFriendsList,
+  getPublicFollowingCount,
   getOrCreateConversation,
   createPost,
   type FriendStatus,
@@ -60,6 +61,7 @@ export default function ProfilePage() {
   const [listModal, setListModal] = useState<null | "followers" | "following" | "friends">(null);
   const [listUsers, setListUsers] = useState<any[]>([]);
   const [listLoading, setListLoading] = useState(false);
+  const [displayFollowing, setDisplayFollowing] = useState(0);
   const [editName, setEditName] = useState("");
   const [editBusinessAddress, setEditBusinessAddress] = useState("");
   const [editBusinessType, setEditBusinessType] = useState("");
@@ -92,6 +94,11 @@ export default function ProfilePage() {
       return;
     }
     setProfile(p);
+        if (p) {
+          getPublicFollowingCount(p.id, p.following_count || 0).then((n) =>
+            setDisplayFollowing(n)
+          );
+        }
 
     const { data: userPosts } = await getPostsByUserId(p.id, 50, me?.id);
     const { data: userReposts } = await getRepostedPosts(p.id);
@@ -412,6 +419,10 @@ export default function ProfilePage() {
 
   async function openPeopleList(kind: "followers" | "following" | "friends") {
     if (!profile) return;
+    if (kind === "friends" && !isOwnProfile) {
+      alert("Friends are private — only the account owner can see them.");
+      return;
+    }
     setListModal(kind);
     setListLoading(true);
     setListUsers([]);
@@ -761,7 +772,7 @@ export default function ProfilePage() {
             </div>
             <button type="button" onClick={() => openPeopleList("following")} className="hover:underline">
               <span className="font-bold text-charcoal">
-                {formatNumber(profile.following_count || 0)}
+                {formatNumber(displayFollowing || 0)}
               </span>{" "}
               <span className="text-muted">Following</span>
             </button>
@@ -771,9 +782,12 @@ export default function ProfilePage() {
               </span>{" "}
               <span className="text-muted">Followers</span>
             </button>
-            <button type="button" onClick={() => openPeopleList("friends")} className="hover:underline">
-              <span className="font-bold text-charcoal">Friends</span>
-            </button>
+            {isOwnProfile && (
+              <button type="button" onClick={() => openPeopleList("friends")} className="hover:underline">
+                <span className="font-bold text-charcoal">Friends</span>
+                <span className="text-muted"> (only you)</span>
+              </button>
+            )}
           </div>
         </div>
 
