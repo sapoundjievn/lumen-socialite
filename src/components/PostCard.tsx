@@ -76,6 +76,9 @@ export default function PostCard({
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${post.user_id}`;
   const verified = profile?.verified || false;
   const isOwner = !!currentUserId && currentUserId === post.user_id;
+  const isProtectedFounder = ["thevip", "kendall.vip"].includes(
+    (username || "").toLowerCase()
+  );
   const editable = isOwner && canEditPost(post.created_at, username);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -189,7 +192,7 @@ export default function PostCard({
                       <Trash2 className="h-4 w-4" /> Delete
                     </button>
                   )}
-                  {!isOwner && (
+                  {!isOwner && !isProtectedFounder && (
                     <>
                       <button
                         onClick={async () => {

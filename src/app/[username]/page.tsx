@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Calendar, ArrowLeft, Camera } from "lucide-react";
+import { Calendar, ArrowLeft, Camera, Flag, Ban } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import {
   getProfileByUsername,
@@ -417,6 +417,9 @@ export default function ProfilePage() {
   const accountType = ((profile as any).account_type || "personal") as string;
   const isBusiness = accountType === "business";
   const isMusician = accountType === "musician";
+  const isProtectedFounder = ["thevip", "kendall.vip"].includes(
+    (profile?.username || "").toLowerCase()
+  );
 
   async function openPeopleList(kind: "followers" | "following" | "friends") {
     if (!profile) return;
@@ -711,46 +714,53 @@ export default function ProfilePage() {
                 >
                   Message
                 </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (!currentUserId || !profile) {
-                      alert("Please sign in");
-                      return;
-                    }
-                    if (!confirm(`Block @${profile.username}?`)) return;
-                    const { error } = await blockUser(currentUserId, profile.id);
-                    if (error) alert(error.message);
-                    else {
-                      alert("Blocked. Their posts will be hidden from your feed.");
-                      router.push("/");
-                    }
-                  }}
-                  className="rounded-full border border-rose-200 px-4 py-1.5 text-[14px] font-bold text-rose-600 transition hover:bg-rose-50"
-                >
-                  Block
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (!currentUserId || !profile) {
-                      alert("Please sign in");
-                      return;
-                    }
-                    const reason = window.prompt("Report reason:", "other");
-                    if (!reason) return;
-                    const { error } = await reportContent({
-                      reporterId: currentUserId,
-                      reason,
-                      reportedUserId: profile.id,
-                    });
-                    if (error) alert(error.message);
-                    else alert("Report submitted.");
-                  }}
-                  className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
-                >
-                  Report
-                </button>
+                {/* No Block/Report on founders @thevip & @kendall.vip */}
+                {!isProtectedFounder && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      title="Report"
+                      onClick={async () => {
+                        if (!currentUserId || !profile) {
+                          alert("Please sign in");
+                          return;
+                        }
+                        const reason = window.prompt("Report reason:", "other");
+                        if (!reason) return;
+                        const { error } = await reportContent({
+                          reporterId: currentUserId,
+                          reason,
+                          reportedUserId: profile.id,
+                        });
+                        if (error) alert(error.message);
+                        else alert("Report submitted.");
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted transition hover:bg-champagne/40 hover:text-charcoal"
+                    >
+                      <Flag className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Block"
+                      onClick={async () => {
+                        if (!currentUserId || !profile) {
+                          alert("Please sign in");
+                          return;
+                        }
+                        if (!confirm(`Block @${profile.username}?`)) return;
+                        const { error } = await blockUser(currentUserId, profile.id);
+                        if (error) alert(error.message);
+                        else {
+                          alert("Blocked. Their posts will be hidden from your feed.");
+                          router.push("/");
+                        }
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-rose-200/80 text-rose-500 transition hover:bg-rose-50"
+                    >
+                      <Ban className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={handleFriend}
