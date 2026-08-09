@@ -224,7 +224,7 @@ export async function getPostsByUserId(
   if (error || !data) return { data: data || [], error };
 
   if (currentUserId && data.length > 0) {
-    const postIds = rows.map((p) => p.id);
+    const postIds = data.map((p) => p.id);
     const [{ data: likes }, { data: reposts }] = await Promise.all([
       supabase
         .from("likes")
