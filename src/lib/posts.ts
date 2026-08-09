@@ -771,7 +771,8 @@ export async function getMessages(conversationId: string) {
 export async function sendMessage(
   conversationId: string,
   senderId: string,
-  content: string
+  content: string,
+  opts?: { isSecret?: boolean }
 ) {
   const { data, error } = await supabase
     .from("messages")
@@ -779,6 +780,7 @@ export async function sendMessage(
       conversation_id: conversationId,
       sender_id: senderId,
       content,
+      is_secret: !!opts?.isSecret,
     })
     .select()
     .single();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useI18n } from "@/lib/i18n";
+import StoriesBar from "@/components/StoriesBar";
 /* feed-interaction-v2 */
 
 import { useState, useEffect } from "react";
@@ -235,6 +236,7 @@ export default function Feed() {
         </div>
       </div>
 
+      <StoriesBar />
       <Composer onPost={handlePost} />
 
       <div>
