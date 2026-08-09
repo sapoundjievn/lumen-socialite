@@ -2,36 +2,70 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Search, Bell, Mail, User, LogOut } from "lucide-react";
+import {
+  Home,
+  Search,
+  Bell,
+  Mail,
+  User,
+  LogOut,
+  Bookmark,
+  Music,
+  ShieldCheck,
+  MoreHorizontal,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
+
+type NavItem = {
+  icon: typeof Home;
+  label: string;
+  href: string;
+};
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [profileHref, setProfileHref] = useState("/login");
   const [signedIn, setSignedIn] = useState(false);
+  const [accountType, setAccountType] = useState<string | null>(null);
 
   useEffect(() => {
     getCurrentProfile().then((p) => {
       if (p?.username) {
         setProfileHref(`/${p.username}`);
         setSignedIn(true);
+        setAccountType((p as any).account_type || "personal");
       } else {
         setProfileHref("/login");
         setSignedIn(false);
+        setAccountType(null);
       }
     });
   }, [pathname]);
 
-  const items = [
+  const row1: NavItem[] = [
     { icon: Home, label: "Home", href: "/" },
     { icon: Search, label: "Explore", href: "/explore" },
     { icon: Bell, label: "Alerts", href: "/notifications" },
-    { icon: Mail, label: "Messages", href: "/messages" },
+    { icon: Mail, label: "Inbox", href: "/messages" },
     { icon: User, label: "Profile", href: profileHref },
   ];
+
+  const row2: NavItem[] = [
+    { icon: Bookmark, label: "Saved", href: "/bookmarks" },
+    { icon: Music, label: "Tunes", href: "/music" },
+    { icon: ShieldCheck, label: "Verify", href: "/verify" },
+    { icon: Users, label: "Social", href: "/explore" },
+    { icon: MoreHorizontal, label: "More", href: "/more" },
+  ];
+
+  function isActive(href: string) {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  }
 
   async function handleSignOut() {
     await signOut();
@@ -39,42 +73,62 @@ export default function MobileBottomNav() {
     router.push("/login");
   }
 
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-14 items-center justify-around border-t border-border bg-pearl/95 backdrop-blur-md sm:hidden">
-      {items.map((item) => {
-        const Icon = item.icon;
-        const active =
-          item.href === "/"
-            ? pathname === "/"
-            : pathname.startsWith(item.href) && item.href !== "#";
-        return (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={cn(
-              "flex flex-col items-center justify-center gap-0.5 px-2 py-1",
-              active ? "text-gold-deep" : "text-muted"
-            )}
-          >
-            <Icon
-              className={cn("h-6 w-6", active && "stroke-[2.5]")}
-              strokeWidth={active ? 2.5 : 1.8}
-            />
-            <span className="text-[10px] font-medium">{item.label}</span>
-          </Link>
-        );
-      })}
+  function NavButton({ item }: { item: NavItem }) {
+    const Icon = item.icon;
+    const active = isActive(item.href);
+    return (
+      <Link
+        href={item.href}
+        className={cn(
+          "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1",
+          active ? "text-gold-deep" : "text-muted"
+        )}
+      >
+        <Icon
+          className={cn("h-[18px] w-[18px]", active && "stroke-[2.5]")}
+          strokeWidth={active ? 2.5 : 1.75}
+        />
+        <span className="max-w-full truncate text-[9px] font-medium leading-none">
+          {item.label}
+        </span>
+      </Link>
+    );
+  }
 
-      {signedIn && (
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="flex flex-col items-center justify-center gap-0.5 px-2 py-1 text-muted transition hover:text-rose-600"
-        >
-          <LogOut className="h-6 w-6" strokeWidth={1.8} />
-          <span className="text-[10px] font-medium">Out</span>
-        </button>
-      )}
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-pearl/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md sm:hidden">
+      {/* Top row — primary */}
+      <div className="flex h-11 items-stretch justify-around px-1">
+        {row1.map((item) => (
+          <NavButton key={item.label} item={item} />
+        ))}
+      </div>
+      {/* Divider */}
+      <div className="mx-3 h-px bg-border/70" />
+      {/* Bottom row — more menu */}
+      <div className="flex h-11 items-stretch justify-around px-1">
+        {row2.map((item) => (
+          <NavButton key={item.label} item={item} />
+        ))}
+        {signedIn ? (
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1 text-muted transition hover:text-rose-600"
+          >
+            <LogOut className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            <span className="text-[9px] font-medium leading-none">Out</span>
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1 text-muted"
+          >
+            <User className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            <span className="text-[9px] font-medium leading-none">In</span>
+          </Link>
+        )}
+      </div>
     </nav>
   );
 }

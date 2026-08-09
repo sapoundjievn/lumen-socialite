@@ -12,7 +12,7 @@ export default function Home() {
       </div>
 
       {/* Main feed – full width on mobile, with bottom padding for nav */}
-      <div className="w-full max-w-[600px] pb-16 sm:pb-0">
+      <div className="w-full max-w-[600px] pb-28 sm:pb-0">
         <Feed />
       </div>
 

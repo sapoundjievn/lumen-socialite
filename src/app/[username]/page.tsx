@@ -447,7 +447,7 @@ export default function ProfilePage() {
         <Sidebar />
       </div>
 
-      <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-16 sm:pb-0">
+      <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
         {/* Banner + Avatar — back on gold */}
         <div className="relative">
           {(profile as any).banner_url ? (

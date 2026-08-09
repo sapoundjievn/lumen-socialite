@@ -105,7 +105,7 @@ export default function NotificationsPage() {
         <Sidebar />
       </div>
 
-      <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-16 sm:pb-0">
+      <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
         <div className="sticky top-0 z-10 border-b border-border bg-pearl/85 backdrop-blur-md">
           <div className="flex items-center gap-4 px-4 py-3">
             <Link
