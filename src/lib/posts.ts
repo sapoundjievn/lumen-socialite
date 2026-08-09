@@ -981,6 +981,7 @@ export async function createMusicTrack(
     album_name?: string | null;
     is_sample?: boolean;
     sample_duration_sec?: number;
+    slot_index?: number | null;
   }
 ) {
   const { data, error } = await supabase
@@ -989,6 +990,30 @@ export async function createMusicTrack(
     .select("*")
     .single();
   return { data, error };
+}
+
+export async function updateMusicTrack(
+  trackId: string,
+  userId: string,
+  patch: { title?: string; audio_url?: string; album_name?: string | null }
+) {
+  const { data, error } = await supabase
+    .from("music_tracks")
+    .update(patch)
+    .eq("id", trackId)
+    .eq("user_id", userId)
+    .select("*")
+    .single();
+  return { data, error };
+}
+
+export async function deleteMusicTrack(trackId: string, userId: string) {
+  const { error } = await supabase
+    .from("music_tracks")
+    .delete()
+    .eq("id", trackId)
+    .eq("user_id", userId);
+  return { error };
 }
 
 export async function purchaseMusicTrack(

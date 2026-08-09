@@ -37,6 +37,7 @@ import SpecialStars from "@/components/SpecialStars";
 import { formatNumber } from "@/lib/utils";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import MusicianTunes from "@/components/MusicianTunes";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -714,13 +715,19 @@ export default function ProfilePage() {
         </div>
 
         {isMusician && (
-          <div className="border-b border-border px-4 py-3">
-            <a
-              href="/music"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-pearl px-4 py-2 text-[13px] font-semibold text-charcoal hover:bg-champagne/40"
-            >
-              Music store · sell tracks (10% platform fee)
-            </a>
+          <div className="mt-3">
+            <MusicianTunes
+              profileId={profile.id}
+              isOwner={!!isOwnProfile}
+              verified={!!profile.verified}
+            />
+            {isOwnProfile && (
+              <p className="mt-2 text-center text-[12px]">
+                <Link href="/music" className="font-semibold text-gold-deep hover:underline">
+                  Open LumenTunes manager
+                </Link>
+              </p>
+            )}
           </div>
         )}
 

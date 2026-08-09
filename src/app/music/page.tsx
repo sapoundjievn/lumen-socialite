@@ -149,16 +149,10 @@ export default function MusicPage() {
 
         <div className="px-4 py-4">
           <p className="mb-4 text-[13px] text-muted">
-            Upload a <span className="font-semibold text-charcoal">sample up to ~1 minute</span>{" "}
-            (song name + album). Free:{" "}
-            <span className="font-semibold text-charcoal">{SAMPLE_LIMIT_FREE} samples</span>
-            . Verified ($168/year):{" "}
-            <span className="font-semibold text-charcoal">{SAMPLE_LIMIT_VERIFIED} samples</span>
-            . Sales: platform fee{" "}
-            <span className="font-semibold text-charcoal">
-              {Math.round(MUSIC_PLATFORM_FEE_RATE * 100)}%
-            </span>
-            .
+            <span className="font-semibold text-charcoal">LumenTunes Store</span>
+            {" "}
+            — upload 1-minute samples. Free: {SAMPLE_LIMIT_FREE} slots. Verified: {SAMPLE_LIMIT_VERIFIED} slots.
+            Samples appear on your profile (1–7 left, 8–14 right).
           </p>
           {profile && (() => {
             const uname = (profile.username || "").toLowerCase();
