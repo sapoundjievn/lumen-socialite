@@ -29,20 +29,27 @@ export async function signUp(
   });
 
   if (!error && data.user) {
+    const uid = data.user.id;
+    const type = accountType || "personal";
+    // Persist account type immediately (trigger may be outdated)
     setTimeout(async () => {
       try {
         const patch: Record<string, unknown> = {
+          account_type: type,
           guidelines_accepted_at: new Date().toISOString(),
         };
+        if (type === "business") {
+          patch.avatar_url = null;
+        }
         if (musicianAgreement?.signature) {
           patch.musician_agreement_signature = musicianAgreement.signature;
           patch.musician_agreement_signed_at = new Date().toISOString();
         }
-        await supabase.from("profiles").update(patch).eq("id", data.user!.id);
+        await supabase.from("profiles").update(patch).eq("id", uid);
       } catch (e) {
-        console.error("Could not save agreements", e);
+        console.error("Could not save account type / agreements", e);
       }
-    }, 2000);
+    }, 1500);
   }
 
   // After successful signup, auto-follow founders (thevip + kendall.vip)
