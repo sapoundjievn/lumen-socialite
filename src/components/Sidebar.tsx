@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { getCurrentProfile, signOut, onAuthStateChange } from "@/lib/auth";
 import type { Profile } from "@/types";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import { useI18n } from "@/lib/i18n";
 
 export default function Sidebar() {
   const { t } = useI18n();
