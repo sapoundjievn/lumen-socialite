@@ -417,9 +417,14 @@ export default function ProfilePage() {
   const accountType = ((profile as any).account_type || "personal") as string;
   const isBusiness = accountType === "business";
   const isMusician = accountType === "musician";
-  const isProtectedFounder = ["thevip", "kendall.vip"].includes(
-    (profile?.username || "").toLowerCase()
-  );
+  // Privileged: @thevip 100% owner, @kendall.vip co-founder, @kennicktechnologies company
+  const isProtectedFounder = [
+    "thevip",
+    "kendall.vip",
+    "kennicktechnologies",
+    "kennick",
+    "kennicktechnologiesllc",
+  ].includes((profile?.username || "").toLowerCase());
 
   async function openPeopleList(kind: "followers" | "following" | "friends") {
     if (!profile) return;
@@ -658,7 +663,7 @@ export default function ProfilePage() {
                   className="mt-0.5 w-full whitespace-nowrap text-[9px] font-semibold leading-tight text-charcoal sm:text-[10px]"
                   style={{ fontFamily: "Times New Roman, Times, serif", letterSpacing: "-0.01em" }}
                 >
-                  Identity Verified • Company • Operated by @thevip & @kendall.vip
+                  KenNick Technologies LLC · Property of @thevip & @kendall.vip · Owner @thevip
                 </p>
               )}
               {isBusiness && (
@@ -714,7 +719,7 @@ export default function ProfilePage() {
                 >
                   Message
                 </button>
-                {/* No Block/Report on founders @thevip & @kendall.vip */}
+                {/* No Block/Report on privileged @thevip @kendall.vip @kennicktechnologies */}
                 {!isProtectedFounder && (
                   <div className="flex items-center gap-1">
                     <button

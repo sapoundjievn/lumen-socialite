@@ -37,7 +37,7 @@ export default function SpecialStars({ username }: { username: string }) {
           className="text-[11px] font-semibold leading-snug text-[#8B6914] sm:text-[12px] sm:leading-none"
           style={{ fontFamily: "Times New Roman, Times, serif" }}
         >
-          Identity Verified • The VIP • Founder/Creator of the Platform
+          Identity Verified • The VIP • 100% Owner · Founder/Creator of the Platform
         </span>
       </div>
     );
@@ -76,7 +76,7 @@ export default function SpecialStars({ username }: { username: string }) {
           className="text-[11px] font-semibold leading-snug text-[#C2185B] sm:text-[12px] sm:leading-none"
           style={{ fontFamily: "Times New Roman, Times, serif" }}
         >
-          Identity Verified • VIP • Co-founder of the Platform
+          Identity Verified • VIP • Co-founder · Privileged with Owner @thevip
         </span>
       </div>
     );
@@ -87,7 +87,7 @@ export default function SpecialStars({ username }: { username: string }) {
     return (
       <span
         className="inline-flex items-center gap-0.5"
-        title="Company · Operated by founders"
+        title="KenNick Technologies LLC · Property of @thevip & @kendall.vip"
         style={{ fontFamily: "Times New Roman, Times, serif" }}
       >
         {[0, 1, 2, 3, 4].map((i) => (

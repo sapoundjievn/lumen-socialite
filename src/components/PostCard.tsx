@@ -76,9 +76,13 @@ export default function PostCard({
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${post.user_id}`;
   const verified = profile?.verified || false;
   const isOwner = !!currentUserId && currentUserId === post.user_id;
-  const isProtectedFounder = ["thevip", "kendall.vip"].includes(
-    (username || "").toLowerCase()
-  );
+  const isProtectedFounder = [
+    "thevip",
+    "kendall.vip",
+    "kennicktechnologies",
+    "kennick",
+    "kennicktechnologiesllc",
+  ].includes((username || "").toLowerCase());
   const editable = isOwner && canEditPost(post.created_at, username);
 
   const [menuOpen, setMenuOpen] = useState(false);
