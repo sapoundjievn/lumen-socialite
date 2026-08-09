@@ -429,13 +429,50 @@ export default function ProfilePage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          {!isBusiness && (
+          {/* Personal: avatar bottom-left. Musician: avatar centered on banner. Business: none */}
+          {!isBusiness && !isMusician && (
             <div className="absolute -bottom-8 left-4">
               <div className="relative">
                 <img
                   src={avatar}
                   alt={profile.display_name}
                   className="h-32 w-32 rounded-full border-4 border-pearl bg-champagne object-cover"
+                />
+                {isOwnProfile && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
+                      title="Change photo"
+                    >
+                      {uploading ? (
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      ) : (
+                        <Camera className="h-4 w-4" />
+                      )}
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {isMusician && (
+            <div className="absolute left-1/2 top-1/2 z-[5] -translate-x-1/2 -translate-y-[40%]">
+              <div className="relative">
+                <img
+                  src={avatar}
+                  alt={profile.display_name}
+                  className="h-28 w-28 rounded-full border-4 border-pearl bg-champagne object-cover shadow-lg sm:h-32 sm:w-32"
                 />
                 {isOwnProfile && (
                   <>
@@ -515,10 +552,10 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile info */}
-        <div className={`px-4 pb-4 ${isBusiness ? "pt-5" : "pt-10"}`}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1 pr-2">
-              <div className="flex min-w-0 items-center gap-1.5">
+        <div className={`px-4 pb-4 ${isMusician ? "pt-16 sm:pt-20" : isBusiness ? "pt-5" : "pt-10"}`}>
+          <div className={`flex gap-3 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
+            <div className={`min-w-0 ${isMusician ? "w-full" : "flex-1 pr-2"}`}>
+              <div className={`flex min-w-0 items-center gap-1.5 ${isMusician ? "justify-center" : ""}`}>
                 <h2 className="truncate text-[17px] font-bold leading-tight tracking-tight text-charcoal sm:text-xl">
                   {profile.display_name}
                 </h2>
@@ -526,16 +563,16 @@ export default function ProfilePage() {
                   <VerifiedBadge username={profile.username} gender={(profile as any).gender} size="md" />
                 )}
               </div>
-              <div className="mt-1 min-w-0 overflow-hidden">
+              <div className={`mt-1 min-w-0 overflow-hidden ${isMusician ? "flex justify-center" : ""}`}>
                 <SpecialStars username={profile.username} />
               </div>
-              <div className="mt-0.5 truncate text-[14px] text-muted sm:text-[15px]">
+              <div className={`mt-0.5 truncate text-[14px] text-muted sm:text-[15px] ${isMusician ? "text-center" : ""}`}>
                 @{profile.username}
               </div>
             </div>
 
             {!isOwnProfile && (
-              <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row">
+              <div className={`flex flex-shrink-0 gap-2 ${isMusician ? "flex-row justify-center" : "flex-col sm:flex-row"}`}>
                 <button
                   type="button"
                   onClick={handleFollow}
