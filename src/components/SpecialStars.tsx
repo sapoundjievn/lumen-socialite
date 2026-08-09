@@ -85,7 +85,7 @@ export default function SpecialStars({ username }: { username: string }) {
 
   if (u === "kennicktechnologies" || u === "kennick" || u === "kennicktechnologiesllc") {
     return (
-      <div className="flex min-w-0 flex-col gap-0.5">
+      <div className="flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
         <span
           className="inline-flex shrink-0 items-center gap-0.5"
           title="Company · Operated by founders"
@@ -94,7 +94,7 @@ export default function SpecialStars({ username }: { username: string }) {
           {[0, 1, 2, 3, 4].map((i) => (
             <span
               key={i}
-              className="relative inline-flex h-[12px] w-[12px] items-center justify-center sm:h-[14px] sm:w-[14px]"
+              className="relative inline-flex h-[11px] w-[11px] items-center justify-center sm:h-[13px] sm:w-[13px]"
             >
               <svg viewBox="0 0 24 24" className="h-full w-full">
                 <defs>
@@ -112,8 +112,8 @@ export default function SpecialStars({ username }: { username: string }) {
               </svg>
               <svg
                 viewBox="0 0 24 24"
-                className="absolute h-[6px] w-[6px] fill-white sm:h-[7px] sm:w-[7px]"
-                style={{ top: "3px" }}
+                className="absolute h-[5px] w-[5px] fill-white sm:h-[6px] sm:w-[6px]"
+                style={{ top: "2.5px" }}
               >
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
               </svg>
@@ -121,14 +121,9 @@ export default function SpecialStars({ username }: { username: string }) {
           ))}
         </span>
         <span
-          className="text-[11px] font-semibold leading-snug sm:text-[12px]"
-          style={{
-            fontFamily: "Times New Roman, Times, serif",
-            background: "linear-gradient(90deg, #C2185B 0%, #C2185B 50%, #8B6914 50%, #8B6914 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-          }}
+          className="min-w-0 flex-1 truncate whitespace-nowrap text-[10px] font-semibold leading-none text-charcoal sm:text-[11px]"
+          style={{ fontFamily: "Times New Roman, Times, serif" }}
+          title="Identity Verified • Company • Operated by @thevip & @kendall.vip"
         >
           Identity Verified • Company • Operated by @thevip & @kendall.vip
         </span>
