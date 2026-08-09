@@ -412,7 +412,9 @@ export default function ProfilePage() {
         {/* Banner + Avatar — back on gold */}
         <div className="relative">
           {(profile as any).banner_url ? (
-            <div className={`relative w-full overflow-hidden ${isMusician ? "h-32 sm:h-36" : "h-36 sm:h-44"}`}>
+            <div className={`relative w-full overflow-hidden ${
+              isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-36 sm:h-44"
+            }`}>
               <img
                 src={(profile as any).banner_url}
                 alt=""
@@ -421,7 +423,9 @@ export default function ProfilePage() {
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
             </div>
           ) : (
-            <div className={`${isMusician ? "h-32 sm:h-36" : "h-28"} bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]`} />
+            <div className={`${
+              isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-28"
+            } bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]`} />
           )}
           <Link
             href="/"
