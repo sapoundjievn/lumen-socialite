@@ -120,7 +120,12 @@ export default function MusicianTunes({
   function SlotButton({ slot }: { slot: number }) {
     const t = tracks[slot];
     const locked = slot >= limit;
-    const label = t?.title || (isOwner ? `+ ${slot + 1}` : "—");
+    const num = slot + 1;
+    const label = t?.title
+      ? `${num}. ${t.title}`
+      : isOwner
+      ? (locked ? `${num}.` : `${num}. +`)
+      : `${num}.`;
     return (
       <div className="flex flex-col items-center gap-0.5">
         <button
@@ -210,8 +215,7 @@ export default function MusicianTunes({
       </div>
       {isOwner && (
         <p className="mt-2 text-center text-[10px] text-muted">
-          Profile samples only (1 min). Full songs: LumenTunes Store link below.
-          Slots 1–7 free · 8–14 verified · empty slot = upload · edit = rename
+          Numbered samples: free accounts 1–7 · verified 1–14. Previews only (1 min).
         </p>
       )}
     </div>

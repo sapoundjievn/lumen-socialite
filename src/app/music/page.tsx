@@ -42,6 +42,12 @@ function MusicInner() {
   const uname = (me?.username || "").toLowerCase();
   const isFounder = uname === "thevip" || uname === "kendall.vip";
   const isMusician = (me as any)?.account_type === "musician" || isFounder;
+  const unameMe = (me?.username || "").toLowerCase();
+  const isMikeAvramov = unameMe === "mikeavramov" || unameMe === "mikeavramove";
+  const canSell =
+    isFounder ||
+    (!!me?.verified && isMusician) ||
+    isMikeAvramov;
   const viewingOwn =
     !!me &&
     !!artist &&
@@ -133,8 +139,14 @@ function MusicInner() {
       setError("Add the song name");
       return;
     }
-    if (!copyrightOk || !copyrightOwner.trim()) {
-      setError("Confirm copyright and owner name");
+    if (!isMikeAvramov) {
+      if (!copyrightOk || !copyrightOwner.trim()) {
+        setError("Confirm copyright and owner name — required to sell music");
+        return;
+      }
+    }
+    if (!canSell) {
+      setError("Only verified musician accounts can sell full tracks in LumenTunes Store. Free accounts: 7 sample slots only.");
       return;
     }
     const limit = me.verified || isFounder ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
@@ -255,7 +267,20 @@ function MusicInner() {
           )}
 
           {/* ARTIST UPLOAD (owner only) */}
-          {viewingOwn && (
+          {viewingOwn && !canSell && (
+            <div className="mb-6 rounded-2xl border border-border bg-champagne/40 px-4 py-3 text-[13px] text-charcoal">
+              <p className="font-bold">Samples only (free musician)</p>
+              <p className="mt-1 text-muted">
+                You can use profile sample slots <span className="font-semibold">1–7</span>.
+                Verify your musician account to unlock samples <span className="font-semibold">1–14</span> and the LumenTunes Store to sell full songs.
+              </p>
+              <a href="/verify" className="mt-2 inline-block font-semibold text-gold-deep hover:underline">
+                Get verified to sell →
+              </a>
+            </div>
+          )}
+
+          {viewingOwn && canSell && (
             <div className="mb-6 rounded-2xl border border-border bg-white p-4">
               <p className="mb-2 text-[13px] font-bold text-charcoal">
                 Artist upload — full songs for sale
@@ -289,21 +314,30 @@ function MusicInner() {
                   className="flex-1 rounded-xl border border-border bg-pearl px-3 py-2 text-[14px]"
                 />
               </div>
-              <label className="mb-2 flex items-start gap-2 text-[12px] text-charcoal">
-                <input
-                  type="checkbox"
-                  checked={copyrightOk}
-                  onChange={(e) => setCopyrightOk(e.target.checked)}
-                  className="mt-0.5"
-                />
-                <span>I own the copyright (or exclusive rights) to sell this recording.</span>
-              </label>
-              <input
-                value={copyrightOwner}
-                onChange={(e) => setCopyrightOwner(e.target.value)}
-                placeholder="Copyright owner legal name"
-                className="mb-2 w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px]"
-              />
+              {!isMikeAvramov && (
+                <>
+                  <label className="mb-2 flex items-start gap-2 text-[12px] text-charcoal">
+                    <input
+                      type="checkbox"
+                      checked={copyrightOk}
+                      onChange={(e) => setCopyrightOk(e.target.checked)}
+                      className="mt-0.5"
+                    />
+                    <span>I own the copyright (or exclusive rights) to sell this recording.</span>
+                  </label>
+                  <input
+                    value={copyrightOwner}
+                    onChange={(e) => setCopyrightOwner(e.target.value)}
+                    placeholder="Copyright owner legal name"
+                    className="mb-2 w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px]"
+                  />
+                </>
+              )}
+              {isMikeAvramov && (
+                <p className="mb-2 text-[11px] text-muted">
+                  Special account: copyright attestation not required for uploads.
+                </p>
+              )}
               <p className="mb-2 text-[10px] text-muted">
                 Your net after platform fee ({Math.round(MUSIC_PLATFORM_FEE_RATE * 100)}%): shown only to
                 artists on sale.

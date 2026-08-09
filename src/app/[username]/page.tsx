@@ -798,14 +798,26 @@ export default function ProfilePage() {
               isOwner={!!isOwnProfile}
               verified={!!profile.verified}
             />
-            <p className="mt-2 text-center text-[12px]">
-              <Link
-                href={`/music?artist=${encodeURIComponent(profile.username)}`}
-                className="font-semibold text-gold-deep hover:underline"
-              >
-                LumenTunes Store — full tracks · pay & download
-              </Link>
-            </p>
+            {profile.verified ||
+            (profile.username || "").toLowerCase() === "mikeavramov" ||
+            (profile.username || "").toLowerCase() === "thevip" ||
+            (profile.username || "").toLowerCase() === "kendall.vip" ? (
+              <p className="mt-2 text-center text-[12px]">
+                <Link
+                  href={`/music?artist=${encodeURIComponent(profile.username)}`}
+                  className="font-semibold text-gold-deep hover:underline"
+                >
+                  LumenTunes Store — full tracks · pay & download
+                </Link>
+              </p>
+            ) : isOwnProfile ? (
+              <p className="mt-2 text-center text-[12px] text-muted">
+                Sample slots 1–7 only.{" "}
+                <Link href="/verify" className="font-semibold text-gold-deep hover:underline">
+                  Verify to sell in LumenTunes Store
+                </Link>
+              </p>
+            ) : null}
           </div>
         )}
 
