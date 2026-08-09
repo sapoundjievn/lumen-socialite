@@ -85,51 +85,40 @@ export default function SpecialStars({ username }: { username: string }) {
 
   if (u === "kennicktechnologies" || u === "kennick" || u === "kennicktechnologiesllc") {
     return (
-      <div className="flex w-full min-w-0 flex-col gap-0.5">
-        <span
-          className="inline-flex items-center gap-0.5"
-          title="Company · Operated by founders"
-          style={{ fontFamily: "Times New Roman, Times, serif" }}
-        >
-          {[0, 1, 2, 3, 4].map((i) => (
-            <span
-              key={i}
-              className="relative inline-flex h-[11px] w-[11px] items-center justify-center sm:h-[13px] sm:w-[13px]"
+      <span
+        className="inline-flex items-center gap-0.5"
+        title="Company · Operated by founders"
+        style={{ fontFamily: "Times New Roman, Times, serif" }}
+      >
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            className="relative inline-flex h-[11px] w-[11px] items-center justify-center sm:h-[13px] sm:w-[13px]"
+          >
+            <svg viewBox="0 0 24 24" className="h-full w-full">
+              <defs>
+                <linearGradient id={`kn-star-${i}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#E91E63" />
+                  <stop offset="50%" stopColor="#E91E63" />
+                  <stop offset="50%" stopColor="#C9A86C" />
+                  <stop offset="100%" stopColor="#C9A86C" />
+                </linearGradient>
+              </defs>
+              <path
+                fill={`url(#kn-star-${i})`}
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+            <svg
+              viewBox="0 0 24 24"
+              className="absolute h-[5px] w-[5px] fill-white sm:h-[6px] sm:w-[6px]"
+              style={{ top: "2.5px" }}
             >
-              <svg viewBox="0 0 24 24" className="h-full w-full">
-                <defs>
-                  <linearGradient id={`kn-star-${i}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#E91E63" />
-                    <stop offset="50%" stopColor="#E91E63" />
-                    <stop offset="50%" stopColor="#C9A86C" />
-                    <stop offset="100%" stopColor="#C9A86C" />
-                  </linearGradient>
-                </defs>
-                <path
-                  fill={`url(#kn-star-${i})`}
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                />
-              </svg>
-              <svg
-                viewBox="0 0 24 24"
-                className="absolute h-[5px] w-[5px] fill-white sm:h-[6px] sm:w-[6px]"
-                style={{ top: "2.5px" }}
-              >
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-            </span>
-          ))}
-        </span>
-        <span
-          className="block w-full whitespace-nowrap text-[9px] font-semibold leading-tight text-charcoal sm:text-[10px]"
-          style={{
-            fontFamily: "Times New Roman, Times, serif",
-            letterSpacing: "-0.01em",
-          }}
-        >
-          Identity Verified • Company • Operated by @thevip & @kendall.vip
-        </span>
-      </div>
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
+          </span>
+        ))}
+      </span>
     );
   }
 

@@ -643,12 +643,20 @@ export default function ProfilePage() {
                   <VerifiedBadge username={profile.username} gender={(profile as any).gender} size="md" />
                 )}
               </div>
-              <div className="mt-1 min-w-0 overflow-hidden">
+              <div className="mt-1 min-w-0">
                 <SpecialStars username={profile.username} />
               </div>
               <div className="mt-0.5 truncate text-[14px] text-muted sm:text-[15px]">
                 @{profile.username}
               </div>
+              {(profile.username || "").toLowerCase() === "kennicktechnologies" && (
+                <p
+                  className="mt-0.5 w-full whitespace-nowrap text-[9px] font-semibold leading-tight text-charcoal sm:text-[10px]"
+                  style={{ fontFamily: "Times New Roman, Times, serif", letterSpacing: "-0.01em" }}
+                >
+                  Identity Verified • Company • Operated by @thevip & @kendall.vip
+                </p>
+              )}
               {isBusiness && (
                 <div className="mt-2 space-y-0.5 text-[13px] text-charcoal/80">
                   {(profile as any).business_type ? (
