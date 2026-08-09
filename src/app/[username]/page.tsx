@@ -1,4 +1,30 @@
-"use client";
+"use 
+                {((profile as any).account_type === "business") && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="mb-1 block text-[12px] font-semibold text-muted">Business type</label>
+                      <input
+                        value={editBusinessType}
+                        onChange={(e) => setEditBusinessType(e.target.value)}
+                        placeholder="Restaurant, coffee shop, store, office…"
+                        className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px] text-charcoal"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[12px] font-semibold text-muted">Business address</label>
+                      <input
+                        value={editBusinessAddress}
+                        onChange={(e) => setEditBusinessAddress(e.target.value)}
+                        placeholder="Street, city, state"
+                        className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px] text-charcoal"
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted">
+                      Use <span className="font-semibold">Storefront photo</span> on the banner for the outside of your business.
+                    </p>
+                  </div>
+                )}
+client";
 /* interaction-v2 */
 
 import { useEffect, useState, useRef } from "react";
@@ -55,6 +81,8 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editName, setEditName] = useState("");
+  const [editBusinessAddress, setEditBusinessAddress] = useState("");
+  const [editBusinessType, setEditBusinessType] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editLinks, setEditLinks] = useState<string[]>(["", "", ""]);
   const [editEmail, setEditEmail] = useState("");
@@ -536,9 +564,9 @@ export default function ProfilePage() {
                 onClick={() => bannerInputRef.current?.click()}
                 disabled={uploading}
                 className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
-                title="Change banner"
+                title={isBusiness ? "Upload storefront / business face photo" : "Change banner"}
               >
-                Banner
+                {isBusiness ? "Storefront photo" : "Banner"}
               </button>
               <input
                 ref={bannerInputRef}
@@ -552,6 +580,8 @@ export default function ProfilePage() {
                 onClick={async () => {
                   setEditName(profile.display_name);
                   setEditBio(profile.bio || "");
+                  setEditBusinessAddress((profile as any).business_address || "");
+                  setEditBusinessType((profile as any).business_type || "");
                   const existing = (profile as any).links || [];
                   setEditLinks([
                     existing[0] || "",
@@ -576,6 +606,12 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
+
+        {isBusiness && isOwnProfile && !(profile as any).banner_url && (
+          <div className="border-b border-border bg-champagne/30 px-4 py-2 text-center text-[12px] text-charcoal">
+            Upload a <span className="font-semibold">storefront photo</span> — how your restaurant, shop, or office looks from outside — using <span className="font-semibold">Storefront photo</span>.
+          </div>
+        )}
 
         {/* Profile info */}
         <div className={`px-4 pb-4 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : isBusiness ? "pt-5" : "pt-10"}`}>
@@ -602,6 +638,20 @@ export default function ProfilePage() {
               <div className="mt-0.5 truncate text-[14px] text-muted sm:text-[15px]">
                 @{profile.username}
               </div>
+              {isBusiness && (
+                <div className="mt-2 space-y-0.5 text-[13px] text-charcoal/80">
+                  {(profile as any).business_type ? (
+                    <p className="font-medium text-gold-deep">
+                      {(profile as any).business_type}
+                    </p>
+                  ) : null}
+                  {(profile as any).business_address ? (
+                    <p className="leading-snug">{(profile as any).business_address}</p>
+                  ) : isOwnProfile ? (
+                    <p className="text-muted">Add storefront photo + address in Edit profile</p>
+                  ) : null}
+                </div>
+              )}
             </div>
             )}
             {isMusician && <div className="hidden" />}
@@ -923,11 +973,16 @@ export default function ProfilePage() {
                     .map((l) => l.trim())
                     .filter(Boolean)
                     .slice(0, 3);
-                  const { data, error } = await updateProfile(currentUserId, {
+                  const payload: any = {
                     display_name: editName.trim(),
                     bio: editBio.trim(),
                     links,
-                  });
+                  };
+                  if ((profile as any).account_type === "business") {
+                    payload.business_address = editBusinessAddress.trim() || null;
+                    payload.business_type = editBusinessType.trim() || null;
+                  }
+                  const { data, error } = await updateProfile(currentUserId, payload);
                   if (error) {
                     setSavingProfile(false);
                     alert(error.message || "Could not save");
