@@ -467,39 +467,60 @@ export default function ProfilePage() {
           )}
 
           {isMusician && (
-            <div className="absolute left-1/2 top-1/2 z-[5] -translate-x-1/2 -translate-y-[40%]">
-              <div className="relative">
-                <img
-                  src={avatar}
-                  alt={profile.display_name}
-                  className="h-28 w-28 rounded-full border-4 border-pearl bg-champagne object-cover shadow-lg sm:h-32 sm:w-32"
-                />
-                {isOwnProfile && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                      className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
-                      title="Change photo"
-                    >
-                      {uploading ? (
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      ) : (
-                        <Camera className="h-4 w-4" />
-                      )}
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleAvatarChange}
-                    />
-                  </>
-                )}
+            <>
+              {/* Photo exact center of banner */}
+              <div className="absolute left-1/2 top-1/2 z-[5] -translate-x-1/2 -translate-y-1/2">
+                <div className="relative">
+                  <img
+                    src={avatar}
+                    alt={profile.display_name}
+                    className="h-28 w-28 rounded-full border-4 border-pearl bg-champagne object-cover shadow-lg sm:h-32 sm:w-32"
+                  />
+                  {isOwnProfile && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                        className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
+                        title="Change photo"
+                      >
+                        {uploading ? (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        ) : (
+                          <Camera className="h-4 w-4" />
+                        )}
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                      />
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+              {/* Name + @tag right under banner bottom border (all musician accounts) */}
+              <div className="absolute left-0 right-0 top-full z-[6] flex -translate-y-0 flex-col items-center border-t border-border bg-pearl px-4 pt-2 pb-1 text-center">
+                <div className="flex max-w-full items-center justify-center gap-1.5">
+                  <h2 className="truncate text-[17px] font-bold leading-tight text-charcoal sm:text-xl">
+                    {profile.display_name}
+                  </h2>
+                  {profile.verified && (
+                    <VerifiedBadge
+                      username={profile.username}
+                      gender={(profile as any).gender}
+                      size="md"
+                    />
+                  )}
+                </div>
+                <div className="mt-0.5 text-[15px] font-medium text-charcoal">
+                  @{profile.username}
+                </div>
+              </div>
+            </>
           )}
 
           {/* Own profile actions under banner */}
@@ -552,10 +573,11 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile info */}
-        <div className={`px-4 pb-4 ${isMusician ? "pt-14 sm:pt-16" : isBusiness ? "pt-5" : "pt-10"}`}>
+        <div className={`px-4 pb-4 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : isBusiness ? "pt-5" : "pt-10"}`}>
           <div className={`flex gap-3 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
-            <div className={`min-w-0 ${isMusician ? "w-full" : "flex-1 pr-2"}`}>
-              <div className={`flex min-w-0 items-center gap-1.5 ${isMusician ? "justify-center" : ""}`}>
+            {!isMusician && (
+            <div className="min-w-0 flex-1 pr-2">
+              <div className="flex min-w-0 items-center gap-1.5">
                 <h2 className="truncate text-[17px] font-bold leading-tight tracking-tight text-charcoal sm:text-xl">
                   {profile.display_name}
                 </h2>
@@ -563,19 +585,15 @@ export default function ProfilePage() {
                   <VerifiedBadge username={profile.username} gender={(profile as any).gender} size="md" />
                 )}
               </div>
-              <div className={`mt-1 min-w-0 overflow-hidden ${isMusician ? "flex justify-center" : ""}`}>
+              <div className="mt-1 min-w-0 overflow-hidden">
                 <SpecialStars username={profile.username} />
               </div>
-              <div
-                className={`mt-0.5 truncate font-medium sm:text-[15px] ${
-                  isMusician
-                    ? "text-center text-[15px] text-charcoal"
-                    : "text-[14px] text-muted"
-                }`}
-              >
+              <div className="mt-0.5 truncate text-[14px] text-muted sm:text-[15px]">
                 @{profile.username}
               </div>
             </div>
+            )}
+            {isMusician && <div className="hidden" />}
 
             {!isOwnProfile && (
               <div className={`flex flex-shrink-0 gap-2 ${isMusician ? "flex-row justify-center" : "flex-col sm:flex-row"}`}>
