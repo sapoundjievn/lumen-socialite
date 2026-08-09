@@ -12,7 +12,7 @@ import { BadgeCheck } from "lucide-react";
  *   @igorpiven           → blue
  *   @mikeavramov         → red
  *   @mr.samsnuggles      → Champagne Frost Pearl
- *   @kennicktechnologies → half pink / half Champagne Frost Pearl
+ *   @kennicktechnologies → Champagne Frost Pearl (same simple design as founders)
  *
  * Other verified users (by gender at verify time):
  *   male → blue | female → light pink | other → rainbow
@@ -51,31 +51,13 @@ export default function VerifiedBadge({
     return <BadgeCheck className={`${dim} fill-[#C9A86C] text-white`} />;
   }
 
-  // KenNick Technologies LLC — same simple badge shape, 2 colors permanent
+  // KenNick Technologies LLC — permanent simple badge (Champagne Frost Pearl)
   if (
     u === "kennicktechnologies" ||
     u === "kennick" ||
     u === "kennicktechnologiesllc"
   ) {
-    return (
-      <svg viewBox="0 0 24 24" className={dim} aria-label="Verified" role="img">
-        <defs>
-          <linearGradient id={gid} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="50%" stopColor="#C2185B" />
-            <stop offset="50%" stopColor="#C9A86C" />
-          </linearGradient>
-        </defs>
-        {/* Same badge+check silhouette style as BadgeCheck */}
-        <path
-          fill={`url(#${gid})`}
-          d="M12 2L9.19 4.54 5.4 4.36 4.36 8.14 1.82 10.95 4.36 13.76 5.4 17.54 9.19 17.36 12 19.9 14.81 17.36 18.6 17.54 19.64 13.76 22.18 10.95 19.64 8.14 18.6 4.36 14.81 4.54 12 2z"
-        />
-        <path
-          fill="#fff"
-          d="M10.1 14.95l-3.05-3.05 1.13-1.13 1.92 1.92 4.72-4.72 1.13 1.13-5.85 5.85z"
-        />
-      </svg>
-    );
+    return <BadgeCheck className={`${dim} fill-[#C9A86C] text-white`} />;
   }
 
   // ===== Standard verified (gender) — permanent once verified with that gender =====
