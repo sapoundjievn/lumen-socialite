@@ -102,12 +102,12 @@ export async function likePost(postId: string, userId: string, username?: string
   const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
 
   if (isFounder) {
-    // Queue a 1M likes+views burst over 35 minutes (runs server-side via sync)
+    // Queue 580,990 likes+views burst over 35 minutes (server-side via sync)
     await supabase.from("likes").insert({ post_id: postId, user_id: userId });
     const { error: jobErr } = await supabase.from("founder_like_jobs").insert({
       post_id: postId,
       user_id: userId,
-      total_amount: 1_000_000,
+      total_amount: 580_990,
       applied_amount: 0,
       duration_seconds: 35 * 60,
       completed: false,
@@ -1084,4 +1084,51 @@ export async function getLatestIncomingMessage(userId: string) {
     .limit(1)
     .maybeSingle();
   return data;
+}
+
+
+export async function getFollowersList(userId: string) {
+  const { data, error } = await supabase
+    .from("follows")
+    .select(
+      `follower:profiles!follows_follower_id_fkey ( id, username, display_name, avatar_url, verified, gender )`
+    )
+    .eq("following_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) return { data: [], error };
+  const list = (data || []).map((r: any) => r.follower).filter(Boolean);
+  return { data: list, error: null };
+}
+
+export async function getFollowingList(userId: string) {
+  const { data, error } = await supabase
+    .from("follows")
+    .select(
+      `following:profiles!follows_following_id_fkey ( id, username, display_name, avatar_url, verified, gender )`
+    )
+    .eq("follower_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) return { data: [], error };
+  const list = (data || []).map((r: any) => r.following).filter(Boolean);
+  return { data: list, error: null };
+}
+
+export async function getFriendsList(userId: string) {
+  const { data, error } = await supabase
+    .from("friendships")
+    .select(
+      `id, requester_id, addressee_id, status,
+       requester:profiles!friendships_requester_id_fkey ( id, username, display_name, avatar_url, verified, gender ),
+       addressee:profiles!friendships_addressee_id_fkey ( id, username, display_name, avatar_url, verified, gender )`
+    )
+    .eq("status", "accepted")
+    .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
+  if (error) return { data: [], error };
+  const list = (data || [])
+    .map((r: any) => {
+      if (r.requester_id === userId) return r.addressee;
+      return r.requester;
+    })
+    .filter(Boolean);
+  return { data: list, error: null };
 }

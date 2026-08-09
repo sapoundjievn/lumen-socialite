@@ -11,6 +11,11 @@ interface ComposerProps {
   onPost: (content: string, mediaUrls?: string[]) => void | Promise<void>;
 }
 
+const EMOJI_QUICK = [
+  "✨","😊","🔥","❤️","😂","🙏","💯","🌟","🥂","👑",
+  "🎵","📸","💼","🚀","💜","🙌","😍","🥳","💪","🌙",
+];
+
 export default function Composer({ onPost }: ComposerProps) {
   const [content, setContent] = useState("");
   const [focused, setFocused] = useState(false);
@@ -18,6 +23,8 @@ export default function Composer({ onPost }: ComposerProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const textRef = useRef<HTMLTextAreaElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -102,7 +109,7 @@ export default function Composer({ onPost }: ComposerProps) {
   const tools = [
     { icon: Image, label: "Illumination (photo or short video)", action: () => fileRef.current?.click() },
     { icon: BarChart2, label: "Poll", action: () => {} },
-    { icon: Smile, label: "Emoji", action: () => {} },
+    { icon: Smile, label: "Emoji", action: () => setShowEmoji((v) => !v) },
     { icon: Calendar, label: "Schedule", action: () => {} },
     { icon: MapPin, label: "Location", action: () => {} },
   ];
@@ -118,7 +125,10 @@ export default function Composer({ onPost }: ComposerProps) {
 
         <div className="min-w-0 flex-1">
           <textarea
-            ref={textareaRef}
+            ref={(el) => {
+              textRef.current = el;
+              (textareaRef as any).current = el;
+            }}
             value={content}
             onChange={handleInput}
             onFocus={() => setFocused(true)}
@@ -127,6 +137,36 @@ export default function Composer({ onPost }: ComposerProps) {
             className="w-full resize-none bg-transparent text-[20px] leading-6 text-charcoal placeholder:text-muted-light focus:outline-none"
             style={{ minHeight: "28px" }}
           />
+
+          {showEmoji && (
+            <div className="mt-2 flex flex-wrap gap-1 rounded-xl border border-border bg-pearl p-2">
+              {EMOJI_QUICK.map((em) => (
+                <button
+                  key={em}
+                  type="button"
+                  className="rounded-lg p-1.5 text-lg leading-none hover:bg-champagne/50"
+                  onClick={() => {
+                    const el = textRef.current;
+                    if (!el) {
+                      setContent((prev) => prev + em);
+                      return;
+                    }
+                    const start = el.selectionStart ?? content.length;
+                    const end = el.selectionEnd ?? content.length;
+                    const next = content.slice(0, start) + em + content.slice(end);
+                    setContent(next);
+                    requestAnimationFrame(() => {
+                      el.focus();
+                      const pos = start + em.length;
+                      el.setSelectionRange(pos, pos);
+                    });
+                  }}
+                >
+                  {em}
+                </button>
+              ))}
+            </div>
+          )}
 
           {preview && (
             <div className="relative mt-2 overflow-hidden rounded-2xl border border-border">

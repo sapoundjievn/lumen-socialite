@@ -24,6 +24,9 @@ import {
   getFriendStatus,
   uploadAvatar,
   updateProfile,
+  getFollowersList,
+  getFollowingList,
+  getFriendsList,
   getOrCreateConversation,
   createPost,
   type FriendStatus,
@@ -54,6 +57,9 @@ export default function ProfilePage() {
   const [friendLoading, setFriendLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [listModal, setListModal] = useState<null | "followers" | "following" | "friends">(null);
+  const [listUsers, setListUsers] = useState<any[]>([]);
+  const [listLoading, setListLoading] = useState(false);
   const [editName, setEditName] = useState("");
   const [editBusinessAddress, setEditBusinessAddress] = useState("");
   const [editBusinessType, setEditBusinessType] = useState("");
@@ -404,6 +410,26 @@ export default function ProfilePage() {
   const isBusiness = accountType === "business";
   const isMusician = accountType === "musician";
 
+  async function openPeopleList(kind: "followers" | "following" | "friends") {
+    if (!profile) return;
+    setListModal(kind);
+    setListLoading(true);
+    setListUsers([]);
+    try {
+      const fn =
+        kind === "followers"
+          ? getFollowersList
+          : kind === "following"
+          ? getFollowingList
+          : getFriendsList;
+      const { data } = await fn(profile.id);
+      setListUsers(data || []);
+    } finally {
+      setListLoading(false);
+    }
+  }
+
+
   return (
     <div className="mx-auto flex min-h-screen max-w-[1280px] justify-center">
       <div className="hidden sm:flex">
@@ -733,18 +759,21 @@ export default function ProfilePage() {
               </span>{" "}
               <span className="text-muted">Enlightenments</span>
             </div>
-            <div>
+            <button type="button" onClick={() => openPeopleList("following")} className="hover:underline">
               <span className="font-bold text-charcoal">
                 {formatNumber(profile.following_count || 0)}
               </span>{" "}
               <span className="text-muted">Following</span>
-            </div>
-            <div>
+            </button>
+            <button type="button" onClick={() => openPeopleList("followers")} className="hover:underline">
               <span className="font-bold text-charcoal">
                 {formatNumber(profile.followers_count || 0)}
               </span>{" "}
               <span className="text-muted">Followers</span>
-            </div>
+            </button>
+            <button type="button" onClick={() => openPeopleList("friends")} className="hover:underline">
+              <span className="font-bold text-charcoal">Friends</span>
+            </button>
           </div>
         </div>
 
@@ -1028,6 +1057,55 @@ export default function ProfilePage() {
           </div>
         </div>
       ) : null}
+
+      {listModal && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={() => setListModal(null)}>
+          <div
+            className="max-h-[70vh] w-full max-w-md overflow-hidden rounded-t-2xl border border-border bg-pearl shadow-xl sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <h3 className="text-[16px] font-bold capitalize text-charcoal">
+                {listModal}
+              </h3>
+              <button type="button" onClick={() => setListModal(null)} className="text-muted hover:text-charcoal">
+                Close
+              </button>
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto">
+              {listLoading ? (
+                <p className="p-6 text-center text-muted">Loading…</p>
+              ) : listUsers.length === 0 ? (
+                <p className="p-6 text-center text-muted">No one here yet</p>
+              ) : (
+                listUsers.map((u: any) => (
+                  <Link
+                    key={u.id}
+                    href={`/${u.username}`}
+                    onClick={() => setListModal(null)}
+                    className="flex items-center gap-3 border-b border-border px-4 py-3 hover:bg-champagne/30"
+                  >
+                    <img
+                      src={u.avatar_url || `https://api.dicebear.com/9.x/avataaars/svg?seed=${u.id}`}
+                      alt=""
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1">
+                        <span className="truncate font-bold text-charcoal">{u.display_name}</span>
+                        {u.verified && (
+                          <VerifiedBadge username={u.username} gender={u.gender} size="sm" />
+                        )}
+                      </div>
+                      <div className="truncate text-[13px] text-muted">@{u.username}</div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <MobileBottomNav />
     </div>
