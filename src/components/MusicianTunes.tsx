@@ -190,7 +190,7 @@ export default function MusicianTunes({
   return (
     <div className="w-full">
       <p className="mb-2 text-center text-[11px] font-bold tracking-wide text-gold-deep">
-        LumenTunes Store
+        LumenTunes · 1-min samples
       </p>
       <div className="flex items-start justify-center gap-2 sm:gap-3">
         <div className="flex max-w-[42%] flex-wrap justify-end gap-1">

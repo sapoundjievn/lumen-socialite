@@ -1,28 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Music, Upload } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, Music, Download } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth";
-import { supabase } from "@/lib/supabase";
 import {
   getMusicTracks,
   createMusicTrack,
+  updateMusicTrack,
   purchaseMusicTrack,
   MUSIC_PLATFORM_FEE_RATE,
 } from "@/lib/posts";
+import { supabase } from "@/lib/supabase";
 import type { Profile, MusicTrack } from "@/types";
-
-const SAMPLE_LIMIT_FREE = 7;
-const SAMPLE_LIMIT_VERIFIED = 14;
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
-export default function MusicPage() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [tracks, setTracks] = useState<MusicTrack[]>([]);
+const SLOTS = 14;
+const SAMPLE_LIMIT_FREE = 7;
+const SAMPLE_LIMIT_VERIFIED = 14;
+
+function MusicInner() {
+  const searchParams = useSearchParams();
+  const artistParam = searchParams.get("artist"); // username of store to view
+
+  const [me, setMe] = useState<Profile | null>(null);
+  const [artist, setArtist] = useState<Profile | null>(null);
+  const [tracks, setTracks] = useState<(MusicTrack | null)[]>(Array(SLOTS).fill(null));
+  const [owned, setOwned] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
-  const [albumName, setAlbumName] = useState("");
+  const [slotPick, setSlotPick] = useState(1);
   const [price, setPrice] = useState("0.99");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -30,108 +39,188 @@ export default function MusicPage() {
   const [copyrightOwner, setCopyrightOwner] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const uname = (me?.username || "").toLowerCase();
+  const isFounder = uname === "thevip" || uname === "kendall.vip";
+  const isMusician = (me as any)?.account_type === "musician" || isFounder;
+  const viewingOwn =
+    !!me &&
+    !!artist &&
+    me.id === artist.id &&
+    isMusician;
+
+  async function loadOwned(userId: string, trackIds: string[]) {
+    if (!trackIds.length) {
+      setOwned(new Set());
+      return;
+    }
+    const { data } = await supabase
+      .from("music_purchases")
+      .select("track_id")
+      .eq("buyer_id", userId)
+      .in("track_id", trackIds);
+    setOwned(new Set((data || []).map((r: any) => r.track_id)));
+  }
+
+  function mapSlots(list: MusicTrack[]) {
+    const slots: (MusicTrack | null)[] = Array(SLOTS).fill(null);
+    const used = new Set<number>();
+    for (const t of list) {
+      const si = (t as any).slot_index as number | undefined;
+      if (si && si >= 1 && si <= SLOTS && !used.has(si)) {
+        slots[si - 1] = t;
+        used.add(si);
+      }
+    }
+    let i = 0;
+    for (const t of list) {
+      if (slots.includes(t)) continue;
+      while (i < SLOTS && slots[i]) i++;
+      if (i < SLOTS) {
+        slots[i] = t;
+        i++;
+      }
+    }
+    return slots;
+  }
+
+  async function reload(artistId: string, buyerId?: string | null) {
+    // Full tracks for store (not profile 1-min samples) — prefer is_sample = false
+    const { data } = await getMusicTracks(artistId);
+    let list = (data || []) as MusicTrack[];
+    const full = list.filter((t) => (t as any).is_sample === false || (t as any).is_sample == null);
+    // if artist only uploaded with is_sample true from old flow, still show them as catalog
+    if (full.length === 0) list = list;
+    else list = full;
+    const slots = mapSlots(list);
+    setTracks(slots);
+    if (buyerId) {
+      await loadOwned(
+        buyerId,
+        slots.filter(Boolean).map((t) => t!.id)
+      );
+    }
+  }
+
   useEffect(() => {
     (async () => {
-      const me = await getCurrentProfile();
-      setProfile(me);
-      if (me) {
-        const { data } = await getMusicTracks(me.id);
-        setTracks(data as MusicTrack[]);
+      const profile = await getCurrentProfile();
+      setMe(profile);
+
+      let art: Profile | null = null;
+      if (artistParam) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .ilike("username", artistParam)
+          .maybeSingle();
+        art = data;
+      } else if (profile && ((profile as any).account_type === "musician" || ["thevip", "kendall.vip"].includes((profile.username || "").toLowerCase()))) {
+        art = profile;
       }
+      setArtist(art);
+
+      if (art) {
+        await reload(art.id, profile?.id);
+      }
+      setLoading(false);
     })();
-  }, []);
+  }, [artistParam]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !profile) return;
-    const uname = (profile.username || "").toLowerCase();
-    const isFounder = uname === "thevip" || uname === "kendall.vip";
-    const isMusician = (profile as any).account_type === "musician";
-    if (!isFounder && !isMusician) {
-      setError("Only Musician accounts (or founders) can upload. Personal accounts cannot upload music.");
-      return;
-    }
+    if (!file || !me || !viewingOwn) return;
     if (!title.trim()) {
-      setError("Add a title first");
+      setError("Add the song name");
       return;
     }
-    if (!copyrightOk) {
-      setError("You must confirm you own the copyright to this track");
+    if (!copyrightOk || !copyrightOwner.trim()) {
+      setError("Confirm copyright and owner name");
       return;
     }
-    if (!copyrightOwner.trim()) {
-      setError("Enter the copyright owner name (must match the rights holder)");
-      return;
-    }
-    const uname2 = (profile.username || "").toLowerCase();
-    const isFounder2 = uname2 === "thevip" || uname2 === "kendall.vip";
-    const limit = isFounder2 || profile.verified ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
-    if (tracks.length >= limit) {
-      setError(
-        isFounder2 || profile.verified
-          ? `You can upload up to ${SAMPLE_LIMIT_VERIFIED} one-minute samples.`
-          : `Free musicians can upload up to ${SAMPLE_LIMIT_FREE} one-minute samples. Get verified ($168/year) for ${SAMPLE_LIMIT_VERIFIED}.`
-      );
+    const limit = me.verified || isFounder ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
+    if (slotPick > limit) {
+      setError(`Slot ${slotPick} needs verification (slots 8–14).`);
       return;
     }
     setUploading(true);
     setError("");
     try {
-      const path = `${profile.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const path = `${me.id}/full-${slotPick}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
       const { error: upErr } = await supabase.storage
         .from("music")
         .upload(path, file, { upsert: true, contentType: file.type || "audio/mpeg" });
-      if (upErr) {
-        setError(upErr.message + " — create public bucket named music");
-        return;
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("music").getPublicUrl(path);
+      const audio_url = pub.publicUrl;
+      const price_cents = Math.max(0, Math.round(parseFloat(price || "0.99") * 100));
+      const existing = tracks[slotPick - 1];
+      if (existing) {
+        await updateMusicTrack(existing.id, me.id, {
+          title: title.trim(),
+          audio_url,
+        });
+        await supabase
+          .from("music_tracks")
+          .update({
+            price_cents,
+            is_sample: false,
+            slot_index: slotPick,
+            copyright_attested: true,
+            copyright_owner_name: copyrightOwner.trim(),
+          } as any)
+          .eq("id", existing.id);
+      } else {
+        await createMusicTrack(me.id, {
+          title: title.trim(),
+          audio_url,
+          price_cents,
+          is_sample: false,
+          sample_duration_sec: null as any,
+          slot_index: slotPick,
+          copyright_attested: true,
+          copyright_owner_name: copyrightOwner.trim(),
+        } as any);
       }
-      const audio_url = supabase.storage.from("music").getPublicUrl(path).data.publicUrl;
-      const price_cents = Math.max(0, Math.round(parseFloat(price || "0") * 100));
-      const { data, error: insErr } = await createMusicTrack(profile.id, {
-        title: title.trim(),
-        description: albumName.trim() ? `Album: ${albumName.trim()}` : undefined,
-        audio_url,
-        price_cents,
-        copyright_attested: true,
-        copyright_owner_name: copyrightOwner.trim(),
-        album_name: albumName.trim() || null,
-        is_sample: true,
-        sample_duration_sec: 60,
-      } as any);
-      if (insErr) {
-        setError(insErr.message);
-        return;
-      }
-      if (data) setTracks((t) => [data as MusicTrack, ...t]);
       setTitle("");
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
+      await reload(me.id, me.id);
+    } catch (err: any) {
+      setError(err?.message || "Upload failed");
     }
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   async function handleBuy(track: MusicTrack) {
-    if (!profile) {
-      alert("Sign in to buy");
+    if (!me) {
+      alert("Sign in to buy and download");
       return;
     }
-    if (track.user_id === profile.id) {
+    if (!artist) return;
+    if (me.id === artist.id) {
       alert("This is your track");
       return;
     }
-    const { error, platformFee, sellerNet } = await purchaseMusicTrack(
+    const { error } = await purchaseMusicTrack(
       track.id,
-      profile.id,
-      track.user_id,
+      me.id,
+      artist.id,
       track.price_cents
     );
     if (error) {
       alert(error.message || "Purchase failed");
       return;
     }
-    alert(
-      `Purchase recorded (demo).\nPrice: $${(track.price_cents / 100).toFixed(2)}\nPlatform 10%: $${((platformFee || 0) / 100).toFixed(2)}\nArtist net: $${((sellerNet || 0) / 100).toFixed(2)}\n\nStripe live payouts can be connected next.`
-    );
+    setOwned((prev) => new Set(prev).add(track.id));
+    alert("Purchase complete. You can download the full track now.");
+  }
+
+  function downloadTrack(track: MusicTrack) {
+    const a = document.createElement("a");
+    a.href = track.audio_url;
+    a.download = `${track.title || "track"}.mp3`;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.click();
   }
 
   return (
@@ -141,77 +230,65 @@ export default function MusicPage() {
       </div>
       <main className="w-full max-w-[600px] border-x-0 border-border pb-16 sm:border-x sm:pb-0">
         <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-pearl/85 px-4 py-3 backdrop-blur-md">
-          <Link href="/" className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-champagne/40">
+          <Link
+            href={artist ? `/${artist.username}` : "/"}
+            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-champagne/40"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-xl font-bold text-charcoal">Music</h1>
+          <div>
+            <h1 className="text-xl font-bold text-charcoal">LumenTunes Store</h1>
+            {artist && (
+              <p className="text-[12px] text-muted">
+                @{artist.username} · full tracks · pay & download
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="px-4 py-4">
-          <p className="mb-4 text-[13px] text-muted">
-            <span className="font-semibold text-charcoal">LumenTunes Store</span>
-            {" "}
-            — upload 1-minute samples. Free: {SAMPLE_LIMIT_FREE} slots. Verified: {SAMPLE_LIMIT_VERIFIED} slots.
-            Samples appear on your profile (1–7 left, 8–14 right).
-          </p>
-          {profile && (() => {
-            const uname = (profile.username || "").toLowerCase();
-            const isFounder = uname === "thevip" || uname === "kendall.vip";
-            const isMusician = (profile as any).account_type === "musician";
-            const canUpload = isFounder || isMusician;
-            const limit = isFounder || profile.verified ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
-            if (!canUpload) {
-              return (
-                <p className="mb-4 rounded-xl bg-champagne/40 px-3 py-2 text-[12px] text-muted">
-                  Personal accounts cannot upload music. Create a{" "}
-                  <span className="font-semibold text-charcoal">Musician</span> account to sell
-                  samples, or use a founder account.
-                </p>
-              );
-            }
-            return (
-              <p className="mb-4 text-[12px] text-muted">
-                Your slots: {tracks.length}/{limit}
-                {isFounder ? " (founder)" : profile.verified ? " (verified)" : " (free)"}
-                {!profile.verified && !isFounder && (
-                  <>
-                    {" · "}
-                    <a href="/verify" className="font-semibold text-gold-deep hover:underline">
-                      Get verified $168/year
-                    </a>
-                  </>
-                )}
-              </p>
-            );
-          })()}
+          {!artist && !loading && (
+            <p className="rounded-xl bg-champagne/40 px-3 py-3 text-[13px] text-muted">
+              Open an artist&apos;s profile and use <span className="font-semibold text-charcoal">LumenTunes Store</span>,
+              or musicians open this page to upload full songs for sale.
+            </p>
+          )}
 
-          {profile && (
-            <div className="mb-6 rounded-2xl border border-border bg-pearl-soft p-4">
-              <div className="mb-2 flex items-center gap-2 text-charcoal">
-                <Upload className="h-4 w-4" />
-                <span className="text-[14px] font-bold">Upload track</span>
-              </div>
+          {/* ARTIST UPLOAD (owner only) */}
+          {viewingOwn && (
+            <div className="mb-6 rounded-2xl border border-border bg-white p-4">
+              <p className="mb-2 text-[13px] font-bold text-charcoal">
+                Artist upload — full songs for sale
+              </p>
+              <p className="mb-3 text-[11px] text-muted">
+                Profile buttons stay as 1-minute samples only. Full tracks for pay & download go here
+                (lines 1–14). Fee for sales is only shown to you as the artist.
+              </p>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Song name"
-                className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
+                className="mb-2 w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px]"
               />
-              <input
-                value={albumName}
-                onChange={(e) => setAlbumName(e.target.value)}
-                placeholder="Album name"
-                className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
-              />
-              <input
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="Full track price USD e.g. 0.99"
-                className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
-              />
-              <p className="mb-2 text-[11px] text-muted">
-                Audio file: sample only (about 1 minute, MP3 preferred, under ~2 MB).
-              </p>
+              <div className="mb-2 flex gap-2">
+                <select
+                  value={slotPick}
+                  onChange={(e) => setSlotPick(Number(e.target.value))}
+                  className="rounded-xl border border-border bg-pearl px-3 py-2 text-[14px]"
+                >
+                  {Array.from({ length: SLOTS }, (_, i) => i + 1).map((n) => (
+                    <option key={n} value={n}>
+                      Line {n}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="Price USD"
+                  className="flex-1 rounded-xl border border-border bg-pearl px-3 py-2 text-[14px]"
+                />
+              </div>
               <label className="mb-2 flex items-start gap-2 text-[12px] text-charcoal">
                 <input
                   type="checkbox"
@@ -219,69 +296,124 @@ export default function MusicPage() {
                   onChange={(e) => setCopyrightOk(e.target.checked)}
                   className="mt-0.5"
                 />
-                <span>
-                  I own the copyright to this recording / composition (or hold exclusive rights to sell
-                  it). I am not uploading someone else&apos;s music without permission.
-                </span>
+                <span>I own the copyright (or exclusive rights) to sell this recording.</span>
               </label>
               <input
                 value={copyrightOwner}
                 onChange={(e) => setCopyrightOwner(e.target.value)}
                 placeholder="Copyright owner legal name"
-                className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[14px]"
+                className="mb-2 w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px]"
               />
-              <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={handleUpload} />
+              <p className="mb-2 text-[10px] text-muted">
+                Your net after platform fee ({Math.round(MUSIC_PLATFORM_FEE_RATE * 100)}%): shown only to
+                artists on sale.
+              </p>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="audio/*"
+                className="hidden"
+                onChange={handleUpload}
+              />
               <button
                 type="button"
                 disabled={uploading}
                 onClick={() => fileRef.current?.click()}
                 className="rounded-full bg-gold px-4 py-2 text-[13px] font-bold text-white hover:bg-gold-deep disabled:opacity-60"
               >
-                {uploading ? "Uploading..." : "Choose audio file"}
+                {uploading ? "Uploading..." : "Upload full track to selected line"}
               </button>
               {error && <p className="mt-2 text-[13px] text-red-600">{error}</p>}
             </div>
           )}
 
-          <div className="space-y-3">
-            {tracks.length === 0 ? (
-              <div className="py-12 text-center text-muted">
-                <Music className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                No tracks yet
-              </div>
-            ) : (
-              tracks.map((t) => (
-                <div key={t.id} className="rounded-2xl border border-border bg-white p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="font-bold text-charcoal">{t.title}</div>
-                      <div className="text-[13px] text-muted">
-                        {(t as any).album_name ||
-                          (t.description?.startsWith("Album:")
-                            ? t.description.replace(/^Album:\s*/, "")
-                            : "Single")}{" "}
-                        · Sample ~1 min
-                      </div>
-                      <div className="text-[12px] text-muted">
-                        Full track ${(t.price_cents / 100).toFixed(2)} · {t.sales_count || 0} sales
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleBuy(t)}
-                      className="flex-shrink-0 rounded-full bg-charcoal px-3 py-1.5 text-[12px] font-bold text-pearl"
+          {/* CUSTOMER / CATALOG: lines 1–14 */}
+          {artist && (
+            <div className="space-y-2">
+              <p className="text-[13px] font-bold text-charcoal">
+                {viewingOwn ? "Your catalog (how buyers see it)" : "Buy & download"}
+              </p>
+              {loading ? (
+                <p className="text-muted text-[13px]">Loading…</p>
+              ) : (
+                Array.from({ length: SLOTS }, (_, i) => {
+                  const t = tracks[i];
+                  const n = i + 1;
+                  const has = !!t;
+                  const isOwned = t ? owned.has(t.id) : false;
+                  return (
+                    <div
+                      key={n}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-white px-3 py-2.5"
                     >
-                      Buy
-                    </button>
-                  </div>
-                  <audio controls className="mt-3 w-full" src={t.audio_url} preload="none" />
-                </div>
-              ))
-            )}
-          </div>
+                      <span className="w-6 text-[13px] font-bold text-muted">{n}.</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[14px] font-semibold text-charcoal">
+                          {has ? t!.title : "—"}
+                        </div>
+                        {has && (
+                          <div className="text-[11px] text-muted">
+                            ${(t!.price_cents / 100).toFixed(2)}
+                            {isOwned ? " · Owned" : ""}
+                          </div>
+                        )}
+                      </div>
+                      {has && !viewingOwn && me && (
+                        isOwned ? (
+                          <button
+                            type="button"
+                            onClick={() => downloadTrack(t!)}
+                            className="flex items-center gap-1 rounded-full bg-gold px-3 py-1.5 text-[12px] font-bold text-white"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                            Download
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleBuy(t!)}
+                            className="rounded-full bg-charcoal px-3 py-1.5 text-[12px] font-bold text-pearl"
+                          >
+                            Pay
+                          </button>
+                        )
+                      )}
+                      {has && viewingOwn && (
+                        <span className="text-[11px] text-muted">Listed</span>
+                      )}
+                      {!has && (
+                        <span className="text-[11px] text-muted/60">Empty</span>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+
+          {!me && artist && (
+            <p className="mt-4 text-center text-[13px] text-muted">
+              <Link href="/login" className="font-semibold text-gold-deep hover:underline">
+                Sign in
+              </Link>{" "}
+              to pay and download full tracks.
+            </p>
+          )}
         </div>
       </main>
       <MobileBottomNav />
     </div>
+  );
+}
+
+export default function MusicPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center text-muted">Loading…</div>
+      }
+    >
+      <MusicInner />
+    </Suspense>
   );
 }

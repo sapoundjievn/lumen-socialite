@@ -721,13 +721,14 @@ export default function ProfilePage() {
               isOwner={!!isOwnProfile}
               verified={!!profile.verified}
             />
-            {isOwnProfile && (
-              <p className="mt-2 text-center text-[12px]">
-                <Link href="/music" className="font-semibold text-gold-deep hover:underline">
-                  Open LumenTunes manager
-                </Link>
-              </p>
-            )}
+            <p className="mt-2 text-center text-[12px]">
+              <Link
+                href={`/music?artist=${encodeURIComponent(profile.username)}`}
+                className="font-semibold text-gold-deep hover:underline"
+              >
+                LumenTunes Store — full tracks · pay & download
+              </Link>
+            </p>
           </div>
         )}
 
