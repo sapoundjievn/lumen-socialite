@@ -16,6 +16,7 @@ import {
   Music,
 } from "lucide-react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
+import { updateUserInterests, getProfilesByInterests } from "@/lib/posts";
 import type { Profile } from "@/types";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import SpecialStars from "@/components/SpecialStars";
