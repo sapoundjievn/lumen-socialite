@@ -98,7 +98,7 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <img
-            src="/logo.jpg"
+            src="/logo-official.jpg"
             alt="Lumen · Socialite"
             className="mx-auto h-28 w-28 rounded-full object-cover object-center shadow-md"
           />

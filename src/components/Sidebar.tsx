@@ -66,7 +66,7 @@ export default function Sidebar() {
       <div>
                 <div className="mb-4 flex items-center px-2 pt-1">
           <img
-            src="/logo.jpg"
+            src="/logo-official.jpg"
             alt="Lumen · Socialite"
             className="h-14 w-14 flex-shrink-0 rounded-full object-cover object-center shadow-sm"
           />
