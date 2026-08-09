@@ -206,7 +206,15 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+      <p className="mt-6 text-center text-[12px] text-muted">
+          <Link href="/privacy" className="hover:underline">Privacy</Link>
+          {" · "}
+          <Link href="/terms" className="hover:underline">Terms</Link>
+          {" · "}
+          <Link href="/support" className="hover:underline">Support</Link>
+        </p>
       </div>
     </div>
   );
 }
+

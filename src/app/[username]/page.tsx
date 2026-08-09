@@ -37,6 +37,7 @@ import { supabase } from "@/lib/supabase";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import Composer from "@/components/Composer";
+import { blockUser, reportContent } from "@/lib/safety";
 import SpecialStars from "@/components/SpecialStars";
 import { formatNumber } from "@/lib/utils";
 import Sidebar from "@/components/Sidebar";
@@ -709,6 +710,46 @@ export default function ProfilePage() {
                   className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
                 >
                   Message
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!currentUserId || !profile) {
+                      alert("Please sign in");
+                      return;
+                    }
+                    if (!confirm(`Block @${profile.username}?`)) return;
+                    const { error } = await blockUser(currentUserId, profile.id);
+                    if (error) alert(error.message);
+                    else {
+                      alert("Blocked. Their posts will be hidden from your feed.");
+                      router.push("/");
+                    }
+                  }}
+                  className="rounded-full border border-rose-200 px-4 py-1.5 text-[14px] font-bold text-rose-600 transition hover:bg-rose-50"
+                >
+                  Block
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!currentUserId || !profile) {
+                      alert("Please sign in");
+                      return;
+                    }
+                    const reason = window.prompt("Report reason:", "other");
+                    if (!reason) return;
+                    const { error } = await reportContent({
+                      reporterId: currentUserId,
+                      reason,
+                      reportedUserId: profile.id,
+                    });
+                    if (error) alert(error.message);
+                    else alert("Report submitted.");
+                  }}
+                  className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
+                >
+                  Report
                 </button>
                 <button
                   type="button"

@@ -14,6 +14,9 @@ import {
   Search,
   ShieldCheck,
   Music,
+  FileText,
+  LifeBuoy,
+  Scale,
 } from "lucide-react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
 import { updateUserInterests, getProfilesByInterests } from "@/lib/posts";
@@ -104,6 +107,9 @@ export default function MorePage() {
       label: "Profile",
       href: profile?.username ? `/${profile.username}` : "/login",
     },
+    { icon: FileText, label: "Privacy Policy", href: "/privacy" },
+    { icon: Scale, label: "Terms of Service", href: "/terms" },
+    { icon: LifeBuoy, label: "Support", href: "/support" },
   ];
   // de-dupe verify if business double
   const seen = new Set<string>();

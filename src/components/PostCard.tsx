@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { Post } from "@/types";
 import { cn, formatNumber, formatTime } from "@/lib/utils";
+import { reportContent, blockUser } from "@/lib/safety";
+import { getCurrentUser } from "@/lib/auth";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { recordPostView } from "@/lib/posts";
 import SpecialStars from "./SpecialStars";
@@ -158,38 +160,85 @@ export default function PostCard({
               </div>
             </div>
 
-            {isOwner && (
-              <div className="relative ml-auto">
-                <button
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-champagne/50 hover:text-gold-deep"
-                >
-                  <MoreHorizontal className="h-[18px] w-[18px]" />
-                </button>
-                {menuOpen && (
-                  <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-border bg-white shadow-lg">
-                    {editable && (
-                      <button
-                        onClick={() => {
-                          setEditText(post.content);
-                          setEditing(true);
-                          setMenuOpen(false);
-                        }}
-                        className="flex w-full items-center gap-2 px-4 py-3 text-left text-[14px] text-charcoal hover:bg-champagne/30"
-                      >
-                        <Pencil className="h-4 w-4" /> Edit
-                      </button>
-                    )}
+            <div className="relative ml-auto">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-champagne/50 hover:text-gold-deep"
+              >
+                <MoreHorizontal className="h-[18px] w-[18px]" />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 z-20 mt-1 w-48 overflow-hidden rounded-xl border border-border bg-white shadow-lg">
+                  {isOwner && editable && (
+                    <button
+                      onClick={() => {
+                        setEditText(post.content);
+                        setEditing(true);
+                        setMenuOpen(false);
+                      }}
+                      className="flex w-full items-center gap-2 px-4 py-3 text-left text-[14px] text-charcoal hover:bg-champagne/30"
+                    >
+                      <Pencil className="h-4 w-4" /> Edit
+                    </button>
+                  )}
+                  {isOwner && (
                     <button
                       onClick={handleDelete}
                       className="flex w-full items-center gap-2 px-4 py-3 text-left text-[14px] text-rose-600 hover:bg-rose-50"
                     >
                       <Trash2 className="h-4 w-4" /> Delete
                     </button>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                  {!isOwner && (
+                    <>
+                      <button
+                        onClick={async () => {
+                          setMenuOpen(false);
+                          const user = await getCurrentUser();
+                          if (!user) {
+                            alert("Sign in to report");
+                            return;
+                          }
+                          const reason = window.prompt(
+                            "Reason (hate, spam, sexual, violence, other):",
+                            "other"
+                          );
+                          if (!reason) return;
+                          const { error } = await reportContent({
+                            reporterId: user.id,
+                            reason: reason.trim(),
+                            postId: post.id,
+                            reportedUserId: post.user_id,
+                          });
+                          if (error) alert(error.message);
+                          else alert("Report submitted. Thank you.");
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-3 text-left text-[14px] text-charcoal hover:bg-champagne/30"
+                      >
+                        Report post
+                      </button>
+                      <button
+                        onClick={async () => {
+                          setMenuOpen(false);
+                          const user = await getCurrentUser();
+                          if (!user) {
+                            alert("Sign in to block");
+                            return;
+                          }
+                          if (!confirm(`Block @${username}?`)) return;
+                          const { error } = await blockUser(user.id, post.user_id);
+                          if (error) alert(error.message);
+                          else alert("User blocked. Refresh to hide their posts.");
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-3 text-left text-[14px] text-rose-600 hover:bg-rose-50"
+                      >
+                        Block user
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {editing ? (

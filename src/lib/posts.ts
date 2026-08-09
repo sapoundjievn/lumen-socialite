@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 import type { Post } from "@/types";
 import { moderateContentLocal, moderateContentFull } from "./moderation";
+import { getBlockedIds } from "./safety";
 
 // Founder account that can like unlimited times
 const FOUNDER_USERNAME = "thevip";
@@ -38,8 +39,18 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
 
   if (!data) return [];
 
-  if (currentUserId && data.length > 0) {
-    const postIds = data.map((p) => p.id);
+  let rows = data;
+  if (currentUserId) {
+    try {
+      const blocked = new Set(await getBlockedIds(currentUserId));
+      if (blocked.size) {
+        rows = rows.filter((p: any) => !blocked.has(p.user_id));
+      }
+    } catch (_) {}
+  }
+
+  if (currentUserId && rows.length > 0) {
+    const postIds = rows.map((p) => p.id);
     const [{ data: likes }, { data: reposts }, { data: bookmarks }] =
       await Promise.all([
         supabase
@@ -62,7 +73,7 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
     const likedSet = new Set((likes || []).map((l) => l.post_id));
     const repostedSet = new Set((reposts || []).map((r) => r.post_id));
     const bookmarkedSet = new Set((bookmarks || []).map((b) => b.post_id));
-    let mapped = data.map((p) => ({
+    let mapped = rows.map((p) => ({
       ...p,
       liked_by_user: likedSet.has(p.id),
       reposted_by_user: repostedSet.has(p.id),
@@ -79,7 +90,7 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
     return mapped.slice(0, limit);
   }
 
-  return (data || []).slice(0, limit);
+  return (rows || []).slice(0, limit);
 }
 
 export async function createPost(content: string, userId: string, mediaUrls: string[] = []) {
@@ -213,7 +224,7 @@ export async function getPostsByUserId(
   if (error || !data) return { data: data || [], error };
 
   if (currentUserId && data.length > 0) {
-    const postIds = data.map((p) => p.id);
+    const postIds = rows.map((p) => p.id);
     const [{ data: likes }, { data: reposts }] = await Promise.all([
       supabase
         .from("likes")
