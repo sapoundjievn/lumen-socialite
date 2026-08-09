@@ -1,7 +1,7 @@
 "use client";
 
 import { useI18n } from "@/lib/i18n";
-import { moderateContentLocal } from "@/lib/moderation";
+import { moderateContentFull } from "@/lib/moderation";
 
 import { useState, useRef, useEffect } from "react";
 import { Image, Smile, Calendar, MapPin, BarChart2, X } from "lucide-react";
@@ -44,6 +44,14 @@ export default function Composer({ onPost }: ComposerProps) {
     if ((!content.trim() && !file) || isOver) return;
     setUploading(true);
     try {
+      if (content.trim()) {
+        const mod = await moderateContentFull(content);
+        if (!mod.allowed) {
+          alert(mod.reason || "Blocked by safety filters.");
+          setUploading(false);
+          return;
+        }
+      }
       let mediaUrls: string[] = [];
       if (file && profile) {
         const path = `${profile.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;

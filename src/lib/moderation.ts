@@ -1,6 +1,5 @@
 /**
- * Lumen content moderation — blocks hate, sexual, and violence content in enlightenments.
- * Uses local rules always; optionally OpenAI Moderation API if OPENAI_API_KEY is set (server).
+ * Lumen content moderation — hate, sexual, violence
  */
 
 export type ModerationCategory = "hate" | "sexual" | "violence" | "other";
@@ -11,67 +10,65 @@ export type ModerationResult = {
   reason?: string;
 };
 
+const BLOCK_REASON =
+  "This enlightenment was blocked. Lumen · Socialite does not allow hate, sexual, or violent content.";
+
 const HATE = [
-  "kill all",
-  "gas the",
-  "hate all",
-  "racial slur",
-  "nigger",
-  "nigga",
-  "kike",
-  "spic",
-  "chink",
-  "faggot",
-  "tranny",
-  "white power",
-  "heil hitler",
-  "neonazi",
-  "neo-nazi",
+  "nigger", "niggers", "nigga", "niggas", "kike", "spic", "chink", "gook", "wetback",
+  "faggot", "faggots", "tranny", "trannies", "retard", "retards", "retarded",
+  "white power", "heil hitler", "neo nazi", "neonazi", "neo-nazi", "kkk",
+  "kill all jews", "kill all blacks", "kill all muslims", "gas the jews",
+  "racial cleansing", "ethnic cleansing", "hate crime",
 ];
 
 const SEXUAL = [
-  "child porn",
-  "childporn",
-  "cp link",
-  "underage sex",
-  "teen sex tape",
-  "onlyfans free leak",
-  "nonconsensual",
-  "revenge porn",
-  "rape fantasy",
-  "forced sex",
+  "child porn", "childporn", "child pornography", "cp video", "underage sex",
+  "teen porn", "loli", "lolita porn", "revenge porn", "nonconsensual porn",
+  "rape her", "rape you", "force sex", "forced sex", "sexual assault",
+  "onlyfans leak", "nudes of minors", "jailbait",
+  // explicit spam-style
+  "suck my dick", "eat my pussy", "send nudes now", "hookers near me",
 ];
 
 const VIOLENCE = [
-  "i will kill you",
-  "i'm going to kill",
-  "im going to kill",
-  "bomb the school",
-  "shoot up",
-  "mass shooting",
-  "behead",
-  "make a bomb",
-  "how to kill",
-  "hire a hitman",
+  "i will kill you", "i'll kill you", "im going to kill you", "i'm going to kill you",
+  "going to shoot you", "shoot up the", "bomb the school", "bomb the church",
+  "make a bomb", "build a bomb", "mass shooting", "hire a hitman", "hire a killer",
+  "i will murder", "i'll murder", "behead you", "slit your throat",
+  "rape and kill", "torture you",
 ];
 
 function normalize(text: string) {
   return text
     .toLowerCase()
+    .replace(/0/g, "o")
+    .replace(/1/g, "i")
+    .replace(/3/g, "e")
+    .replace(/4/g, "a")
+    .replace(/5/g, "s")
+    .replace(/\$/g, "s")
+    .replace(/@/g, "a")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function matchList(text: string, list: string[]): boolean {
+function matchList(text: string, list: string[]): string | null {
   const n = normalize(text);
-  return list.some((w) => n.includes(w));
+  for (const w of list) {
+    if (n.includes(w)) return w;
+  }
+  // also check without spaces for spaced-out evasion: k i l l
+  const compact = n.replace(/\s/g, "");
+  for (const w of list) {
+    if (compact.includes(w.replace(/\s/g, ""))) return w;
+  }
+  return null;
 }
 
-/** Fast local scan — runs in the browser before post */
 export function moderateContentLocal(content: string): ModerationResult {
   if (!content || !content.trim()) {
-    return { allowed: false, categories: ["other"], reason: "Empty post" };
+    return { allowed: true, categories: [] };
   }
 
   const categories: ModerationCategory[] = [];
@@ -80,58 +77,33 @@ export function moderateContentLocal(content: string): ModerationResult {
   if (matchList(content, VIOLENCE)) categories.push("violence");
 
   if (categories.length) {
-    return {
-      allowed: false,
-      categories,
-      reason:
-        "This enlightenment was blocked for content that may involve hate, sexual exploitation, or violence. Lumen · Socialite does not allow that.",
-    };
+    return { allowed: false, categories, reason: BLOCK_REASON };
   }
-
   return { allowed: true, categories: [] };
 }
 
-/**
- * Optional stronger check via OpenAI Moderations API (server-side only).
- * Set OPENAI_API_KEY in Vercel env to enable.
- */
-export async function moderateContentAI(content: string): Promise<ModerationResult> {
+/** Client or server: local + optional /api/moderate (OpenAI) */
+export async function moderateContentFull(content: string): Promise<ModerationResult> {
   const local = moderateContentLocal(content);
   if (!local.allowed) return local;
 
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) return local;
-
   try {
-    const res = await fetch("https://api.openai.com/v1/moderations", {
+    const res = await fetch("/api/moderate", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ input: content }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
     });
     if (!res.ok) return local;
     const json = await res.json();
-    const r = json?.results?.[0];
-    if (!r) return local;
-
-    const cats: ModerationCategory[] = [];
-    if (r.categories?.hate || r.categories?.["hate/threatening"]) cats.push("hate");
-    if (r.categories?.sexual || r.categories?.["sexual/minors"]) cats.push("sexual");
-    if (r.categories?.violence || r.categories?.["violence/graphic"]) cats.push("violence");
-
-    if (r.flagged || cats.length) {
+    if (json && json.allowed === false) {
       return {
         allowed: false,
-        categories: cats.length ? cats : ["other"],
-        reason:
-          "This enlightenment was blocked by safety review (hate, sexual, or violent content).",
+        categories: json.categories || ["other"],
+        reason: json.reason || BLOCK_REASON,
       };
     }
   } catch {
-    /* fall through to local allow */
+    /* network — keep local allow */
   }
-
   return { allowed: true, categories: [] };
 }

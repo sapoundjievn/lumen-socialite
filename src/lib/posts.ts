@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 import type { Post } from "@/types";
-import { moderateContentLocal } from "./moderation";
+import { moderateContentLocal, moderateContentFull } from "./moderation";
 
 // Founder account that can like unlimited times
 const FOUNDER_USERNAME = "thevip";
@@ -83,7 +83,7 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
 }
 
 export async function createPost(content: string, userId: string, mediaUrls: string[] = []) {
-  const mod = moderateContentLocal(content);
+  const mod = await moderateContentFull(content);
   if (!mod.allowed) {
     return {
       data: null,
@@ -439,7 +439,7 @@ export function canEditPost(
 }
 
 export async function editPost(postId: string, content: string, userId: string) {
-  const mod = moderateContentLocal(content);
+  const mod = await moderateContentFull(content);
   if (!mod.allowed) {
     return {
       data: null,
