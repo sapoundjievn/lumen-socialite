@@ -98,9 +98,9 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <img
-            src="/logo-official.jpg"
+            src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="mx-auto h-44 w-44 rounded-full object-cover object-center shadow-lg ring-2 ring-[#C9A86C]/35 sm:h-52 sm:w-52"
+            className="mx-auto h-44 w-44 rounded-full object-contain object-center shadow-lg ring-2 ring-[#C9A86C]/35 sm:h-52 sm:w-52"
           />
           <p className="mt-1 text-sm text-muted">Create your account</p>
         </div>

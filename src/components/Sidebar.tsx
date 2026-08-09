@@ -66,9 +66,9 @@ export default function Sidebar() {
       <div>
                 <div className="mb-4 flex items-center px-2 pt-1">
           <img
-            src="/logo-official.jpg"
+            src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="h-24 w-24 flex-shrink-0 rounded-full object-cover object-center shadow-md ring-2 ring-[#C9A86C]/30"
+            className="h-24 w-24 flex-shrink-0 rounded-full object-contain object-center shadow-md ring-2 ring-[#C9A86C]/30"
           />
         </div>
 
