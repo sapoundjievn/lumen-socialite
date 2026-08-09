@@ -1,30 +1,4 @@
-"use 
-                {((profile as any).account_type === "business") && (
-                  <div className="space-y-3">
-                    <div>
-                      <label className="mb-1 block text-[12px] font-semibold text-muted">Business type</label>
-                      <input
-                        value={editBusinessType}
-                        onChange={(e) => setEditBusinessType(e.target.value)}
-                        placeholder="Restaurant, coffee shop, store, office…"
-                        className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px] text-charcoal"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[12px] font-semibold text-muted">Business address</label>
-                      <input
-                        value={editBusinessAddress}
-                        onChange={(e) => setEditBusinessAddress(e.target.value)}
-                        placeholder="Street, city, state"
-                        className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px] text-charcoal"
-                      />
-                    </div>
-                    <p className="text-[11px] text-muted">
-                      Use <span className="font-semibold">Storefront photo</span> on the banner for the outside of your business.
-                    </p>
-                  </div>
-                )}
-client";
+"use client";
 /* interaction-v2 */
 
 import { useEffect, useState, useRef } from "react";
@@ -888,6 +862,33 @@ export default function ProfilePage() {
                   maxLength={160}
                   className="w-full resize-none rounded-xl border border-border bg-pearl px-3 py-2 text-charcoal focus:border-gold-soft focus:outline-none"
                 />
+
+                {((profile as any)?.account_type === "business") && (
+                  <div className="space-y-3 mt-3">
+                    <div>
+                      <label className="mb-1 block text-[12px] font-semibold text-muted">Business type</label>
+                      <input
+                        value={editBusinessType}
+                        onChange={(e) => setEditBusinessType(e.target.value)}
+                        placeholder="Restaurant, coffee shop, store, office…"
+                        className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px] text-charcoal"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[12px] font-semibold text-muted">Business address</label>
+                      <input
+                        value={editBusinessAddress}
+                        onChange={(e) => setEditBusinessAddress(e.target.value)}
+                        placeholder="Street, city, state"
+                        className="w-full rounded-xl border border-border bg-pearl px-3 py-2 text-[14px] text-charcoal"
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted">
+                      Use <span className="font-semibold">Storefront photo</span> on the banner for the outside of your business.
+                    </p>
+                  </div>
+                )}
+
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-charcoal">
