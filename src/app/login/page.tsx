@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useI18n } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn, resetPasswordForEmail } from "@/lib/auth";
@@ -14,6 +15,7 @@ import {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -116,14 +118,14 @@ export default function LoginPage() {
             className="mx-auto h-44 w-44 sm:h-52 sm:w-52 object-contain object-center bg-transparent"
           />
           <p className="mt-4 text-sm text-muted">
-            {mode === "login" ? "Sign in to continue" : "Reset your password"}
+            {mode === "login" ? t("continue") : t("resetPassword")}
           </p>
         </div>
 
         <div className="rounded-2xl border border-border bg-white p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-charcoal">Email</label>
+              <label className="mb-1.5 block text-sm font-medium text-charcoal">{t("email")}</label>
               <input
                 type="email"
                 value={email}
@@ -136,7 +138,7 @@ export default function LoginPage() {
 
             {mode === "login" && (
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-charcoal">Password</label>
+                <label className="mb-1.5 block text-sm font-medium text-charcoal">{t("password")}</label>
                 <input
                   type="password"
                   value={password}

@@ -1,4 +1,6 @@
 "use client";
+
+import { useI18n } from "@/lib/i18n";
 /* feed-interaction-v2 */
 
 import { useState, useEffect } from "react";
@@ -10,6 +12,7 @@ import Composer from "./Composer";
 import PostCard from "./PostCard";
 
 export default function Feed() {
+  const { t } = useI18n();
   const [posts, setPosts] = useState<Post[]>([]);
   const [tab, setTab] = useState<"for-you" | "following">("for-you");
   const [loading, setLoading] = useState(true);
@@ -201,7 +204,7 @@ export default function Feed() {
           />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">
-              <h1 className="text-xl font-bold leading-none text-charcoal">Home</h1>
+              <h1 className="text-xl font-bold leading-none text-charcoal">{t("home")}</h1>
             </div>
           </div>
         </div>
@@ -212,7 +215,7 @@ export default function Feed() {
             className="relative flex-1 py-4 text-center text-[15px] font-medium transition hover:bg-champagne/30"
           >
             <span className={tab === "for-you" ? "font-bold text-charcoal" : "text-muted"}>
-              For you
+              {t("forYou")}
             </span>
             {tab === "for-you" && (
               <div className="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-gold" />
@@ -223,7 +226,7 @@ export default function Feed() {
             className="relative flex-1 py-4 text-center text-[15px] font-medium transition hover:bg-champagne/30"
           >
             <span className={tab === "following" ? "font-bold text-charcoal" : "text-muted"}>
-              Following
+              {t("followingTab")}
             </span>
             {tab === "following" && (
               <div className="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-gold" />

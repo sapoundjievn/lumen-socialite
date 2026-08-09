@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
 import { updateUserInterests, getProfilesByInterests } from "@/lib/posts";
+import { useI18n, LANGUAGE_OPTIONS, type LangCode } from "@/lib/i18n";
 import type { Profile } from "@/types";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import SpecialStars from "@/components/SpecialStars";
@@ -42,6 +43,7 @@ const INTEREST_OPTIONS = [
 ];
 
 export default function MorePage() {
+  const { lang, setLang, t } = useI18n();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -127,7 +129,7 @@ export default function MorePage() {
             >
               <ArrowLeft className="h-5 w-5 text-charcoal" />
             </Link>
-            <h1 className="text-xl font-bold text-charcoal">More</h1>
+            <h1 className="text-xl font-bold text-charcoal">{t("more")}</h1>
           </div>
         </div>
 
@@ -170,9 +172,33 @@ export default function MorePage() {
 
             <div className="overflow-hidden rounded-2xl border border-border">
               
+            {/* Language — label always English */}
+            <div className="mb-6 rounded-2xl border border-border bg-white p-4">
+              <h2 className="text-[15px] font-bold text-charcoal">Language</h2>
+              <p className="mt-1 text-[12px] text-muted">
+                Choose your language. Everything updates automatically. The word &quot;Language&quot; stays in English.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {LANGUAGE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.code}
+                    type="button"
+                    onClick={() => setLang(opt.code as LangCode)}
+                    className={`rounded-full px-3 py-2 text-[12px] font-semibold transition ${
+                      lang === opt.code
+                        ? "bg-gold text-white"
+                        : "border border-border bg-pearl text-charcoal hover:bg-champagne/40"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {profile && (
               <div className="mb-6 rounded-2xl border border-border bg-white p-4">
-                <h2 className="text-[15px] font-bold text-charcoal">Your interests</h2>
+                <h2 className="text-[15px] font-bold text-charcoal">{t("interests")}</h2>
                 <p className="mt-1 text-[12px] text-muted">
                   Pick topics you care about. We match you with people who share them.
                 </p>

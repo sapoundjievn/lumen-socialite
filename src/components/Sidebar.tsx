@@ -22,6 +22,7 @@ import type { Profile } from "@/types";
 import VerifiedBadge from "@/components/VerifiedBadge";
 
 export default function Sidebar() {
+  const { t } = useI18n();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,17 +49,17 @@ export default function Sidebar() {
   };
 
   const navItems = [
-    { icon: Home, label: "Home", href: "/", active: true },
-    { icon: Search, label: "Explore", href: "/explore" },
-    { icon: Bell, label: "Notifications", href: "/notifications" },
-    { icon: Mail, label: "Messages", href: "/messages" },
-    { icon: Bookmark, label: "Bookmarks", href: "/bookmarks" },
+    { icon: Home, label: t("home"), href: "/", active: true },
+    { icon: Search, label: t("explore"), href: "/explore" },
+    { icon: Bell, label: t("notifications"), href: "/notifications" },
+    { icon: Mail, label: t("messages"), href: "/messages" },
+    { icon: Bookmark, label: t("bookmarks"), href: "/bookmarks" },
     {
       icon: User,
-      label: "Profile",
+      label: t("profile"),
       href: profile?.username ? `/${profile.username}` : "/login",
     },
-    { icon: MoreHorizontal, label: "More", href: "/more" },
+    { icon: MoreHorizontal, label: t("more"), href: "/more" },
   ];
 
   return (

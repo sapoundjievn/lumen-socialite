@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/lib/i18n";
+
 import { useState, useRef, useEffect } from "react";
 import { Image, Smile, Calendar, MapPin, BarChart2, X } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth";
@@ -17,6 +19,7 @@ const EMOJI_QUICK = [
 ];
 
 export default function Composer({ onPost }: ComposerProps) {
+  const { t } = useI18n();
   const [content, setContent] = useState("");
   const [focused, setFocused] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -132,7 +135,7 @@ export default function Composer({ onPost }: ComposerProps) {
             value={content}
             onChange={handleInput}
             onFocus={() => setFocused(true)}
-            placeholder="Let me enlighten you..."
+            placeholder={t("letMeEnlighten")}
             rows={1}
             className="w-full resize-none bg-transparent text-[20px] leading-6 text-charcoal placeholder:text-muted-light focus:outline-none"
             style={{ minHeight: "28px" }}
@@ -269,7 +272,7 @@ export default function Composer({ onPost }: ComposerProps) {
                     : "cursor-not-allowed bg-gold-soft/60"
                 )}
               >
-                {uploading ? "..." : "Enlighten every one"}
+                {uploading ? "..." : t("enlightenEveryone")}
               </button>
             </div>
           </div>

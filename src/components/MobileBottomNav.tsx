@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
+import { useI18n } from "@/lib/i18n";
 
 type NavItem = {
   icon: typeof Home;
@@ -28,6 +29,7 @@ type NavItem = {
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useI18n();
   const [profileHref, setProfileHref] = useState("/login");
   const [signedIn, setSignedIn] = useState(false);
   const [accountType, setAccountType] = useState<string | null>(null);
@@ -47,19 +49,19 @@ export default function MobileBottomNav() {
   }, [pathname]);
 
   const row1: NavItem[] = [
-    { icon: Home, label: "Home", href: "/" },
-    { icon: Search, label: "Explore", href: "/explore" },
-    { icon: Bell, label: "Alerts", href: "/notifications" },
-    { icon: Mail, label: "Inbox", href: "/messages" },
-    { icon: User, label: "Profile", href: profileHref },
+    { icon: Home, label: t("home"), href: "/" },
+    { icon: Search, label: t("explore"), href: "/explore" },
+    { icon: Bell, label: t("alerts"), href: "/notifications" },
+    { icon: Mail, label: t("inbox"), href: "/messages" },
+    { icon: User, label: t("profile"), href: profileHref },
   ];
 
   const row2: NavItem[] = [
-    { icon: Bookmark, label: "Saved", href: "/bookmarks" },
-    { icon: Music, label: "Tunes", href: "/music" },
-    { icon: ShieldCheck, label: "Verify", href: "/verify" },
-    { icon: Users, label: "Social", href: "/explore" },
-    { icon: MoreHorizontal, label: "More", href: "/more" },
+    { icon: Bookmark, label: t("saved"), href: "/bookmarks" },
+    { icon: Music, label: t("tunes"), href: "/music" },
+    { icon: ShieldCheck, label: t("verify"), href: "/verify" },
+    { icon: Users, label: t("social"), href: "/explore" },
+    { icon: MoreHorizontal, label: t("more"), href: "/more" },
   ];
 
   function isActive(href: string) {
@@ -117,7 +119,7 @@ export default function MobileBottomNav() {
             className="flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 py-1 text-muted transition hover:text-rose-600"
           >
             <LogOut className="h-[18px] w-[18px]" strokeWidth={1.75} />
-            <span className="text-[9px] font-medium leading-none">Out</span>
+            <span className="text-[9px] font-medium leading-none">{t("out")}</span>
           </button>
         ) : (
           <Link
