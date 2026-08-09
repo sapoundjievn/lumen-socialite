@@ -552,7 +552,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile info */}
-        <div className={`px-4 pb-4 ${isMusician ? "pt-16 sm:pt-20" : isBusiness ? "pt-5" : "pt-10"}`}>
+        <div className={`px-4 pb-4 ${isMusician ? "pt-14 sm:pt-16" : isBusiness ? "pt-5" : "pt-10"}`}>
           <div className={`flex gap-3 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             <div className={`min-w-0 ${isMusician ? "w-full" : "flex-1 pr-2"}`}>
               <div className={`flex min-w-0 items-center gap-1.5 ${isMusician ? "justify-center" : ""}`}>
@@ -566,7 +566,13 @@ export default function ProfilePage() {
               <div className={`mt-1 min-w-0 overflow-hidden ${isMusician ? "flex justify-center" : ""}`}>
                 <SpecialStars username={profile.username} />
               </div>
-              <div className={`mt-0.5 truncate text-[14px] text-muted sm:text-[15px] ${isMusician ? "text-center" : ""}`}>
+              <div
+                className={`mt-0.5 truncate font-medium sm:text-[15px] ${
+                  isMusician
+                    ? "text-center text-[15px] text-charcoal"
+                    : "text-[14px] text-muted"
+                }`}
+              >
                 @{profile.username}
               </div>
             </div>

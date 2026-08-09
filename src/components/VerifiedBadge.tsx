@@ -40,6 +40,10 @@ export default function VerifiedBadge({
   if (u === "igorpiven") {
     return <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />;
   }
+  // Mike Avramov — permanent solid red verification
+  if (u === "mikeavramov") {
+    return <BadgeCheck className={`${dim} fill-[#E11D48] text-white`} />;
+  }
 
   // ===== Everyone else: by gender choice =====
   if (g === "male" || g === "m") {
