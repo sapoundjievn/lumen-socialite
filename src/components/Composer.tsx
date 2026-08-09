@@ -1,6 +1,7 @@
 "use client";
 
 import { useI18n } from "@/lib/i18n";
+import { moderateContentLocal } from "@/lib/moderation";
 
 import { useState, useRef, useEffect } from "react";
 import { Image, Smile, Calendar, MapPin, BarChart2, X } from "lucide-react";

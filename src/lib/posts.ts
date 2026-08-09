@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import type { Post } from "@/types";
+import { moderateContentLocal } from "./moderation";
 
 // Founder account that can like unlimited times
 const FOUNDER_USERNAME = "thevip";
@@ -82,6 +83,14 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
 }
 
 export async function createPost(content: string, userId: string, mediaUrls: string[] = []) {
+  const mod = moderateContentLocal(content);
+  if (!mod.allowed) {
+    return {
+      data: null,
+      error: { message: mod.reason || "Post blocked by safety filter" } as any,
+    };
+  }
+
   const { data, error } = await supabase
     .from("posts")
     .insert({
@@ -430,6 +439,14 @@ export function canEditPost(
 }
 
 export async function editPost(postId: string, content: string, userId: string) {
+  const mod = moderateContentLocal(content);
+  if (!mod.allowed) {
+    return {
+      data: null,
+      error: { message: mod.reason || "Edit blocked by safety filter" } as any,
+    };
+  }
+
   const { data, error } = await supabase
     .from("posts")
     .update({ content, updated_at: new Date().toISOString() })
