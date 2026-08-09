@@ -100,7 +100,7 @@ export default function SignupPage() {
           <img
             src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="mx-auto h-44 w-44 rounded-full object-contain object-center shadow-lg ring-2 ring-[#C9A86C]/35 sm:h-52 sm:w-52"
+            className="mx-auto h-44 w-44 sm:h-52 sm:w-52 object-contain object-center bg-transparent"
           />
           <p className="mt-1 text-sm text-muted">Create your account</p>
         </div>
