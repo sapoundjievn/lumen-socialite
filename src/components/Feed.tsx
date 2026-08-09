@@ -196,18 +196,12 @@ export default function Feed() {
         <div className="flex items-center gap-3 px-4 py-3">
           <img
             src="/logo.jpg"
-            alt="Lumen Socialite"
-            className="h-9 w-9 flex-shrink-0 rounded-full object-cover object-top shadow-sm"
+            alt="Lumen · Socialite"
+            className="h-11 w-11 flex-shrink-0 rounded-full object-cover object-center shadow-sm"
           />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">
               <h1 className="text-xl font-bold leading-none text-charcoal">Home</h1>
-              <span className="hidden text-[13px] font-medium text-[#C9A86C] sm:inline">
-                · Lumen · Socialite
-              </span>
-            </div>
-            <div className="mt-0.5 text-[12px] font-medium leading-none text-[#C9A86C] sm:hidden">
-              Lumen · Socialite
             </div>
           </div>
         </div>

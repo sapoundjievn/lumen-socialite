@@ -64,23 +64,15 @@ export default function Sidebar() {
   return (
     <aside className="sticky top-0 flex h-screen w-[275px] shrink-0 flex-col justify-between self-start overflow-y-auto px-3 py-3 xl:w-[275px]">
       <div>
-        <div className="mb-4 flex items-center gap-3 px-2 pt-1">
+                <div className="mb-4 flex items-center px-2 pt-1">
           <img
             src="/logo.jpg"
-            alt="Lumen Socialite"
-            className="h-11 w-11 flex-shrink-0 rounded-full object-cover object-top shadow-sm"
+            alt="Lumen · Socialite"
+            className="h-14 w-14 flex-shrink-0 rounded-full object-cover object-center shadow-sm"
           />
-          <div className="hidden min-w-0 xl:block">
-            <div className="text-[17px] font-bold leading-tight tracking-tight text-charcoal">
-              Lumen
-            </div>
-            <div className="text-[12px] font-medium leading-tight text-[#C9A86C]">
-              Socialite
-            </div>
-          </div>
         </div>
 
-        <nav className="mt-1 space-y-0.5">
+                <nav className="mt-1 space-y-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (

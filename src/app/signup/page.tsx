@@ -99,10 +99,9 @@ export default function SignupPage() {
         <div className="mb-8 text-center">
           <img
             src="/logo.jpg"
-            alt="Lumen Socialite"
-            className="mx-auto h-16 w-16 rounded-full object-cover object-top shadow-md"
+            alt="Lumen · Socialite"
+            className="mx-auto h-28 w-28 rounded-full object-cover object-center shadow-md"
           />
-          <h1 className="mt-4 text-2xl font-bold text-charcoal">Lumen · Socialite</h1>
           <p className="mt-1 text-sm text-muted">Create your account</p>
         </div>
 
