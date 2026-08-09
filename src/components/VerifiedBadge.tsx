@@ -48,6 +48,26 @@ export default function VerifiedBadge({
   if (u === "mr.samsnuggles" || u === "samsnuggles1" || u === "mrsamsnuggles") {
     return <BadgeCheck className={`${dim} fill-[#C9A86C] text-white`} />;
   }
+  // KenNick Technologies — half pink / half champagne frost pearl
+  if (u === "kennicktechnologies" || u === "kennick" || u === "kennicktechnologiesllc") {
+    const gid = `kn-badge-${size}`;
+    return (
+      <svg viewBox="0 0 24 24" className={dim} aria-hidden>
+        <defs>
+          <linearGradient id={gid} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#E91E63" />
+            <stop offset="50%" stopColor="#E91E63" />
+            <stop offset="50%" stopColor="#C9A86C" />
+            <stop offset="100%" stopColor="#C9A86C" />
+          </linearGradient>
+        </defs>
+        <path
+          fill={`url(#${gid})`}
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+        />
+      </svg>
+    );
+  }
 
   // ===== Everyone else: by gender choice =====
   if (g === "male" || g === "m") {

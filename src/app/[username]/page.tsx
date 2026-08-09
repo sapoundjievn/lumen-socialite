@@ -583,7 +583,13 @@ export default function ProfilePage() {
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
               <div className="flex min-w-0 items-center gap-1.5">
-                <h2 className="truncate text-[17px] font-bold leading-tight tracking-tight text-charcoal sm:text-xl">
+                <h2
+                  className={`min-w-0 font-bold leading-tight tracking-tight text-charcoal ${
+                    isBusiness
+                      ? "text-[14px] sm:text-[15px] whitespace-normal break-words"
+                      : "truncate text-[17px] sm:text-xl"
+                  }`}
+                >
                   {profile.display_name}
                 </h2>
                 {profile.verified && (
