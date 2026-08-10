@@ -201,9 +201,9 @@ export default function Feed() {
           <img
             src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="h-24 w-24 flex-shrink-0 object-contain object-left bg-transparent"
-            width={96}
-            height={96}
+            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-transparent shadow-none outline-none ring-0"
+            width={192}
+            height={192}
           />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">

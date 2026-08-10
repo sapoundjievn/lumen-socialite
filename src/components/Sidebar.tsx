@@ -66,14 +66,14 @@ export default function Sidebar() {
   return (
     <aside className="sticky top-0 flex h-screen w-[275px] shrink-0 flex-col justify-between self-start overflow-y-auto px-3 py-3 xl:w-[275px]">
       <div>
-        {/* Square plaque logo ~1×1 inch, left-aligned with Home row */}
+        {/* Square plaque logo ~2×2 inch, no border, matches page pearl */}
         <div className="mb-1 flex items-center px-3 pt-1">
           <img
             src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="h-24 w-24 flex-shrink-0 object-contain object-left bg-transparent"
-            width={96}
-            height={96}
+            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-transparent shadow-none outline-none ring-0"
+            width={192}
+            height={192}
           />
         </div>
 
