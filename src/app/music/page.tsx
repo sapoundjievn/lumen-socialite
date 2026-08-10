@@ -10,7 +10,6 @@ import {
   createMusicTrack,
   updateMusicTrack,
   deleteMusicTrack,
-  purchaseMusicTrack,
   MUSIC_PLATFORM_FEE_RATE,
   uploadMusicFile,
 } from "@/lib/posts";
@@ -272,18 +271,29 @@ function MusicInner() {
       alert("This is your track");
       return;
     }
-    const { error } = await purchaseMusicTrack(
-      track.id,
-      me.id,
-      artist.id,
-      track.price_cents
-    );
-    if (error) {
-      alert(error.message || "Purchase failed");
-      return;
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trackId: track.id,
+          title: track.title,
+          priceCents: track.price_cents,
+          buyerId: me.id,
+          artistId: artist.id,
+          artistUsername: artist.username,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.url) {
+        alert(json.error || "Could not start payment");
+        return;
+      }
+      // Stripe Checkout (card, Apple Pay, Google Pay where available)
+      window.location.href = json.url;
+    } catch (e: any) {
+      alert(e?.message || "Payment error");
     }
-    setOwned((prev) => new Set(prev).add(track.id));
-    alert("Purchase complete. You can download the full track now.");
   }
 
   function downloadTrack(track: MusicTrack) {
