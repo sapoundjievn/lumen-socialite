@@ -690,7 +690,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleFollow}
                   disabled={followLoading}
-                  className={`rounded-full px-4 py-1.5 text-[14px] font-bold transition ${
+                  className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition ${
                     following
                       ? "border border-border text-charcoal hover:bg-champagne/40"
                       : "bg-charcoal text-pearl hover:bg-charcoal-soft"
@@ -715,7 +715,7 @@ export default function ProfilePage() {
                     }
                     router.push(`/messages/${conversationId}`);
                   }}
-                  className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal transition hover:bg-champagne/40"
+                  className="rounded-full border border-border px-2.5 py-1 text-[12px] font-semibold text-charcoal transition hover:bg-champagne/40"
                 >
                   Message
                 </button>
@@ -740,9 +740,9 @@ export default function ProfilePage() {
                         if (error) alert(error.message);
                         else alert("Report submitted.");
                       }}
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted transition hover:bg-champagne/40 hover:text-charcoal"
+                      className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-muted transition hover:bg-champagne/40 hover:text-charcoal"
                     >
-                      <Flag className="h-3.5 w-3.5" />
+                      <Flag className="h-3 w-3" />
                     </button>
                     <button
                       type="button"
@@ -760,9 +760,9 @@ export default function ProfilePage() {
                           router.push("/");
                         }
                       }}
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-rose-200/80 text-rose-500 transition hover:bg-rose-50"
+                      className="flex h-7 w-7 items-center justify-center rounded-full border border-rose-200/80 text-rose-500 transition hover:bg-rose-50"
                     >
-                      <Ban className="h-3.5 w-3.5" />
+                      <Ban className="h-3 w-3" />
                     </button>
                   </div>
                 )}
@@ -770,7 +770,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleFriend}
                   disabled={friendLoading}
-                  className={`rounded-full px-4 py-1.5 text-[14px] font-bold transition ${
+                  className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition ${
                     friendStatus === "friends"
                       ? "border border-[#C9A86C] text-[#C9A86C] hover:bg-champagne/40"
                       : friendStatus === "pending_received"
