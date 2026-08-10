@@ -60,11 +60,12 @@ function MusicInner() {
     isFounder ||
     isSpecialArtist ||
     (isMusician && !!me?.verified);
-  const viewingOwn =
-    !!me &&
-    !!artist &&
-    me.id === artist.id &&
-    isMusician;
+  // Own store if signed-in musician viewing self (or no artist param yet)
+  const viewingOwn = !!(
+    me &&
+    isMusician &&
+    (!artist || me.id === artist.id)
+  );
 
   async function loadOwned(userId: string, trackIds: string[]) {
     if (!trackIds.length) {
@@ -105,10 +106,11 @@ function MusicInner() {
     // Full tracks for store (not profile 1-min samples) — prefer is_sample = false
     const { data } = await getMusicTracks(artistId);
     let list = (data || []) as MusicTrack[];
-    const full = list.filter((t) => (t as any).is_sample === false || (t as any).is_sample == null);
-    // if artist only uploaded with is_sample true from old flow, still show them as catalog
-    if (full.length === 0) list = list;
-    else list = full;
+    const full = list.filter(
+      (t) => (t as any).is_sample === false || (t as any).is_sample == null
+    );
+    // Prefer full tracks; if none, still show whatever is linked (so line is not empty after upload)
+    if (full.length > 0) list = full;
     const slots = mapSlots(list);
     setTracks(slots);
     if (buyerId) {
@@ -162,10 +164,12 @@ function MusicInner() {
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !me) return;
-    if (!viewingOwn) {
-      setError(
-        "Open your own store while signed in as this musician (check account type = musician)."
-      );
+    if (!isMusician) {
+      setError("This account is not a musician. Set account_type = musician in Supabase.");
+      return;
+    }
+    if (!canSell) {
+      setError("Musician must be verified to upload full store tracks.");
       return;
     }
     const songTitle =
@@ -208,34 +212,48 @@ function MusicInner() {
       const price_cents = Math.max(0, Math.round(parseFloat(price || "0.99") * 100));
       const existing = tracks[slotPick - 1];
       if (existing) {
-        await updateMusicTrack(existing.id, me.id, {
+        const { error: uErr } = await updateMusicTrack(existing.id, me.id, {
           title: songTitle,
           audio_url,
         });
-        await supabase
+        if (uErr) throw new Error(uErr.message || "Could not update track row");
+        const { error: u2 } = await supabase
           .from("music_tracks")
           .update({
             price_cents,
             is_sample: false,
             slot_index: slotPick,
-            copyright_attested: true,
-            copyright_owner_name: copyrightOwner.trim(),
           } as any)
           .eq("id", existing.id);
+        if (u2) throw new Error(u2.message || "Could not update track meta");
       } else {
-        await createMusicTrack(me.id, {
-          title: songTitle,
-          audio_url,
-          price_cents,
-          is_sample: false,
-          sample_duration_sec: null as any,
-          slot_index: slotPick,
-          copyright_attested: true,
-          copyright_owner_name: copyrightOwner.trim(),
-        } as any);
+        // Minimal insert — avoid optional columns that may not exist in DB
+        const { data: created, error: cErr } = await supabase
+          .from("music_tracks")
+          .insert({
+            user_id: me.id,
+            title: songTitle,
+            audio_url,
+            price_cents,
+            is_sample: false,
+            slot_index: slotPick,
+          } as any)
+          .select("*")
+          .single();
+        if (cErr) {
+          throw new Error(
+            "File is in Storage, but track row failed: " +
+              (cErr.message || "check music_tracks table + RLS")
+          );
+        }
+        if (!created) {
+          throw new Error("File uploaded but no track row returned");
+        }
       }
       setTitle("");
       await reload(me.id, me.id);
+      setError("");
+      alert("Track saved on line " + slotPick);
     } catch (err: any) {
       setError(err?.message || "Upload failed");
     }
@@ -317,12 +335,7 @@ function MusicInner() {
             </p>
           )}
           {/* ARTIST UPLOAD (owner only) */}
-          {viewingOwn && canSell && (
-            <p className="mb-3 rounded-xl border border-gold/40 bg-champagne/30 px-3 py-2 text-[12px] font-medium text-charcoal">
-              Verified musician — store uploads enabled (tracks 1–14).
-            </p>
-          )}
-          {viewingOwn && !canSell && (
+          {isMusician && me && !canSell && (
             <div className="mb-6 rounded-2xl border border-border bg-champagne/40 px-4 py-3 text-[13px] text-charcoal">
               <p className="font-bold">Samples only (free musician)</p>
               <p className="mt-1 text-muted">
@@ -335,10 +348,13 @@ function MusicInner() {
             </div>
           )}
 
-          {viewingOwn && canSell && (
+          {me && isMusician && canSell && (
             <div className="mb-6 rounded-2xl border border-border bg-white p-4">
               <p className="mb-2 text-[13px] font-bold text-charcoal">
-                Artist upload — full songs for sale
+                Artist upload — full songs for sale (line {slotPick})
+              </p>
+              <p className="mb-2 text-[12px] font-medium text-gold-deep">
+                Uploads ON for @{me.username}
               </p>
               <p className="mb-3 text-[11px] text-muted">
                 Profile buttons stay as 1-minute samples only. Full tracks for pay & download go here
