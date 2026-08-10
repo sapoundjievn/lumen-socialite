@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Creates a Stripe Checkout Session for a LumenTunes track.
+ * Creates a Stripe Checkout Session for a LumenTunes track (platform: Lumen · Socialite).
  * Requires env: STRIPE_SECRET_KEY
  * Optional: NEXT_PUBLIC_APP_URL (defaults to request origin)
  */
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     );
     params.append(
       "line_items[0][price_data][product_data][description]",
-      `Full track download · platform fee ${Math.round(platformFeeRate * 100)}%`
+      `Full track download · Lumen · Socialite platform fee ${Math.round(platformFeeRate * 100)}%`
     );
     params.append("line_items[0][price_data][unit_amount]", String(amount));
     params.append("line_items[0][quantity]", "1");
