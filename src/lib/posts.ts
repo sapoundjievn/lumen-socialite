@@ -1016,6 +1016,59 @@ export async function getMusicTracks(userId: string) {
   return { data: data || [], error };
 }
 
+
+/** Upload audio (mp3 etc.) to music storage with correct MIME */
+export async function uploadMusicFile(userId: string, file: File, prefix: string) {
+  const name = file.name || "track.mp3";
+  const lower = name.toLowerCase();
+  const isMp3 = lower.endsWith(".mp3") || file.type === "audio/mpeg" || file.type === "audio/mp3";
+  const isWav = lower.endsWith(".wav") || file.type === "audio/wav" || file.type === "audio/x-wav";
+  const isM4a = lower.endsWith(".m4a") || file.type === "audio/mp4" || file.type === "audio/m4a";
+  const isAudio =
+    isMp3 ||
+    isWav ||
+    isM4a ||
+    lower.endsWith(".ogg") ||
+    (file.type && file.type.startsWith("audio/"));
+
+  if (!isAudio) {
+    return {
+      url: null as string | null,
+      error: { message: "Please choose an audio file (MP3, WAV, M4A)." } as any,
+    };
+  }
+
+  let contentType = file.type || "";
+  if (!contentType || contentType === "application/octet-stream") {
+    if (isMp3) contentType = "audio/mpeg";
+    else if (isWav) contentType = "audio/wav";
+    else if (isM4a) contentType = "audio/mp4";
+    else contentType = "audio/mpeg";
+  }
+
+  const safe = name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = `${userId}/${prefix}-${Date.now()}-${safe}`;
+  const buckets = ["music", "Music"];
+  let lastErr: any = null;
+
+  for (const bucket of buckets) {
+    const { error } = await supabase.storage.from(bucket).upload(path, file, {
+      upsert: true,
+      contentType,
+    });
+    if (!error) {
+      const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
+      return { url: pub.publicUrl as string, error: null };
+    }
+    lastErr = error;
+  }
+
+  const msg =
+    lastErr?.message ||
+    "Upload failed. Create a public Storage bucket named music and allow audio/mpeg (MP3).";
+  return { url: null as string | null, error: { message: msg } as any };
+}
+
 export async function createMusicTrack(
   userId: string,
   payload: {

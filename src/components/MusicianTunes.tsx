@@ -5,8 +5,7 @@ import {
   getMusicTracks,
   createMusicTrack,
   updateMusicTrack,
-  deleteMusicTrack,
-} from "@/lib/posts";
+  deleteMusicTrack,, uploadMusicFile } from "@/lib/posts";
 import { supabase } from "@/lib/supabase";
 import type { MusicTrack } from "@/types";
 
@@ -78,13 +77,12 @@ export default function MusicianTunes({
     }
     setBusySlot(slot);
     try {
-      const path = `${profileId}/slot-${slot + 1}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-      const { error: upErr } = await supabase.storage
-        .from("music")
-        .upload(path, file, { upsert: true, contentType: file.type || "audio/mpeg" });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("music").getPublicUrl(path);
-      const audio_url = pub.publicUrl;
+      const { url: audio_url, error: upErr } = await uploadMusicFile(
+        profileId,
+        file,
+        `slot-${slot + 1}`
+      );
+      if (upErr || !audio_url) throw upErr || new Error("Upload failed");
       const existing = tracks[slot];
       if (existing) {
         await updateMusicTrack(existing.id, profileId, { audio_url });
@@ -165,7 +163,7 @@ export default function MusicianTunes({
               fileRefs.current[slot] = el;
             }}
             type="file"
-            accept="audio/*"
+            accept="audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/mp4,audio/m4a,audio/*,.mp3,.wav,.m4a"
             className="hidden"
             onChange={(e) => onPickFile(slot, e.target.files?.[0] || null)}
           />

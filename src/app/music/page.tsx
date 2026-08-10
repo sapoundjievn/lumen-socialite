@@ -10,8 +10,7 @@ import {
   createMusicTrack,
   updateMusicTrack,
   purchaseMusicTrack,
-  MUSIC_PLATFORM_FEE_RATE,
-} from "@/lib/posts";
+  MUSIC_PLATFORM_FEE_RATE,, uploadMusicFile } from "@/lib/posts";
 import { supabase } from "@/lib/supabase";
 import type { Profile, MusicTrack } from "@/types";
 import Sidebar from "@/components/Sidebar";
@@ -157,13 +156,12 @@ function MusicInner() {
     setUploading(true);
     setError("");
     try {
-      const path = `${me.id}/full-${slotPick}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-      const { error: upErr } = await supabase.storage
-        .from("music")
-        .upload(path, file, { upsert: true, contentType: file.type || "audio/mpeg" });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("music").getPublicUrl(path);
-      const audio_url = pub.publicUrl;
+      const { url: audio_url, error: upErr } = await uploadMusicFile(
+        me.id,
+        file,
+        `full-${slotPick}`
+      );
+      if (upErr || !audio_url) throw upErr || new Error("Upload failed");
       const price_cents = Math.max(0, Math.round(parseFloat(price || "0.99") * 100));
       const existing = tracks[slotPick - 1];
       if (existing) {
@@ -345,7 +343,7 @@ function MusicInner() {
               <input
                 ref={fileRef}
                 type="file"
-                accept="audio/*"
+                accept="audio/mpeg,audio/mp3,audio/wav,audio/mp4,.mp3,.wav,.m4a,audio/*"
                 className="hidden"
                 onChange={handleUpload}
               />
