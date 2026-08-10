@@ -40,15 +40,23 @@ function MusicInner() {
   const [copyrightOwner, setCopyrightOwner] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const uname = (me?.username || "").toLowerCase();
+  const uname = (me?.username || "").toLowerCase().replace(/\s/g, "");
   const isFounder = uname === "thevip" || uname === "kendall.vip";
-  const isMusician = (me as any)?.account_type === "musician" || isFounder;
-  const unameMe = (me?.username || "").toLowerCase();
-  const isMikeAvramov = unameMe === "mikeavramov" || unameMe === "mikeavramove";
+  // Owner cat / special artists allowed to use store without extra gates
+  const isSpecialArtist = [
+    "mikeavramov",
+    "mikeavramove",
+    "mrsamsnuggles",
+    "mr.samsnuggles",
+    "samsnuggles",
+    "samsnuggles1",
+  ].includes(uname);
+  const isMusician =
+    (me as any)?.account_type === "musician" || isFounder || isSpecialArtist;
   const canSell =
     isFounder ||
-    (!!me?.verified && isMusician) ||
-    isMikeAvramov;
+    isSpecialArtist ||
+    (!!me?.verified && isMusician);
   const viewingOwn =
     !!me &&
     !!artist &&
@@ -121,7 +129,15 @@ function MusicInner() {
           .ilike("username", artistParam)
           .maybeSingle();
         art = data;
-      } else if (profile && ((profile as any).account_type === "musician" || ["thevip", "kendall.vip"].includes((profile.username || "").toLowerCase()))) {
+      } else if (
+        profile &&
+        (
+          (profile as any).account_type === "musician" ||
+          ["thevip", "kendall.vip", "mr.samsnuggles", "mrsamsnuggles", "samsnuggles", "samsnuggles1", "mikeavramov"].includes(
+            (profile.username || "").toLowerCase()
+          )
+        )
+      ) {
         art = profile;
       }
       setArtist(art);
@@ -135,22 +151,33 @@ function MusicInner() {
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !me || !viewingOwn) return;
+    if (!file || !me) return;
+    if (!viewingOwn) {
+      setError(
+        "Open your own store while signed in as this musician (check account type = musician)."
+      );
+      return;
+    }
     if (!title.trim()) {
       setError("Add the song name");
       return;
     }
-    if (!isMikeAvramov) {
+    if (!isSpecialArtist && !isFounder) {
       if (!copyrightOk || !copyrightOwner.trim()) {
         setError("Confirm copyright and owner name — required to sell music");
         return;
       }
     }
     if (!canSell) {
-      setError("Only verified musician accounts can sell full tracks in LumenTunes Store. Free accounts: 7 sample slots only.");
+      setError(
+        "Only verified musician accounts can sell full tracks. Ask owner to verify this account or set account_type to musician."
+      );
       return;
     }
-    const limit = me.verified || isFounder ? SAMPLE_LIMIT_VERIFIED : SAMPLE_LIMIT_FREE;
+    const limit =
+      me.verified || isFounder || isSpecialArtist
+        ? SAMPLE_LIMIT_VERIFIED
+        : SAMPLE_LIMIT_FREE;
     if (slotPick > limit) {
       setError(`Slot ${slotPick} needs verification (slots 8–14).`);
       return;
@@ -314,7 +341,7 @@ function MusicInner() {
                   className="flex-1 rounded-xl border border-border bg-pearl px-3 py-2 text-[14px]"
                 />
               </div>
-              {!isMikeAvramov && (
+              {!isSpecialArtist && !isFounder && (
                 <>
                   <label className="mb-2 flex items-start gap-2 text-[12px] text-charcoal">
                     <input
@@ -333,9 +360,9 @@ function MusicInner() {
                   />
                 </>
               )}
-              {isMikeAvramov && (
+              {(isSpecialArtist || isFounder) && (
                 <p className="mb-2 text-[11px] text-muted">
-                  Special account: copyright attestation not required for uploads.
+                  Privileged artist account: copyright attestation not required for uploads.
                 </p>
               )}
               <p className="mb-2 text-[10px] text-muted">
