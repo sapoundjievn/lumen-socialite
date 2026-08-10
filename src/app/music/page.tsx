@@ -302,6 +302,7 @@ function MusicInner() {
           buyerId: me.id,
           artistId: artist.id,
           artistUsername: artist.username,
+          artistStripeConnectId: (artist as any).stripe_connect_id || null,
         }),
       });
       const json = await res.json();
@@ -382,6 +383,44 @@ function MusicInner() {
             </div>
           )}
 
+          {/* Stripe Connect — own musician store only */}
+          {me && artist && me.id === artist.id && isMusician && (
+            <div className="mb-4 rounded-2xl border-2 border-gold bg-champagne/50 px-4 py-3">
+              <p className="text-[14px] font-bold text-charcoal">
+                Artist payouts (Stripe Connect)
+              </p>
+              <p className="mt-1 text-[12px] text-charcoal/80">
+                Connect your bank once. Buyers pay → you get <span className="font-bold">90%</span>,
+                Lumen keeps <span className="font-bold">10%</span>.
+              </p>
+              <button
+                type="button"
+                className="mt-3 w-full rounded-full bg-gold px-4 py-2.5 text-[14px] font-bold text-white hover:bg-gold-deep sm:w-auto"
+                onClick={async () => {
+                  if (!me) return;
+                  try {
+                    const res = await fetch("/api/connect/onboard", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ userId: me.id }),
+                    });
+                    const json = await res.json();
+                    if (!res.ok || !json.url) {
+                      alert(json.error || "Could not start Stripe Connect");
+                      return;
+                    }
+                    window.location.href = json.url;
+                  } catch (e: any) {
+                    alert(e?.message || "Connect error");
+                  }
+                }}
+              >
+                {(me as any)?.stripe_connect_id || (artist as any)?.stripe_connect_id
+                  ? "Update payout account"
+                  : "Connect bank for payouts (90%)"}
+              </button>
+            </div>
+          )}
           {viewingOwn && canSell && (
             <div className="mb-6 rounded-2xl border border-border bg-white p-4">
               <p className="mb-2 text-[13px] font-bold text-charcoal">

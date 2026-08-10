@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
       buyerId,
       artistId,
       artistUsername,
+      artistStripeConnectId,
     } = body || {};
 
     if (!trackId || !buyerId || !artistId || !priceCents) {
@@ -38,12 +39,22 @@ export async function POST(req: NextRequest) {
       "https://lumen-socialite.vercel.app";
 
     const platformFeeRate = 0.1;
-    const fee = Math.round(Number(priceCents) * platformFeeRate);
+    const amount = Math.max(50, Number(priceCents));
+    const fee = Math.round(amount * platformFeeRate);
 
     const params = new URLSearchParams();
     params.append("mode", "payment");
     // Disable Managed Payments (avoids required product tax_code on new Stripe accounts)
     params.append("managed_payments[enabled]", "false");
+
+    // Stripe Connect: 90% to artist, 10% application fee to platform
+    if (artistStripeConnectId) {
+      params.append("payment_intent_data[application_fee_amount]", String(fee));
+      params.append(
+        "payment_intent_data[transfer_data][destination]",
+        String(artistStripeConnectId)
+      );
+    }
     const artistQ = encodeURIComponent(artistUsername || "");
     params.append(
       "success_url",
@@ -59,7 +70,7 @@ export async function POST(req: NextRequest) {
       "line_items[0][price_data][product_data][description]",
       `Full track download · platform fee ${Math.round(platformFeeRate * 100)}%`
     );
-    params.append("line_items[0][price_data][unit_amount]", String(Math.max(50, Number(priceCents))));
+    params.append("line_items[0][price_data][unit_amount]", String(amount));
     params.append("line_items[0][quantity]", "1");
     params.append("metadata[track_id]", String(trackId));
     params.append("metadata[buyer_id]", String(buyerId));
