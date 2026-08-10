@@ -37,9 +37,15 @@ export default function MusicianTunes({
     const { data } = await getMusicTracks(profileId);
     const list = (data || []) as MusicTrack[];
     const slots: (MusicTrack | null)[] = Array(SLOTS).fill(null);
-    // Prefer slot_index 1-14; else fill by order
+    // Store uploads (for sale) AND samples share slots 1–14 via slot_index
     const used = new Set<number>();
-    for (const t of list) {
+    // Prefer full store tracks on a slot, then samples
+    const ordered = [...list].sort((a, b) => {
+      const as = (a as any).is_sample ? 1 : 0;
+      const bs = (b as any).is_sample ? 1 : 0;
+      return as - bs;
+    });
+    for (const t of ordered) {
       const si = (t as any).slot_index as number | null | undefined;
       if (si && si >= 1 && si <= SLOTS && !used.has(si)) {
         slots[si - 1] = t;
@@ -47,7 +53,7 @@ export default function MusicianTunes({
       }
     }
     let i = 0;
-    for (const t of list) {
+    for (const t of ordered) {
       if (slots.includes(t)) continue;
       while (i < SLOTS && slots[i]) i++;
       if (i < SLOTS) {
@@ -316,7 +322,8 @@ export default function MusicianTunes({
       </div>
       {isOwner && (
         <p className="mt-2 text-center text-[10px] text-muted">
-          Numbered samples: free accounts 1–7 · verified 1–14. Previews only (1 min).
+          Examples 1–14: auto-filled when a song is uploaded for sale on that line.
+          Play / Pause / Stop · preview max 1 min.
         </p>
       )}
     </div>

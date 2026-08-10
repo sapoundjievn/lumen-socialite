@@ -25,6 +25,7 @@ const SAMPLE_LIMIT_VERIFIED = 14;
 function MusicInner() {
   const searchParams = useSearchParams();
   const artistParam = searchParams.get("artist"); // username of store to view
+  const sessionParam = searchParams.get("session_id");
 
   const [me, setMe] = useState<Profile | null>(null);
   const [artist, setArtist] = useState<Profile | null>(null);
@@ -122,6 +123,25 @@ function MusicInner() {
       const profile = await getCurrentProfile();
       setMe(profile);
 
+      // Returning from Stripe Checkout — unlock purchase
+      if (sessionParam) {
+        try {
+          const res = await fetch("/api/confirm-purchase", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sessionId: sessionParam }),
+          });
+          const json = await res.json();
+          if (!res.ok) {
+            console.error("confirm-purchase", json);
+            setError(json.error || "Could not unlock purchase");
+          }
+        } catch (e: any) {
+          console.error(e);
+          setError(e?.message || "Unlock failed");
+        }
+      }
+
       const un = (profile?.username || "").toLowerCase().replace(/\s/g, "");
       const at = String((profile as any)?.account_type || "").toLowerCase();
       const special = [
@@ -155,7 +175,7 @@ function MusicInner() {
       }
       setLoading(false);
     })();
-  }, [artistParam]);
+  }, [artistParam, sessionParam]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -371,8 +391,8 @@ function MusicInner() {
                 Uploading as @{me.username} only to your catalog
               </p>
               <p className="mb-3 text-[11px] text-muted">
-                Profile buttons stay as 1-minute samples only. Full tracks for pay & download go here
-                (lines 1–14). Fee for sales is only shown to you as the artist.
+                Full tracks for pay & download (lines 1–14). The same line also appears as a
+                profile example with Play / Pause / Stop (1-min preview). Fee only shown to you.
               </p>
               <input
                 value={title}
@@ -491,11 +511,20 @@ function MusicInner() {
                           <button
                             type="button"
                             onClick={() => handleBuy(t!)}
-                            className="rounded-full bg-charcoal px-3 py-1.5 text-[12px] font-bold text-pearl"
+                            className="rounded-full bg-charcoal px-4 py-1.5 text-[13px] font-bold text-pearl hover:opacity-90"
                           >
-                            Pay
+                            Pay ${(t!.price_cents / 100).toFixed(2)}
                           </button>
                         )
+                      )}
+                      {has && !viewingOwn && !me && (
+                        <button
+                          type="button"
+                          onClick={() => alert("Sign in to pay and download")}
+                          className="rounded-full bg-charcoal px-4 py-1.5 text-[13px] font-bold text-pearl"
+                        >
+                          Sign in to Pay
+                        </button>
                       )}
                       {has && viewingOwn && (
                         <div className="flex items-center gap-2">
