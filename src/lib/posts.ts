@@ -1021,29 +1021,47 @@ export async function getMusicTracks(userId: string) {
 export async function uploadMusicFile(userId: string, file: File, prefix: string) {
   const name = file.name || "track.mp3";
   const lower = name.toLowerCase();
-  const isMp3 = lower.endsWith(".mp3") || file.type === "audio/mpeg" || file.type === "audio/mp3";
+  const isMp3 =
+    lower.endsWith(".mp3") ||
+    file.type === "audio/mpeg" ||
+    file.type === "audio/mp3" ||
+    file.type === "audio/x-mpeg";
   const isWav = lower.endsWith(".wav") || file.type === "audio/wav" || file.type === "audio/x-wav";
-  const isM4a = lower.endsWith(".m4a") || file.type === "audio/mp4" || file.type === "audio/m4a";
+  const isM4a =
+    lower.endsWith(".m4a") ||
+    lower.endsWith(".mp4") ||
+    file.type === "audio/mp4" ||
+    file.type === "audio/m4a" ||
+    file.type === "audio/x-m4a";
   const isAudio =
     isMp3 ||
     isWav ||
     isM4a ||
     lower.endsWith(".ogg") ||
+    lower.endsWith(".aac") ||
     (file.type && file.type.startsWith("audio/"));
 
   if (!isAudio) {
     return {
       url: null as string | null,
-      error: { message: "Please choose an audio file (MP3, WAV, M4A)." } as any,
+      error: {
+        message: "Please choose an audio file (MP3 recommended).",
+      } as any,
     };
   }
 
-  let contentType = file.type || "";
-  if (!contentType || contentType === "application/octet-stream") {
-    if (isMp3) contentType = "audio/mpeg";
-    else if (isWav) contentType = "audio/wav";
-    else if (isM4a) contentType = "audio/mp4";
-    else contentType = "audio/mpeg";
+  // Browsers often send empty or wrong type for MP3 — force correct MIME
+  let contentType = "audio/mpeg";
+  if (isWav) contentType = "audio/wav";
+  else if (isM4a) contentType = "audio/mp4";
+  else if (isMp3) contentType = "audio/mpeg";
+  else if (file.type && file.type.startsWith("audio/")) contentType = file.type;
+
+  if (file.size > 80 * 1024 * 1024) {
+    return {
+      url: null as string | null,
+      error: { message: "File too large (max ~80 MB). Compress or use a shorter export." } as any,
+    };
   }
 
   const safe = name.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -1052,9 +1070,10 @@ export async function uploadMusicFile(userId: string, file: File, prefix: string
   let lastErr: any = null;
 
   for (const bucket of buckets) {
-    const { error } = await supabase.storage.from(bucket).upload(path, file, {
+    const { data, error } = await supabase.storage.from(bucket).upload(path, file, {
       upsert: true,
       contentType,
+      cacheControl: "3600",
     });
     if (!error) {
       const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
@@ -1063,9 +1082,12 @@ export async function uploadMusicFile(userId: string, file: File, prefix: string
     lastErr = error;
   }
 
-  const msg =
+  const detail =
     lastErr?.message ||
-    "Upload failed. Create a public Storage bucket named music and allow audio/mpeg (MP3).";
+    lastErr?.error ||
+    (typeof lastErr === "string" ? lastErr : "") ||
+    "unknown";
+  const msg = `MP3 upload failed: ${detail}. In Supabase Storage → music bucket → allow MIME audio/mpeg and policy for authenticated upload.`;
   return { url: null as string | null, error: { message: msg } as any };
 }
 

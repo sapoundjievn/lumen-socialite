@@ -84,13 +84,17 @@ export default function MusicianTunes({
         file,
         `slot-${slot + 1}`
       );
-      if (upErr || !audio_url) throw upErr || new Error("Upload failed");
+      if (upErr || !audio_url) {
+        throw new Error(upErr?.message || "Storage upload failed");
+      }
       const existing = tracks[slot];
       if (existing) {
-        await updateMusicTrack(existing.id, profileId, { audio_url });
+        const { error } = await updateMusicTrack(existing.id, profileId, { audio_url });
+        if (error) throw new Error(error.message || "Could not update track");
       } else {
-        const title = `Sample ${slot + 1}`;
-        await createMusicTrack(profileId, {
+        const base = (file.name || "Sample").replace(/\.[^.]+$/, "").replace(/_/g, " ");
+        const title = base.trim() || `Sample ${slot + 1}`;
+        const { error } = await createMusicTrack(profileId, {
           title,
           audio_url,
           price_cents: 99,
@@ -98,10 +102,16 @@ export default function MusicianTunes({
           sample_duration_sec: 60,
           slot_index: slot + 1,
         } as any);
+        if (error) {
+          throw new Error(
+            error.message ||
+              "Saved file but database rejected track — check music_tracks RLS policies"
+          );
+        }
       }
       await reload();
     } catch (e: any) {
-      alert(e?.message || "Upload failed");
+      alert(e?.message || e?.error_description || "Upload failed");
     }
     setBusySlot(null);
   }
