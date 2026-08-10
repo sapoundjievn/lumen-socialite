@@ -44,8 +44,12 @@ export async function POST(req: NextRequest) {
     params.append("mode", "payment");
     // Disable Managed Payments (avoids required product tax_code on new Stripe accounts)
     params.append("managed_payments[enabled]", "false");
-    params.append("success_url", `${origin}/music/success?session_id={CHECKOUT_SESSION_ID}`);
-    params.append("cancel_url", `${origin}/music?artist=${encodeURIComponent(artistUsername || "")}`);
+    const artistQ = encodeURIComponent(artistUsername || "");
+    params.append(
+      "success_url",
+      `${origin}/music/success?session_id={CHECKOUT_SESSION_ID}&artist=${artistQ}`
+    );
+    params.append("cancel_url", `${origin}/music?artist=${artistQ}`);
     params.append("line_items[0][price_data][currency]", "usd");
     params.append(
       "line_items[0][price_data][product_data][name]",
@@ -60,6 +64,7 @@ export async function POST(req: NextRequest) {
     params.append("metadata[track_id]", String(trackId));
     params.append("metadata[buyer_id]", String(buyerId));
     params.append("metadata[artist_id]", String(artistId));
+    params.append("metadata[artist_username]", String(artistUsername || ""));
     params.append("metadata[price_cents]", String(priceCents));
     params.append("metadata[platform_fee_cents]", String(fee));
 
