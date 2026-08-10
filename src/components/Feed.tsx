@@ -199,9 +199,9 @@ export default function Feed() {
       <div className="sticky top-0 z-10 border-b border-border bg-pearl/85 backdrop-blur-md">
         <div className="flex items-center gap-3 px-4 py-3">
           <img
-            src="/logo-official.png"
+            src="/logo-official.jpg"
             alt="Lumen · Socialite"
-            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-transparent shadow-none outline-none ring-0"
+            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-pearl shadow-none outline-none ring-0"
             width={192}
             height={192}
           />

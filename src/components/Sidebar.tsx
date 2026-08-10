@@ -69,9 +69,9 @@ export default function Sidebar() {
         {/* Square plaque logo ~2×2 inch, no border, matches page pearl */}
         <div className="mb-1 flex items-center px-3 pt-1">
           <img
-            src="/logo-official.png"
+            src="/logo-official.jpg"
             alt="Lumen · Socialite"
-            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-transparent shadow-none outline-none ring-0"
+            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-pearl shadow-none outline-none ring-0"
             width={192}
             height={192}
           />
