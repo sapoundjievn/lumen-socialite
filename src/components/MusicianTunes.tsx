@@ -99,7 +99,6 @@ export default function MusicianTunes({
           audio_url,
           price_cents: 99,
           is_sample: true,
-          sample_duration_sec: 60,
           slot_index: slot + 1,
         } as any);
         if (error) {

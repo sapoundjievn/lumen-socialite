@@ -1107,9 +1107,19 @@ export async function createMusicTrack(
     slot_index?: number | null;
   }
 ) {
+  // Only columns that exist on music_tracks (avoid schema cache errors)
+  const row: Record<string, unknown> = {
+    user_id: userId,
+    title: payload.title,
+    audio_url: payload.audio_url,
+    price_cents: payload.price_cents ?? 99,
+  };
+  if (payload.is_sample != null) row.is_sample = payload.is_sample;
+  if (payload.slot_index != null) row.slot_index = payload.slot_index;
+
   const { data, error } = await supabase
     .from("music_tracks")
-    .insert({ user_id: userId, ...payload })
+    .insert(row)
     .select("*")
     .single();
   return { data, error };
