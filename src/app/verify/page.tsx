@@ -102,31 +102,32 @@ export default function VerifyPage() {
     }
   }
 
-  async function markPaidDemo() {
-    // Placeholder until Stripe is connected — marks paid + pending review
+  async function payWithStripe() {
     if (!profile) return;
     setSubmitting(true);
-    const { data: row } = await supabase
-      .from("verification_requests")
-      .select("id")
-      .eq("user_id", profile.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (row) {
-      await supabase
-        .from("verification_requests")
-        .update({
-          paid: true,
-          paid_at: new Date().toISOString(),
-          status: "pending_review",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", row.id);
+    try {
+      const res = await fetch("/api/checkout-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: profile.id,
+          username: profile.username,
+          amountCents,
+          planLabel,
+          accountType,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.url) {
+        alert(json.error || "Could not start payment");
+        setSubmitting(false);
+        return;
+      }
+      window.location.href = json.url;
+    } catch (e: any) {
+      alert(e?.message || "Payment error");
+      setSubmitting(false);
     }
-    setSubmitting(false);
-    setExistingStatus("pending_review");
-    alert("Payment recorded (demo). Stripe live checkout can be connected next. Status: pending review.");
   }
 
   const accountType = ((profile as any)?.account_type || "personal") as string;
@@ -375,19 +376,19 @@ export default function VerifyPage() {
                   <CreditCard className="mx-auto h-10 w-10 text-gold-deep" />
                   <h3 className="text-lg font-bold text-charcoal">Pay ${priceYear} / year</h3>
                   <p className="text-sm text-muted">
-                    Documents uploaded. Complete payment to start review. Stripe live payments can be
-                    connected next — demo records payment for now.
+                    Documents uploaded. Pay with Stripe to start review. Payment goes to{" "}
+                    <span className="font-semibold text-charcoal">Lumen · Socialite</span> (platform).
                   </p>
                   <button
                     type="button"
                     disabled={submitting}
-                    onClick={markPaidDemo}
+                    onClick={payWithStripe}
                     className="w-full rounded-full bg-gold py-3.5 font-bold text-white hover:bg-gold-deep disabled:opacity-60"
                   >
-                    {submitting ? "Processing..." : `Pay $${priceYear} (demo)`}
+                    {submitting ? "Redirecting to Stripe..." : `Pay $${priceYear} / year`}
                   </button>
                   <p className="text-[12px] text-muted">
-                    Real card checkout (Stripe) can be added when you provide keys.
+                    Secure checkout · Lumen · Socialite · annual verification
                   </p>
                 </div>
               )}
