@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Creates a Stripe Checkout Session for a Lumen · Socialite track.
+ * Creates a Stripe Checkout Session for a LumenTunes track.
  * Requires env: STRIPE_SECRET_KEY
  * Optional: NEXT_PUBLIC_APP_URL (defaults to request origin)
  */
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     params.append("line_items[0][price_data][currency]", "usd");
     params.append(
       "line_items[0][price_data][product_data][name]",
-      `Lumen · Socialite · ${title || "Track"}`
+      `LumenTunes · ${title || "Track"}`
     );
     params.append(
       "line_items[0][price_data][product_data][description]",
