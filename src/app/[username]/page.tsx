@@ -482,14 +482,14 @@ export default function ProfilePage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          {/* Personal: avatar bottom-left. Musician: avatar centered on banner. Business: none */}
-          {!isBusiness && !isMusician && (
-            <div className="absolute -bottom-8 left-4">
+          {/* Personal + business: avatar bottom-left (slightly smaller). Musician: centered on banner */}
+          {!isMusician && (
+            <div className="absolute -bottom-7 left-4">
               <div className="relative">
                 <img
                   src={avatar}
                   alt={profile.display_name}
-                  className="h-32 w-32 rounded-full border-4 border-pearl bg-champagne object-cover"
+                  className="h-[6.5rem] w-[6.5rem] rounded-full border-4 border-pearl bg-champagne object-cover sm:h-28 sm:w-28"
                 />
                 {isOwnProfile && (
                   <>
@@ -634,7 +634,7 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info */}
-        <div className={`px-4 pb-4 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : isBusiness ? "pt-5" : "pt-10"}`}>
+        <div className={`px-4 pb-4 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : "pt-9 sm:pt-10"}`}>
           <div className={`flex gap-3 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
