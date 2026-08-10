@@ -197,19 +197,8 @@ export default function Feed() {
   return (
     <main className="min-h-screen w-full border-x-0 sm:border-x border-border">
       <div className="sticky top-0 z-10 border-b border-border bg-pearl/85 backdrop-blur-md">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <img
-            src="/logo-official.jpg"
-            alt="Lumen · Socialite"
-            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-pearl shadow-none outline-none ring-0"
-            width={192}
-            height={192}
-          />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline gap-2">
-              <h1 className="text-xl font-bold leading-none text-charcoal">{t("home")}</h1>
-            </div>
-          </div>
+        <div className="flex items-center px-4 py-3">
+          <h1 className="text-xl font-bold leading-none text-charcoal">{t("home")}</h1>
         </div>
 
         <div className="flex">
