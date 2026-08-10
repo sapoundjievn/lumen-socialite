@@ -79,6 +79,15 @@ export default function MusicianTunes({
     }
     setBusySlot(slot);
     try {
+      const base = (file.name || "Sample").replace(/\.[^.]+$/, "").replace(/_/g, " ");
+      const suggested = (tracks[slot]?.title || base.trim() || `Sample ${slot + 1}`).trim();
+      const named = prompt("Song name for this example", suggested);
+      if (named == null) {
+        setBusySlot(null);
+        return;
+      }
+      const title = named.trim() || suggested;
+
       const { url: audio_url, error: upErr } = await uploadMusicFile(
         profileId,
         file,
@@ -89,11 +98,12 @@ export default function MusicianTunes({
       }
       const existing = tracks[slot];
       if (existing) {
-        const { error } = await updateMusicTrack(existing.id, profileId, { audio_url });
+        const { error } = await updateMusicTrack(existing.id, profileId, {
+          audio_url,
+          title,
+        });
         if (error) throw new Error(error.message || "Could not update track");
       } else {
-        const base = (file.name || "Sample").replace(/\.[^.]+$/, "").replace(/_/g, " ");
-        const title = base.trim() || `Sample ${slot + 1}`;
         const { error } = await createMusicTrack(profileId, {
           title,
           audio_url,
@@ -180,13 +190,27 @@ export default function MusicianTunes({
           />
         )}
         {isOwner && t && (
-          <button
-            type="button"
-            onClick={() => rename(slot)}
-            className="text-[8px] text-gold-deep hover:underline"
-          >
-            edit
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => rename(slot)}
+              className="text-[8px] text-gold-deep hover:underline"
+            >
+              name
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!confirm(`Delete sample ${num}?`)) return;
+                const { error } = await deleteMusicTrack(t.id, profileId);
+                if (error) alert(error.message);
+                else await reload();
+              }}
+              className="text-[8px] text-rose-500 hover:underline"
+            >
+              del
+            </button>
+          </div>
         )}
       </div>
     );

@@ -9,6 +9,7 @@ import {
   getMusicTracks,
   createMusicTrack,
   updateMusicTrack,
+  deleteMusicTrack,
   purchaseMusicTrack,
   MUSIC_PLATFORM_FEE_RATE,
   uploadMusicFile,
@@ -484,7 +485,38 @@ function MusicInner() {
                         )
                       )}
                       {has && viewingOwn && (
-                        <span className="text-[11px] text-muted">Listed</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const next = prompt("Song name", t!.title);
+                              if (next == null) return;
+                              const name = next.trim();
+                              if (!name || !me) return;
+                              const { error } = await updateMusicTrack(t!.id, me.id, {
+                                title: name,
+                              });
+                              if (error) alert(error.message);
+                              else await reload(me.id, me.id);
+                            }}
+                            className="text-[11px] font-semibold text-gold-deep hover:underline"
+                          >
+                            Name
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!me || !t) return;
+                              if (!confirm(`Delete line ${n}: ${t.title}?`)) return;
+                              const { error } = await deleteMusicTrack(t.id, me.id);
+                              if (error) alert(error.message);
+                              else await reload(me.id, me.id);
+                            }}
+                            className="text-[11px] font-semibold text-rose-500 hover:underline"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       )}
                       {!has && viewingOwn && canSell && (
                         <button
