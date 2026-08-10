@@ -60,12 +60,8 @@ function MusicInner() {
     isFounder ||
     isSpecialArtist ||
     (isMusician && !!me?.verified);
-  // Own store if signed-in musician viewing self (or no artist param yet)
-  const viewingOwn = !!(
-    me &&
-    isMusician &&
-    (!artist || me.id === artist.id)
-  );
+  // Own store ONLY when signed-in user is the artist shown
+  const viewingOwn = !!(me && artist && me.id === artist.id && isMusician);
 
   async function loadOwned(userId: string, trackIds: string[]) {
     if (!trackIds.length) {
@@ -164,6 +160,10 @@ function MusicInner() {
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !me) return;
+    if (!viewingOwn) {
+      setError("You can only upload on your own store, not someone else's.");
+      return;
+    }
     if (!isMusician) {
       setError("This account is not a musician. Set account_type = musician in Supabase.");
       return;
@@ -341,8 +341,11 @@ function MusicInner() {
               Signed in as @{me.username}
               {(me as any).account_type ? ` · ${(me as any).account_type}` : " · no account_type"}
               {me.verified ? " · verified" : " · not verified"}
-              {viewingOwn ? " · your store" : " · not your store view"}
-              {canSell ? " · uploads ON" : " · uploads OFF"}
+              {viewingOwn
+                ? " · your store · can upload here"
+                : artist
+                ? ` · viewing @${artist.username} (buy only)`
+                : " · open your musician profile store to upload"}
             </p>
           )}
           {/* ARTIST UPLOAD (owner only) */}
@@ -359,13 +362,13 @@ function MusicInner() {
             </div>
           )}
 
-          {me && isMusician && canSell && (
+          {viewingOwn && canSell && (
             <div className="mb-6 rounded-2xl border border-border bg-white p-4">
               <p className="mb-2 text-[13px] font-bold text-charcoal">
-                Artist upload — full songs for sale (line {slotPick})
+                Your store — upload full songs (line {slotPick})
               </p>
               <p className="mb-2 text-[12px] font-medium text-gold-deep">
-                Uploads ON for @{me.username}
+                Uploading as @{me.username} only to your catalog
               </p>
               <p className="mb-3 text-[11px] text-muted">
                 Profile buttons stay as 1-minute samples only. Full tracks for pay & download go here
