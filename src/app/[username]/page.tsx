@@ -484,7 +484,7 @@ export default function ProfilePage() {
           </Link>
           {/* Personal + business: avatar bottom-left (slightly smaller). Musician: centered on banner */}
           {!isMusician && (
-            <div className="absolute -bottom-7 left-4">
+            <div className="absolute -bottom-5 left-4">
               <div className="relative">
                 <img
                   src={avatar}
@@ -634,8 +634,8 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info */}
-        <div className={`px-4 pb-4 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : "pt-9 sm:pt-10"}`}>
-          <div className={`flex gap-3 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
+        <div className={`px-4 pb-3 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : "pt-6"}`}>
+          <div className={`flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
               <div className="flex min-w-0 items-center gap-1.5">
@@ -652,10 +652,10 @@ export default function ProfilePage() {
                   <VerifiedBadge username={profile.username} gender={(profile as any).gender} size="md" />
                 )}
               </div>
-              <div className="mt-1 min-w-0">
+              <div className="mt-0.5 min-w-0">
                 <SpecialStars username={profile.username} />
               </div>
-              <div className="mt-0.5 truncate text-[14px] text-muted sm:text-[15px]">
+              <div className="mt-0 truncate text-[14px] text-muted sm:text-[15px]">
                 @{profile.username}
               </div>
               {(profile.username || "").toLowerCase() === "kennicktechnologies" && (
