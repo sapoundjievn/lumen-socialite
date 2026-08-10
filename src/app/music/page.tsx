@@ -124,6 +124,21 @@ function MusicInner() {
       const profile = await getCurrentProfile();
       setMe(profile);
 
+      const un = (profile?.username || "").toLowerCase().replace(/\s/g, "");
+      const at = String((profile as any)?.account_type || "").toLowerCase();
+      const special = [
+        "thevip",
+        "kendall.vip",
+        "mr.samsnuggles",
+        "mrsamsnuggles",
+        "samsnuggles",
+        "samsnuggles1",
+        "mikeavramov",
+        "mikeavramove",
+      ];
+      const profileIsMusician =
+        !!profile && (at === "musician" || special.includes(un));
+
       let art: Profile | null = null;
       if (artistParam) {
         const { data } = await supabase
@@ -131,16 +146,8 @@ function MusicInner() {
           .select("*")
           .ilike("username", artistParam)
           .maybeSingle();
-        art = data;
-      } else if (
-        profile &&
-        (
-          (profile as any).account_type === "musician" ||
-          ["thevip", "kendall.vip", "mr.samsnuggles", "mrsamsnuggles", "samsnuggles", "samsnuggles1", "mikeavramov"].includes(
-            (profile.username || "").toLowerCase()
-          )
-        )
-      ) {
+        art = data as Profile | null;
+      } else if (profileIsMusician) {
         art = profile;
       }
       setArtist(art);
@@ -161,7 +168,11 @@ function MusicInner() {
       );
       return;
     }
-    if (!title.trim()) {
+    const songTitle =
+      title.trim() ||
+      (file.name || "Track").replace(/\.[^.]+$/, "").replace(/_/g, " ").trim() ||
+      `Track ${slotPick}`;
+    if (!songTitle) {
       setError("Add the song name");
       return;
     }
@@ -198,7 +209,7 @@ function MusicInner() {
       const existing = tracks[slotPick - 1];
       if (existing) {
         await updateMusicTrack(existing.id, me.id, {
-          title: title.trim(),
+          title: songTitle,
           audio_url,
         });
         await supabase
@@ -213,7 +224,7 @@ function MusicInner() {
           .eq("id", existing.id);
       } else {
         await createMusicTrack(me.id, {
-          title: title.trim(),
+          title: songTitle,
           audio_url,
           price_cents,
           is_sample: false,
@@ -296,6 +307,15 @@ function MusicInner() {
             </p>
           )}
 
+          {me && (
+            <p className="mb-2 text-[11px] text-muted">
+              Signed in as @{me.username}
+              {(me as any).account_type ? ` · ${(me as any).account_type}` : " · no account_type"}
+              {me.verified ? " · verified" : " · not verified"}
+              {viewingOwn ? " · your store" : " · not your store view"}
+              {canSell ? " · uploads ON" : " · uploads OFF"}
+            </p>
+          )}
           {/* ARTIST UPLOAD (owner only) */}
           {viewingOwn && canSell && (
             <p className="mb-3 rounded-xl border border-gold/40 bg-champagne/30 px-3 py-2 text-[12px] font-medium text-charcoal">
@@ -450,7 +470,20 @@ function MusicInner() {
                       {has && viewingOwn && (
                         <span className="text-[11px] text-muted">Listed</span>
                       )}
-                      {!has && (
+                      {!has && viewingOwn && canSell && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSlotPick(n);
+                            setTitle((t) => t || `Track ${n}`);
+                            fileRef.current?.click();
+                          }}
+                          className="rounded-full bg-gold px-3 py-1.5 text-[12px] font-bold text-white hover:bg-gold-deep"
+                        >
+                          Upload
+                        </button>
+                      )}
+                      {!has && !(viewingOwn && canSell) && (
                         <span className="text-[11px] text-muted/60">Empty</span>
                       )}
                     </div>
