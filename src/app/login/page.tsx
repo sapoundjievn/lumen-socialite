@@ -115,7 +115,7 @@ export default function LoginPage() {
           <img
             src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="mx-auto h-44 w-44 sm:h-52 sm:w-52 object-contain object-center bg-transparent"
+            className="mx-auto h-28 w-28 sm:h-32 sm:w-32 object-contain object-center bg-transparent"
           />
           <p className="mt-4 text-sm text-muted">
             {mode === "login" ? t("continue") : t("resetPassword")}

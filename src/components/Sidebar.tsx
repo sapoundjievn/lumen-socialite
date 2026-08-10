@@ -66,15 +66,18 @@ export default function Sidebar() {
   return (
     <aside className="sticky top-0 flex h-screen w-[275px] shrink-0 flex-col justify-between self-start overflow-y-auto px-3 py-3 xl:w-[275px]">
       <div>
-                <div className="mb-4 flex items-center px-2 pt-1">
+        {/* Square plaque logo ~1×1 inch, left-aligned with Home row */}
+        <div className="mb-1 flex items-center px-3 pt-1">
           <img
             src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="h-24 w-24 flex-shrink-0 object-contain object-center bg-transparent"
+            className="h-24 w-24 flex-shrink-0 object-contain object-left bg-transparent"
+            width={96}
+            height={96}
           />
         </div>
 
-                <nav className="mt-1 space-y-0.5">
+        <nav className="mt-0.5 space-y-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
