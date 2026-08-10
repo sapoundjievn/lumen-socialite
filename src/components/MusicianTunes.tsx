@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Play, Pause, Square } from "lucide-react";
 import {
   getMusicTracks,
   createMusicTrack,
@@ -25,6 +26,8 @@ export default function MusicianTunes({
   const [tracks, setTracks] = useState<(MusicTrack | null)[]>(Array(SLOTS).fill(null));
   const [loading, setLoading] = useState(true);
   const [busySlot, setBusySlot] = useState<number | null>(null);
+  const [playingSlot, setPlayingSlot] = useState<number | null>(null);
+  const [paused, setPaused] = useState(false);
   const fileRefs = useRef<(HTMLInputElement | null)[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -60,14 +63,49 @@ export default function MusicianTunes({
     reload();
   }, [profileId]);
 
-  function play(url: string) {
+  function stopPlayback() {
+    const a = audioRef.current;
+    if (a) {
+      a.pause();
+      a.currentTime = 0;
+      a.removeAttribute("src");
+      a.load();
+    }
+    setPlayingSlot(null);
+    setPaused(false);
+  }
+
+  function playSlot(slot: number, url: string) {
     if (!audioRef.current) audioRef.current = new Audio();
     const a = audioRef.current;
-    if (a.src === url && !a.paused) {
+
+    // Same slot + playing → pause
+    if (playingSlot === slot && !a.paused) {
       a.pause();
+      setPaused(true);
       return;
     }
+    // Same slot + paused → resume
+    if (playingSlot === slot && a.paused && paused) {
+      void a.play();
+      setPaused(false);
+      return;
+    }
+
+    a.onended = () => {
+      setPlayingSlot(null);
+      setPaused(false);
+    };
+    a.ontimeupdate = () => {
+      // 1-minute sample cap
+      if (a.currentTime >= 60) {
+        stopPlayback();
+      }
+    };
     a.src = url;
+    a.currentTime = 0;
+    setPlayingSlot(slot);
+    setPaused(false);
     void a.play();
   }
 
@@ -151,7 +189,7 @@ export default function MusicianTunes({
           type="button"
           disabled={busySlot === slot || (locked && !t)}
           onClick={() => {
-            if (t) play(t.audio_url);
+            if (t) playSlot(slot, t.audio_url);
             else if (isOwner && !locked) fileRefs.current[slot]?.click();
           }}
           onContextMenu={(e) => {
@@ -178,6 +216,36 @@ export default function MusicianTunes({
         >
           {busySlot === slot ? "…" : label}
         </button>
+        {t && (
+          <div className="flex items-center justify-center gap-0.5">
+            <button
+              type="button"
+              title="Play"
+              onClick={(e) => {
+                e.stopPropagation();
+                playSlot(slot, t.audio_url);
+              }}
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-gold/20 text-gold-deep hover:bg-gold/40"
+            >
+              {playingSlot === slot && !paused ? (
+                <Pause className="h-2.5 w-2.5" />
+              ) : (
+                <Play className="h-2.5 w-2.5" />
+              )}
+            </button>
+            <button
+              type="button"
+              title="Stop"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (playingSlot === slot) stopPlayback();
+              }}
+              className="flex h-5 w-5 items-center justify-center rounded-full bg-champagne/60 text-charcoal hover:bg-champagne"
+            >
+              <Square className="h-2 w-2 fill-current" />
+            </button>
+          </div>
+        )}
         {isOwner && (
           <input
             ref={(el) => {
