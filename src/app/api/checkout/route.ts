@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
 
     const params = new URLSearchParams();
     params.append("mode", "payment");
+    // Disable Managed Payments (avoids required product tax_code on new Stripe accounts)
+    params.append("managed_payments[enabled]", "false");
     params.append("success_url", `${origin}/music/success?session_id={CHECKOUT_SESSION_ID}`);
     params.append("cancel_url", `${origin}/music?artist=${encodeURIComponent(artistUsername || "")}`);
     params.append("line_items[0][price_data][currency]", "usd");
