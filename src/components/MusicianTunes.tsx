@@ -292,7 +292,7 @@ export default function MusicianTunes({
 
   if (loading) {
     return (
-      <p className="py-2 text-center text-[11px] text-muted">Loading LumenTunes…</p>
+      <p className="py-2 text-center text-[11px] text-muted">Loading Lumen · Socialite · Tunes…</p>
     );
   }
 
@@ -302,7 +302,7 @@ export default function MusicianTunes({
   return (
     <div className="w-full px-0">
       <p className="mb-2 text-center text-[11px] font-bold tracking-wide text-gold-deep">
-        LumenTunes · 1-min samples
+        Lumen · Socialite · Tunes · 1-min samples
       </p>
       {/* Row 1: samples 1–7 evenly across full width */}
       <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">

@@ -340,7 +340,7 @@ function MusicInner() {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-charcoal">LumenTunes Store</h1>
+            <h1 className="text-xl font-bold text-charcoal">Lumen · Socialite · Tunes</h1>
             {artist && (
               <p className="text-[12px] text-muted">
                 @{artist.username} · full tracks · pay & download
@@ -352,7 +352,7 @@ function MusicInner() {
         <div className="px-4 py-4">
           {!artist && !loading && (
             <p className="rounded-xl bg-champagne/40 px-3 py-3 text-[13px] text-muted">
-              Open an artist&apos;s profile and use <span className="font-semibold text-charcoal">LumenTunes Store</span>,
+              Open an artist&apos;s profile and use <span className="font-semibold text-charcoal">Lumen · Socialite · Tunes</span>,
               or musicians open this page to upload full songs for sale.
             </p>
           )}
@@ -375,7 +375,7 @@ function MusicInner() {
               <p className="font-bold">Samples only (free musician)</p>
               <p className="mt-1 text-muted">
                 You can use profile sample slots <span className="font-semibold">1–7</span>.
-                Verify your musician account to unlock samples <span className="font-semibold">1–14</span> and the LumenTunes Store to sell full songs.
+                Verify your musician account to unlock samples <span className="font-semibold">1–14</span> and the Lumen · Socialite · Tunes to sell full songs.
               </p>
               <a href="/verify" className="mt-2 inline-block font-semibold text-gold-deep hover:underline">
                 Get verified to sell →
@@ -387,11 +387,16 @@ function MusicInner() {
           {me && artist && me.id === artist.id && isMusician && (
             <div className="mb-4 rounded-2xl border-2 border-gold bg-champagne/50 px-4 py-3">
               <p className="text-[14px] font-bold text-charcoal">
-                Artist payouts (Stripe Connect)
+                Artist payouts — 90% you / 10% Lumen · Socialite
               </p>
-              <p className="mt-1 text-[12px] text-charcoal/80">
-                Connect your bank once. Buyers pay → you get <span className="font-bold">90%</span>,
-                Lumen keeps <span className="font-bold">10%</span>.
+              <p className="mt-1 text-[12px] leading-relaxed text-charcoal/90">
+                To receive money from sales you <span className="font-bold">must</span> connect a{" "}
+                <span className="font-bold">Stripe</span> account (email + bank). Until you connect,
+                sales may still process but payouts cannot go to your bank automatically.
+              </p>
+              <p className="mt-2 text-[12px] text-charcoal/80">
+                Split on every sale: <span className="font-bold">90%</span> to the artist ·{" "}
+                <span className="font-bold">10%</span> platform fee to Lumen · Socialite.
               </p>
               <button
                 type="button"
@@ -416,10 +421,18 @@ function MusicInner() {
                 }}
               >
                 {(me as any)?.stripe_connect_id || (artist as any)?.stripe_connect_id
-                  ? "Update payout account"
-                  : "Connect bank for payouts (90%)"}
+                  ? "Stripe connected — update payout account"
+                  : "Connect Stripe to get paid (90%)"}
               </button>
             </div>
+          )}
+
+          {/* Buyer-facing note when viewing someone else's store */}
+          {artist && me && me.id !== artist.id && (
+            <p className="mb-3 text-[11px] text-muted">
+              Purchases use Stripe. Artists receive <span className="font-semibold text-charcoal">90%</span>{" "}
+              when they have connected Stripe; Lumen · Socialite keeps <span className="font-semibold text-charcoal">10%</span>.
+            </p>
           )}
           {viewingOwn && canSell && (
             <div className="mb-6 rounded-2xl border border-border bg-white p-4">
@@ -483,7 +496,7 @@ function MusicInner() {
                 </p>
               )}
               <p className="mb-2 text-[10px] text-muted">
-                Your net after platform fee ({Math.round(MUSIC_PLATFORM_FEE_RATE * 100)}%): shown only to
+                Your share is 90% after Lumen · Socialite’s {Math.round(MUSIC_PLATFORM_FEE_RATE * 100)}% fee — shown only to
                 artists on sale.
               </p>
               <input

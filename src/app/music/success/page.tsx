@@ -59,7 +59,7 @@ function SuccessInner() {
         href={storeHref}
         className="mt-6 rounded-full bg-gold px-5 py-2 text-[14px] font-bold text-white hover:bg-gold-deep"
       >
-        {artist ? `Open @${artist} store & download` : "Back to LumenTunes Store"}
+        {artist ? `Open @${artist} store & download` : "Back to Lumen · Socialite · Tunes"}
       </Link>
     </main>
   );
