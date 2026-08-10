@@ -862,10 +862,10 @@ export default function ProfilePage() {
               isOwner={!!isOwnProfile}
               verified={!!profile.verified}
             />
-            {profile.verified ||
-            (profile.username || "").toLowerCase() === "mikeavramov" ||
-            (profile.username || "").toLowerCase() === "thevip" ||
-            (profile.username || "").toLowerCase() === "kendall.vip" ? (
+            {(((profile as any).account_type === "musician" && profile.verified) ||
+            ["mikeavramov","mikeavramove","thevip","kendall.vip","mr.samsnuggles","mrsamsnuggles","samsnuggles","samsnuggles1"].includes(
+              (profile.username || "").toLowerCase()
+            )) ? (
               <p className="mt-2 text-center text-[12px]">
                 <Link
                   href={`/music?artist=${encodeURIComponent(profile.username)}`}

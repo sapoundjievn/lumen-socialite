@@ -51,12 +51,15 @@ function MusicInner() {
     "samsnuggles",
     "samsnuggles1",
   ].includes(uname);
+  const accountType = String((me as any)?.account_type || "").toLowerCase();
+  // All musician accounts (verified ones can sell automatically)
   const isMusician =
-    (me as any)?.account_type === "musician" || isFounder || isSpecialArtist;
+    accountType === "musician" || isFounder || isSpecialArtist;
+  // Every verified musician account may upload songs to the store
   const canSell =
     isFounder ||
     isSpecialArtist ||
-    (!!me?.verified && isMusician);
+    (isMusician && !!me?.verified);
   const viewingOwn =
     !!me &&
     !!artist &&
@@ -294,6 +297,11 @@ function MusicInner() {
           )}
 
           {/* ARTIST UPLOAD (owner only) */}
+          {viewingOwn && canSell && (
+            <p className="mb-3 rounded-xl border border-gold/40 bg-champagne/30 px-3 py-2 text-[12px] font-medium text-charcoal">
+              Verified musician — store uploads enabled (tracks 1–14).
+            </p>
+          )}
           {viewingOwn && !canSell && (
             <div className="mb-6 rounded-2xl border border-border bg-champagne/40 px-4 py-3 text-[13px] text-charcoal">
               <p className="font-bold">Samples only (free musician)</p>
