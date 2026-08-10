@@ -5,7 +5,9 @@ import {
   getMusicTracks,
   createMusicTrack,
   updateMusicTrack,
-  deleteMusicTrack, uploadMusicFile } from "@/lib/posts";
+  deleteMusicTrack,
+  uploadMusicFile,
+} from "@/lib/posts";
 import { supabase } from "@/lib/supabase";
 import type { MusicTrack } from "@/types";
 

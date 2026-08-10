@@ -10,7 +10,9 @@ import {
   createMusicTrack,
   updateMusicTrack,
   purchaseMusicTrack,
-  MUSIC_PLATFORM_FEE_RATE, uploadMusicFile } from "@/lib/posts";
+  MUSIC_PLATFORM_FEE_RATE,
+  uploadMusicFile,
+} from "@/lib/posts";
 import { supabase } from "@/lib/supabase";
 import type { Profile, MusicTrack } from "@/types";
 import Sidebar from "@/components/Sidebar";
