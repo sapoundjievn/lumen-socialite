@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -17,8 +17,7 @@ const EMPTY: SlotInfo[] = Array.from({ length: 14 }, (_, i) => ({
   description: "",
 }));
 
-export default function MusicInfoPage() {
-  const router = useRouter();
+function MusicInfoInner() {
   const searchParams = useSearchParams();
   const usernameParam = searchParams.get("u") || "";
 
@@ -31,19 +30,18 @@ export default function MusicInfoPage() {
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const isOwner =
-    !!viewerId &&
-    !!profile &&
-    viewerId === profile.id;
+  const isOwner = !!viewerId && !!profile && viewerId === profile.id;
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+      if (cancelled) return;
       setViewerId(user?.id || null);
 
-      // Whose music info? ?u=username or current user
       let targetId = user?.id || null;
       let targetProfile: any = null;
 
@@ -66,6 +64,7 @@ export default function MusicInfoPage() {
         targetProfile = data;
       }
 
+      if (cancelled) return;
       setProfile(targetProfile);
 
       if (targetId) {
@@ -74,6 +73,8 @@ export default function MusicInfoPage() {
           .select("slot, title, description")
           .eq("user_id", targetId)
           .order("slot", { ascending: true });
+
+        if (cancelled) return;
 
         const next = EMPTY.map((s) => {
           const row = (rows || []).find(
@@ -90,6 +91,10 @@ export default function MusicInfoPage() {
 
       setLoading(false);
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [usernameParam]);
 
   const openEdit = (slot: number) => {
@@ -182,9 +187,7 @@ export default function MusicInfoPage() {
       </header>
 
       <main className="max-w-xl mx-auto px-4 py-8">
-        <h1 className="text-xl font-semibold tracking-tight">
-          {displayName}
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight">{displayName}</h1>
         <p className="text-[13px] text-[#8a7e6e] mt-1 mb-8">
           Song information · 1–14
         </p>
@@ -194,14 +197,12 @@ export default function MusicInfoPage() {
             const isEditing = editSlot === s.slot;
             return (
               <div key={s.slot} className="flex gap-3">
-                {/* Number */}
                 <div className="flex-shrink-0 w-7 pt-0.5 text-right">
                   <span className="text-[15px] font-semibold text-[#c9a86c]">
                     {s.slot}.
                   </span>
                 </div>
 
-                {/* Content */}
                 <div className="flex-1 min-w-0 border-b border-[#ebe4da] pb-4">
                   {isEditing ? (
                     <div className="space-y-2">
@@ -267,5 +268,19 @@ export default function MusicInfoPage() {
         </p>
       </main>
     </div>
+  );
+}
+
+export default function MusicInfoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center text-[#8a7e6e] text-sm">
+          Loading…
+        </div>
+      }
+    >
+      <MusicInfoInner />
+    </Suspense>
   );
 }
