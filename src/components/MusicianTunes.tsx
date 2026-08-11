@@ -309,7 +309,7 @@ export default function MusicianTunes({
           href={username ? `/music?u=${encodeURIComponent(username)}` : "/music"}
           className="text-[11px] font-bold tracking-wide text-gold-deep hover:underline"
         >
-          LumenTunes · 1-min samples
+          LumenTunes — song descriptions
         </Link>
       </div>
       {/* Row 1: samples 1–7 evenly across full width */}
