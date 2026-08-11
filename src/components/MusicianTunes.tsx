@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Play, Pause, Square } from "lucide-react";
 import {
   getMusicTracks,
@@ -301,9 +302,17 @@ export default function MusicianTunes({
 
   return (
     <div className="w-full px-0">
-      <p className="mb-2 text-center text-[11px] font-bold tracking-wide text-gold-deep">
-        LumenTunes · 1-min samples
-      </p>
+      <div className="mb-2 text-center">
+        <Link
+          href="/music"
+          className="text-[11px] font-bold tracking-wide text-gold-deep hover:underline"
+        >
+          LumenTunes · 1-min samples
+        </Link>
+        <p className="mt-0.5 text-[10px] text-muted">
+          Tap to open song titles &amp; descriptions
+        </p>
+      </div>
       {/* Row 1: samples 1–7 evenly across full width */}
       <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">
         {row1.map((s) => (
