@@ -19,10 +19,12 @@ export default function MusicianTunes({
   profileId,
   isOwner,
   verified,
+  username,
 }: {
   profileId: string;
   isOwner: boolean;
   verified?: boolean;
+  username?: string;
 }) {
   const [tracks, setTracks] = useState<(MusicTrack | null)[]>(Array(SLOTS).fill(null));
   const [loading, setLoading] = useState(true);
@@ -304,14 +306,11 @@ export default function MusicianTunes({
     <div className="w-full px-0">
       <div className="mb-2 text-center">
         <Link
-          href="/music"
+          href={username ? `/music?u=${encodeURIComponent(username)}` : "/music"}
           className="text-[11px] font-bold tracking-wide text-gold-deep hover:underline"
         >
           LumenTunes · 1-min samples
         </Link>
-        <p className="mt-0.5 text-[10px] text-muted">
-          Tap to open song titles &amp; descriptions
-        </p>
       </div>
       {/* Row 1: samples 1–7 evenly across full width */}
       <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">
