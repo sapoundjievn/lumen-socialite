@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 type SlotInfo = {
   slot: number;
@@ -19,46 +20,56 @@ const EMPTY: SlotInfo[] = Array.from({ length: 14 }, (_, i) => ({
 
 function MusicInfoInner() {
   const searchParams = useSearchParams();
-  const usernameParam = searchParams.get("u") || "";
+  // Accept both ?u= and ?artist=
+  const usernameParam =
+    (searchParams.get("u") || searchParams.get("artist") || "").trim();
 
   const [profile, setProfile] = useState<any>(null);
   const [viewerId, setViewerId] = useState<string | null>(null);
   const [slots, setSlots] = useState<SlotInfo[]>(EMPTY);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [editSlot, setEditSlot] = useState<number | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
   const isOwner = !!viewerId && !!profile && viewerId === profile.id;
+  const backHref = profile?.username ? `/${profile.username}` : "/";
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
+      setLoading(true);
+      setNotFound(false);
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (cancelled) return;
       setViewerId(user?.id || null);
 
-      let targetId = user?.id || null;
       let targetProfile: any = null;
 
       if (usernameParam) {
+        // Always load the artist from the URL — never fall back to current user
         const { data } = await supabase
           .from("profiles")
-          .select("id, username, display_name, account_type, verified")
+          .select(
+            "id, username, display_name, account_type, verified, gender, avatar_url"
+          )
           .ilike("username", usernameParam)
           .maybeSingle();
-        if (data) {
-          targetId = data.id;
-          targetProfile = data;
-        }
+        targetProfile = data;
+        if (!data) setNotFound(true);
       } else if (user) {
+        // No ?u= — show logged-in user's own page
         const { data } = await supabase
           .from("profiles")
-          .select("id, username, display_name, account_type, verified")
+          .select(
+            "id, username, display_name, account_type, verified, gender, avatar_url"
+          )
           .eq("id", user.id)
           .maybeSingle();
         targetProfile = data;
@@ -67,11 +78,11 @@ function MusicInfoInner() {
       if (cancelled) return;
       setProfile(targetProfile);
 
-      if (targetId) {
+      if (targetProfile?.id) {
         const { data: rows } = await supabase
           .from("music_tracks")
           .select("slot, title, description")
-          .eq("user_id", targetId)
+          .eq("user_id", targetProfile.id)
           .order("slot", { ascending: true });
 
         if (cancelled) return;
@@ -82,11 +93,13 @@ function MusicInfoInner() {
           );
           return {
             slot: s.slot,
-            title: row?.title || "",
-            description: row?.description || "",
+            title: (row?.title as string) || "",
+            description: (row?.description as string) || "",
           };
         });
         setSlots(next);
+      } else {
+        setSlots(EMPTY);
       }
 
       setLoading(false);
@@ -162,8 +175,23 @@ function MusicInfoInner() {
     );
   }
 
-  const displayName =
-    profile?.display_name || profile?.username || "Artist";
+  if (notFound || !profile) {
+    return (
+      <div className="min-h-screen bg-[#faf8f5] text-[#2c2a26]">
+        <header className="border-b border-[#e8e0d5] bg-white/80 backdrop-blur sticky top-0 z-10">
+          <div className="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
+            <span className="font-semibold text-[15px]">LumenTunes</span>
+            <Link href="/" className="text-[13px] text-[#8a7e6e] hover:text-[#2c2a26]">
+              Back
+            </Link>
+          </div>
+        </header>
+        <main className="max-w-xl mx-auto px-4 py-16 text-center text-[#8a7e6e]">
+          Artist not found.
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-[#2c2a26]">
@@ -178,19 +206,36 @@ function MusicInfoInner() {
             <span className="font-semibold text-[15px]">LumenTunes</span>
           </Link>
           <Link
-            href={profile?.username ? `/${profile.username}` : "/"}
+            href={backHref}
             className="text-[13px] text-[#8a7e6e] hover:text-[#2c2a26]"
           >
-            Back
+            Back to profile
           </Link>
         </div>
       </header>
 
       <main className="max-w-xl mx-auto px-4 py-8">
-        <h1 className="text-xl font-semibold tracking-tight">{displayName}</h1>
-        <p className="text-[13px] text-[#8a7e6e] mt-1 mb-8">
-          Song information · 1–14
-        </p>
+        {/* Artist header — always the profile from URL */}
+        <div className="mb-8">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <h1 className="text-xl font-semibold tracking-tight">
+              {profile.display_name}
+            </h1>
+            {profile.verified && (
+              <VerifiedBadge
+                username={profile.username}
+                gender={profile.gender}
+                size="md"
+              />
+            )}
+          </div>
+          <p className="text-[14px] text-[#8a7e6e] mt-0.5">
+            @{profile.username}
+          </p>
+          <p className="text-[13px] text-[#8a7e6e] mt-2">
+            Song information · 1–14
+          </p>
+        </div>
 
         <div className="space-y-5">
           {slots.map((s) => {
