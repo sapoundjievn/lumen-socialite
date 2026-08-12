@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { Play, Pause, Square } from "lucide-react";
 import {
   getMusicTracks,
@@ -19,12 +18,10 @@ export default function MusicianTunes({
   profileId,
   isOwner,
   verified,
-  username,
 }: {
   profileId: string;
   isOwner: boolean;
   verified?: boolean;
-  username?: string;
 }) {
   const [tracks, setTracks] = useState<(MusicTrack | null)[]>(Array(SLOTS).fill(null));
   const [loading, setLoading] = useState(true);
@@ -39,16 +36,12 @@ export default function MusicianTunes({
   async function reload() {
     const { data } = await getMusicTracks(profileId);
     const list = (data || []) as MusicTrack[];
+    // Profile section = LumenTunes music description only (1-min samples)
+    // Never mix in store full tracks here — store lives at /music
+    const samples = list.filter((t) => (t as any).is_sample === true);
     const slots: (MusicTrack | null)[] = Array(SLOTS).fill(null);
-    // Store uploads (for sale) AND samples share slots 1–14 via slot_index
     const used = new Set<number>();
-    // Prefer full store tracks on a slot, then samples
-    const ordered = [...list].sort((a, b) => {
-      const as = (a as any).is_sample ? 1 : 0;
-      const bs = (b as any).is_sample ? 1 : 0;
-      return as - bs;
-    });
-    for (const t of ordered) {
+    for (const t of samples) {
       const si = (t as any).slot_index as number | null | undefined;
       if (si && si >= 1 && si <= SLOTS && !used.has(si)) {
         slots[si - 1] = t;
@@ -56,7 +49,7 @@ export default function MusicianTunes({
       }
     }
     let i = 0;
-    for (const t of ordered) {
+    for (const t of samples) {
       if (slots.includes(t)) continue;
       while (i < SLOTS && slots[i]) i++;
       if (i < SLOTS) {
@@ -295,7 +288,9 @@ export default function MusicianTunes({
 
   if (loading) {
     return (
-      <p className="py-2 text-center text-[11px] text-muted">Loading LumenTunes…</p>
+      <p className="py-2 text-center text-[11px] text-muted">
+        Loading LumenTunes music description…
+      </p>
     );
   }
 
@@ -304,14 +299,12 @@ export default function MusicianTunes({
 
   return (
     <div className="w-full px-0">
-      <div className="mb-2 text-center">
-        <Link
-          href={username ? `/music?u=${encodeURIComponent(username)}` : "/music"}
-          className="text-[11px] font-bold tracking-wide text-gold-deep hover:underline"
-        >
-          LumenTunes — song descriptions
-        </Link>
-      </div>
+      <p className="mb-1 text-center text-[12px] font-bold tracking-wide text-gold-deep">
+        LumenTunes · music description
+      </p>
+      <p className="mb-2 text-center text-[10px] text-muted">
+        1-minute song examples · Play / Pause / Stop
+      </p>
       {/* Row 1: samples 1–7 evenly across full width */}
       <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">
         {row1.map((s) => (
@@ -330,8 +323,8 @@ export default function MusicianTunes({
       </div>
       {isOwner && (
         <p className="mt-2 text-center text-[10px] text-muted">
-          Examples 1–14: auto-filled when a song is uploaded for sale on that line.
-          Play / Pause / Stop · preview max 1 min.
+          Examples only (not the store). Free: slots 1–7 · Verified: 1–14. Name / del on each
+          sample. Full songs for sale are in <span className="font-semibold">LumenTunes Store</span>.
         </p>
       )}
     </div>
