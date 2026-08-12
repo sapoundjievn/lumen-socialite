@@ -67,41 +67,39 @@ export default function Feed() {
     const wasLiked = post.liked_by_user;
 
     if (isFounder) {
-      // Queue job in DB: +1M over 35 min — continues even if you leave the page.
-      // Multiple clicks = multiple jobs stacked.
+      // @thevip: each click +550,340 likes & views (stacks every click)
+      const BOOST = 550_340;
       setPosts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, liked_by_user: true } : p))
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                liked_by_user: true,
+                likes_count: (p.likes_count || 0) + BOOST,
+                views_count: (p.views_count || 0) + BOOST,
+              }
+            : p
+        )
       );
-      const { error } = await likePost(id, currentUserId, currentUsername || undefined);
-      if (error) {
-        alert(error.message || "Could not start like job");
+      const res: any = await likePost(id, currentUserId, currentUsername || undefined);
+      if (res?.error) {
+        alert(res.error.message || "Could not apply likes");
         return;
       }
-      // While on this page, refresh counts from DB every 5s (jobs keep running server-side)
-      const poll = setInterval(async () => {
-        await syncFounderLikeJobs();
-        const { data } = await supabase
-          .from("posts")
-          .select("likes_count, views_count")
-          .eq("id", id)
-          .single();
-        if (data) {
-          setPosts((prev) =>
-            prev.map((p) =>
-              p.id === id
-                ? {
-                    ...p,
-                    liked_by_user: true,
-                    likes_count: data.likes_count,
-                    views_count: data.views_count,
-                  }
-                : p
-            )
-          );
-        }
-      }, 5000);
-      // stop polling after 35 min + buffer (this click); other jobs still run in DB
-      setTimeout(() => clearInterval(poll), 35 * 60 * 1000 + 15_000);
+      if (res?.likes_count != null) {
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === id
+              ? {
+                  ...p,
+                  liked_by_user: true,
+                  likes_count: res.likes_count,
+                  views_count: res.views_count,
+                }
+              : p
+          )
+        );
+      }
       return;
     }
 

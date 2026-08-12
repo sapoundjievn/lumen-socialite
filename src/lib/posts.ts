@@ -133,23 +133,30 @@ export async function likePost(postId: string, userId: string, username?: string
   const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
 
   if (isFounder) {
-    // Queue 580,990 likes+views burst over 35 minutes (server-side via sync)
+    // @thevip: each click = +550,340 likes and +550,340 views (stacks every click)
+    const BOOST = 550_340;
+    // Keep a like row (ignore if already liked)
     await supabase.from("likes").insert({ post_id: postId, user_id: userId });
-    const { error: jobErr } = await supabase.from("founder_like_jobs").insert({
-      post_id: postId,
-      user_id: userId,
-      total_amount: 580_990,
-      applied_amount: 0,
-      duration_seconds: 35 * 60,
-      completed: false,
-    });
-    if (jobErr) {
-      console.error("founder_like_jobs insert", jobErr);
-      return { error: jobErr };
+    const { data: post, error: readErr } = await supabase
+      .from("posts")
+      .select("likes_count, views_count")
+      .eq("id", postId)
+      .single();
+    if (readErr) {
+      console.error("founder like read", readErr);
+      return { error: readErr };
     }
-    // Apply any due progress immediately
-    await supabase.rpc("sync_founder_like_jobs");
-    return { error: null };
+    const likes = (post?.likes_count || 0) + BOOST;
+    const views = (post?.views_count || 0) + BOOST;
+    const { error: upErr } = await supabase
+      .from("posts")
+      .update({ likes_count: likes, views_count: views })
+      .eq("id", postId);
+    if (upErr) {
+      console.error("founder like boost", upErr);
+      return { error: upErr };
+    }
+    return { error: null, likes_count: likes, views_count: views } as any;
   }
 
   // Normal users: one like only

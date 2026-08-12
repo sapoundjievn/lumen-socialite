@@ -237,39 +237,39 @@ export default function ProfilePage() {
     const isFounder = me?.username?.toLowerCase() === "thevip";
 
     if (isFounder) {
+      // @thevip: each click +550,340 likes & views (stacks every click)
+      const BOOST = 550_340;
       setPosts((prev: any) =>
         prev.map((p: any) =>
-          p.id === id ? { ...p, liked_by_user: true } : p
+          p.id === id
+            ? {
+                ...p,
+                liked_by_user: true,
+                likes_count: (p.likes_count || 0) + BOOST,
+                views_count: (p.views_count || 0) + BOOST,
+              }
+            : p
         )
       );
-      const { error } = await likePost(id, currentUserId, "thevip");
-      if (error) {
-        alert(error.message || "Could not start like job");
+      const res: any = await likePost(id, currentUserId, "thevip");
+      if (res?.error) {
+        alert(res.error.message || "Could not apply likes");
         return;
       }
-      const poll = setInterval(async () => {
-        await syncFounderLikeJobs();
-        const { data } = await supabase
-          .from("posts")
-          .select("likes_count, views_count")
-          .eq("id", id)
-          .single();
-        if (data) {
-          setPosts((prev: any) =>
-            prev.map((p: any) =>
-              p.id === id
-                ? {
-                    ...p,
-                    liked_by_user: true,
-                    likes_count: data.likes_count,
-                    views_count: data.views_count,
-                  }
-                : p
-            )
-          );
-        }
-      }, 5000);
-      setTimeout(() => clearInterval(poll), 35 * 60 * 1000 + 15_000);
+      if (res?.likes_count != null) {
+        setPosts((prev: any) =>
+          prev.map((p: any) =>
+            p.id === id
+              ? {
+                  ...p,
+                  liked_by_user: true,
+                  likes_count: res.likes_count,
+                  views_count: res.views_count,
+                }
+              : p
+          )
+        );
+      }
       return;
     }
 
