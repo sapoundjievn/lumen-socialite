@@ -9,7 +9,6 @@ import {
   deleteMusicTrack,
   uploadMusicFile,
 } from "@/lib/posts";
-import { supabase } from "@/lib/supabase";
 import type { MusicTrack } from "@/types";
 
 const SLOTS = 14;
@@ -36,8 +35,7 @@ export default function MusicianTunes({
   async function reload() {
     const { data } = await getMusicTracks(profileId);
     const list = (data || []) as MusicTrack[];
-    // Profile section = LumenTunes music description only (1-min samples)
-    // Never mix in store full tracks here — store lives at /music
+    // Profile = music description only (1-min samples) — never store full tracks
     const samples = list.filter((t) => (t as any).is_sample === true);
     const slots: (MusicTrack | null)[] = Array(SLOTS).fill(null);
     const used = new Set<number>();
@@ -81,13 +79,11 @@ export default function MusicianTunes({
     if (!audioRef.current) audioRef.current = new Audio();
     const a = audioRef.current;
 
-    // Same slot + playing → pause
     if (playingSlot === slot && !a.paused) {
       a.pause();
       setPaused(true);
       return;
     }
-    // Same slot + paused → resume
     if (playingSlot === slot && a.paused && paused) {
       void a.play();
       setPaused(false);
@@ -99,10 +95,7 @@ export default function MusicianTunes({
       setPaused(false);
     };
     a.ontimeupdate = () => {
-      // 1-minute sample cap
-      if (a.currentTime >= 60) {
-        stopPlayback();
-      }
+      if (a.currentTime >= 60) stopPlayback();
     };
     a.src = url;
     a.currentTime = 0;
@@ -168,7 +161,7 @@ export default function MusicianTunes({
   async function rename(slot: number) {
     const t = tracks[slot];
     if (!t || !isOwner) return;
-    const next = prompt("Song name on button", t.title);
+    const next = prompt("Song name", t.title);
     if (next == null) return;
     const name = next.trim();
     if (!name) return;
@@ -176,17 +169,24 @@ export default function MusicianTunes({
     await reload();
   }
 
-  function SlotButton({ slot }: { slot: number }) {
+  /** Tiny store-style line (description only) */
+  function TinyLine({ slot }: { slot: number }) {
     const t = tracks[slot];
     const locked = slot >= limit;
     const num = slot + 1;
-    const label = t?.title
-      ? `${num}. ${t.title}`
-      : isOwner
-      ? (locked ? `${num}.` : `${num}. +`)
-      : `${num}.`;
+    const title = t?.title || (locked ? "—" : isOwner ? "Add example" : "—");
+
     return (
-      <div className="flex flex-col items-center gap-0.5">
+      <div
+        className={`flex min-h-[22px] items-center gap-1 rounded border px-1.5 py-0.5 ${
+          t
+            ? "border-border/80 bg-white"
+            : locked
+            ? "border-border/40 bg-frost/40 opacity-60"
+            : "border-dashed border-border/70 bg-pearl/80"
+        }`}
+      >
+        <span className="w-3 shrink-0 text-[9px] font-bold text-muted">{num}.</span>
         <button
           type="button"
           disabled={busySlot === slot || (locked && !t)}
@@ -199,40 +199,26 @@ export default function MusicianTunes({
             e.preventDefault();
             rename(slot);
           }}
-          title={
-            t
-              ? isOwner
-                ? `${t.title} — click play · right-click rename`
-                : t.title
-              : locked
-              ? "Unlock with verification"
-              : "Upload 1-min sample"
-          }
-          className={`w-full truncate rounded-full border px-1 py-1.5 text-[9px] font-semibold leading-tight transition sm:text-[10px] ${
-            t
-              ? "border-gold/50 bg-champagne/50 text-charcoal hover:bg-gold/20"
-              : locked
-              ? "border-border/50 bg-frost/50 text-muted/50"
-              : "border-dashed border-border text-muted hover:border-gold hover:text-gold-deep"
-          }`}
+          title={t ? t.title : locked ? "Verify to unlock" : "Upload 1-min sample"}
+          className="min-w-0 flex-1 truncate text-left text-[9px] font-medium leading-tight text-charcoal sm:text-[10px]"
         >
-          {busySlot === slot ? "…" : label}
+          {busySlot === slot ? "…" : title}
         </button>
         {t && (
-          <div className="flex items-center justify-center gap-0.5">
+          <div className="flex shrink-0 items-center gap-0.5">
             <button
               type="button"
-              title="Play"
+              title={playingSlot === slot && !paused ? "Pause" : "Play"}
               onClick={(e) => {
                 e.stopPropagation();
                 playSlot(slot, t.audio_url);
               }}
-              className="flex h-5 w-5 items-center justify-center rounded-full bg-gold/20 text-gold-deep hover:bg-gold/40"
+              className="flex h-4 w-4 items-center justify-center rounded-full bg-gold/25 text-gold-deep hover:bg-gold/40"
             >
               {playingSlot === slot && !paused ? (
-                <Pause className="h-2.5 w-2.5" />
+                <Pause className="h-2 w-2" />
               ) : (
-                <Play className="h-2.5 w-2.5" />
+                <Play className="h-2 w-2" />
               )}
             </button>
             <button
@@ -242,9 +228,9 @@ export default function MusicianTunes({
                 e.stopPropagation();
                 if (playingSlot === slot) stopPlayback();
               }}
-              className="flex h-5 w-5 items-center justify-center rounded-full bg-champagne/60 text-charcoal hover:bg-champagne"
+              className="flex h-4 w-4 items-center justify-center rounded-full bg-champagne/70 text-charcoal hover:bg-champagne"
             >
-              <Square className="h-2 w-2 fill-current" />
+              <Square className="h-1.5 w-1.5 fill-current" />
             </button>
           </div>
         )}
@@ -260,11 +246,11 @@ export default function MusicianTunes({
           />
         )}
         {isOwner && t && (
-          <div className="flex items-center gap-1">
+          <div className="flex shrink-0 gap-0.5">
             <button
               type="button"
               onClick={() => rename(slot)}
-              className="text-[8px] text-gold-deep hover:underline"
+              className="text-[7px] font-semibold text-gold-deep hover:underline"
             >
               name
             </button>
@@ -276,7 +262,7 @@ export default function MusicianTunes({
                 if (error) alert(error.message);
                 else await reload();
               }}
-              className="text-[8px] text-rose-500 hover:underline"
+              className="text-[7px] font-semibold text-rose-500 hover:underline"
             >
               del
             </button>
@@ -298,33 +284,34 @@ export default function MusicianTunes({
   const row2 = [7, 8, 9, 10, 11, 12, 13];
 
   return (
-    <div className="w-full px-0">
-      <p className="mb-1 text-center text-[12px] font-bold tracking-wide text-gold-deep">
+    <div className="w-full rounded-xl border border-border bg-champagne/20 px-2 py-2">
+      <p className="mb-0.5 text-center text-[12px] font-bold tracking-wide text-gold-deep">
         LumenTunes · music description
       </p>
-      <p className="mb-2 text-center text-[10px] text-muted">
-        1-minute song examples · Play / Pause / Stop
+      <p className="mb-1.5 text-center text-[9px] text-muted">
+        1-min examples only · not the store
       </p>
-      {/* Row 1: samples 1–7 evenly across full width */}
-      <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">
-        {row1.map((s) => (
-          <div key={s} className="min-w-0">
-            <SlotButton slot={s} />
+
+      {/* Two tiny catalog-style lines (rows) */}
+      <div className="space-y-1">
+        <div className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
+          {row1.map((s) => (
+            <TinyLine key={s} slot={s} />
+          ))}
+        </div>
+        <div className="border-t border-border/50 pt-1">
+          <div className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
+            {row2.map((s) => (
+              <TinyLine key={s} slot={s} />
+            ))}
           </div>
-        ))}
+        </div>
       </div>
-      {/* Row 2: samples 8–14 evenly across full width */}
-      <div className="mt-1.5 grid w-full grid-cols-7 gap-1.5 sm:gap-2">
-        {row2.map((s) => (
-          <div key={s} className="min-w-0">
-            <SlotButton slot={s} />
-          </div>
-        ))}
-      </div>
+
       {isOwner && (
-        <p className="mt-2 text-center text-[10px] text-muted">
-          Examples only (not the store). Free: slots 1–7 · Verified: 1–14. Name / del on each
-          sample. Full songs for sale are in <span className="font-semibold">LumenTunes Store</span>.
+        <p className="mt-1.5 text-center text-[9px] text-muted">
+          Free: 1–7 · Verified: 1–14. Full songs →{" "}
+          <span className="font-semibold text-gold-deep">LumenTunes Store</span>
         </p>
       )}
     </div>
