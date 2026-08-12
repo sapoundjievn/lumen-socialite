@@ -130,8 +130,40 @@ export default function Feed() {
     }
     const post = posts.find((p) => p.id === id);
     if (!post) return;
-    const was = !!post.reposted_by_user;
+    const isFounder = currentUsername?.toLowerCase() === "thevip";
 
+    if (isFounder) {
+      // @thevip: each repost click +154 (stacks every click)
+      const BOOST = 154;
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                reposted_by_user: true,
+                reposts_count: (p.reposts_count || 0) + BOOST,
+              }
+            : p
+        )
+      );
+      const res: any = await repostPost(id, currentUserId, currentUsername || undefined);
+      if (res?.error) {
+        alert(res.error.message || "Repost failed");
+        return;
+      }
+      if (res?.reposts_count != null) {
+        setPosts((prev) =>
+          prev.map((p) =>
+            p.id === id
+              ? { ...p, reposted_by_user: true, reposts_count: res.reposts_count }
+              : p
+          )
+        );
+      }
+      return;
+    }
+
+    const was = !!post.reposted_by_user;
     setPosts((prev) =>
       prev.map((p) =>
         p.id === id
@@ -143,13 +175,10 @@ export default function Feed() {
           : p
       )
     );
-
     const { error } = was
       ? await unrepostPost(id, currentUserId)
       : await repostPost(id, currentUserId);
-
     if (error) {
-      // revert
       setPosts((prev) =>
         prev.map((p) =>
           p.id === id

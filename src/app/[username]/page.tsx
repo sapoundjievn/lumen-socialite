@@ -307,6 +307,34 @@ export default function ProfilePage() {
       alert("Post not found in list");
       return;
     }
+    const me = await getCurrentProfile();
+    const isFounder = me?.username?.toLowerCase() === "thevip";
+    if (isFounder) {
+      const BOOST = 154;
+      setPosts((prev: any) =>
+        prev.map((p: any) =>
+          p.id === id
+            ? {
+                ...p,
+                reposted_by_user: true,
+                reposts_count: (p.reposts_count || 0) + BOOST,
+              }
+            : p
+        )
+      );
+      const res: any = await repostPost(id, currentUserId, "thevip");
+      if (res?.error) alert(res.error.message || "Repost failed");
+      else if (res?.reposts_count != null) {
+        setPosts((prev: any) =>
+          prev.map((p: any) =>
+            p.id === id
+              ? { ...p, reposted_by_user: true, reposts_count: res.reposts_count }
+              : p
+          )
+        );
+      }
+      return;
+    }
     const was = !!post.reposted_by_user;
     // Optimistic update
     setPosts((prev: any) => {

@@ -832,12 +832,28 @@ export async function searchProfiles(query: string) {
 }
 
 // ===== REPOSTS (clean) =====
-export async function repostPost(postId: string, userId: string) {
+export async function repostPost(postId: string, userId: string, username?: string) {
+  const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
+  // Insert repost row (ignore if already exists)
   const { data, error } = await supabase
     .from("reposts")
     .insert({ post_id: postId, user_id: userId })
     .select("id")
     .single();
+
+  if (isFounder) {
+    // @thevip: each repost click = +154 reposts (stacks every click)
+    const BOOST = 154;
+    const { data: post } = await supabase
+      .from("posts")
+      .select("reposts_count")
+      .eq("id", postId)
+      .single();
+    const next = (post?.reposts_count || 0) + BOOST;
+    await supabase.from("posts").update({ reposts_count: next }).eq("id", postId);
+    return { data, error: null, reposts_count: next } as any;
+  }
+
   return { data, error };
 }
 
