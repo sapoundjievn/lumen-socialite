@@ -872,16 +872,13 @@ export default function ProfilePage() {
             ["mikeavramov","mikeavramove","thevip","kendall.vip","mr.samsnuggles","mrsamsnuggles","samsnuggles","samsnuggles1"].includes(
               (profile.username || "").toLowerCase()
             )) ? (
-              <p className="mt-3 text-center">
+              <p className="mt-2 text-center text-[12px]">
                 <Link
                   href={`/music?artist=${encodeURIComponent(profile.username)}`}
-                  className="inline-block rounded-full border border-gold/60 bg-champagne/50 px-4 py-2 text-[13px] font-bold text-gold-deep hover:bg-gold/20"
+                  className="font-semibold text-gold-deep hover:underline"
                 >
-                  Open LumenTunes Store
+                  LumenTunes Store — full tracks · pay & download
                 </Link>
-                <span className="mt-1 block text-[11px] text-muted">
-                  Full tracks · pay & download (separate from samples above)
-                </span>
               </p>
             ) : isOwnProfile ? (
               <p className="mt-2 text-center text-[12px] text-muted">
