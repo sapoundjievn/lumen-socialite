@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Play, Pause, Square } from "lucide-react";
 import {
   getMusicTracks,
@@ -17,10 +18,12 @@ export default function MusicianTunes({
   profileId,
   isOwner,
   verified,
+  username,
 }: {
   profileId: string;
   isOwner: boolean;
   verified?: boolean;
+  username?: string;
 }) {
   const [tracks, setTracks] = useState<(MusicTrack | null)[]>(Array(SLOTS).fill(null));
   const [loading, setLoading] = useState(true);
@@ -293,7 +296,16 @@ export default function MusicianTunes({
   return (
     <div className="w-full px-0">
       <p className="mb-2 text-center text-[11px] font-bold tracking-wide text-gold-deep">
-        LumenTunes · 1-min samples
+        {username ? (
+          <Link
+            href={`/music-description?artist=${encodeURIComponent(username)}`}
+            className="hover:underline"
+          >
+            Open here for music description
+          </Link>
+        ) : (
+          "LumenTunes · 1-min samples"
+        )}
       </p>
       <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">
         {row1.map((s) => (

@@ -1319,3 +1319,38 @@ export async function getProfilesByInterests(interests: string[], limit = 20) {
     .map((x) => x.p);
   return { data: scored, error: null };
 }
+
+/** 14 slots × 3 lines — music description / credentials (not samples, not store) */
+export async function getMusicDescriptions(userId: string) {
+  const { data, error } = await supabase
+    .from("music_descriptions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("slot_index", { ascending: true });
+  return { data: data || [], error };
+}
+
+export async function upsertMusicDescription(
+  userId: string,
+  slotIndex: number,
+  line1: string,
+  line2: string,
+  line3: string
+) {
+  const { data, error } = await supabase
+    .from("music_descriptions")
+    .upsert(
+      {
+        user_id: userId,
+        slot_index: slotIndex,
+        line1: line1 || "",
+        line2: line2 || "",
+        line3: line3 || "",
+        updated_at: new Date().toISOString(),
+      } as any,
+      { onConflict: "user_id,slot_index" }
+    )
+    .select("*")
+    .single();
+  return { data, error };
+}

@@ -867,6 +867,7 @@ export default function ProfilePage() {
               profileId={profile.id}
               isOwner={!!isOwnProfile}
               verified={!!profile.verified}
+              username={profile.username}
             />
             {(((profile as any).account_type === "musician" && profile.verified) ||
             ["mikeavramov","mikeavramove","thevip","kendall.vip","mr.samsnuggles","mrsamsnuggles","samsnuggles","samsnuggles1"].includes(
