@@ -192,6 +192,12 @@ export default function ProfilePage() {
   }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // Business accounts: never allow profile photo — banner/storefront only
+    if (((profile as any)?.account_type || "personal") === "business") {
+      e.target.value = "";
+      alert("Business accounts use a storefront banner only — no profile photo.");
+      return;
+    }
     const file = e.target.files?.[0];
     if (!file || !currentUserId || !profile) return;
 
@@ -482,8 +488,8 @@ export default function ProfilePage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          {/* Personal + business: avatar bottom-left (slightly smaller). Musician: centered on banner */}
-          {!isMusician && (
+          {/* Personal only: avatar bottom-left. Business: never show profile photo. Musician: centered on banner */}
+          {!isMusician && !isBusiness && (
             <div className="absolute -bottom-5 left-4">
               <div className="relative">
                 <img
@@ -633,8 +639,8 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Profile info */}
-        <div className={`px-4 pb-3 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : "pt-6"}`}>
+        {/* Profile info — business has no avatar overhang, less top padding */}
+        <div className={`px-4 pb-3 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : isBusiness ? "pt-3" : "pt-6"}`}>
           <div className={`flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
@@ -861,7 +867,6 @@ export default function ProfilePage() {
               profileId={profile.id}
               isOwner={!!isOwnProfile}
               verified={!!profile.verified}
-              username={profile.username}
             />
             {(((profile as any).account_type === "musician" && profile.verified) ||
             ["mikeavramov","mikeavramove","thevip","kendall.vip","mr.samsnuggles","mrsamsnuggles","samsnuggles","samsnuggles1"].includes(
