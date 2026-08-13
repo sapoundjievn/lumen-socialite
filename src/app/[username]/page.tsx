@@ -558,9 +558,10 @@ export default function ProfilePage() {
   const accountType = ((profile as any).account_type || "personal") as string;
   const isBusiness = accountType === "business";
   const unameLower = (profile?.username || "").toLowerCase();
-  // Music layout/slots ONLY for real musician accounts — NEVER founders @thevip / @kendall.vip
+  // Music layout ONLY for musician accounts — NEVER founders @thevip / @kendall.vip
+  // All account_type=musician get the same layout as @mikeavramov (screenshot reference)
   const isMusician =
-    !["thevip", "kendall.vip"].includes(unameLower) &&
+    !["thevip", "kendall.vip", "kennicktechnologies"].includes(unameLower) &&
     (accountType === "musician" ||
       [
         "mikeavramov",
@@ -674,8 +675,8 @@ export default function ProfilePage() {
 
           {isMusician && (
             <>
-              {/* Photo exact center of banner */}
-              <div className="absolute left-1/2 top-1/2 z-[5] -translate-x-1/2 -translate-y-1/2">
+              {/* Avatar bottom-center of banner (same for ALL musician accounts) */}
+              <div className="absolute bottom-0 left-1/2 z-[5] -translate-x-1/2 translate-y-1/2">
                 <div className="relative">
                   <img
                     src={avatar}
@@ -688,7 +689,7 @@ export default function ProfilePage() {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploading}
-                        className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
+                        className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
                         title="Change photo"
                       >
                         {uploading ? (
@@ -706,24 +707,6 @@ export default function ProfilePage() {
                       />
                     </>
                   )}
-                </div>
-              </div>
-              {/* Name + @tag right under banner bottom border (all musician accounts) */}
-              <div className="absolute left-0 right-0 top-full z-[6] flex flex-col items-center border-t border-border bg-pearl px-4 pt-0.5 pb-1 text-center" style={{ marginTop: "-7mm" }}>
-                <div className="flex max-w-full items-center justify-center gap-1.5">
-                  <h2 className="truncate text-[17px] font-bold leading-tight text-charcoal sm:text-xl">
-                    {profile.display_name}
-                  </h2>
-                  {(profile.verified || isForcedVerifiedUsername(profile.username)) && (
-                    <VerifiedBadge
-                      username={profile.username}
-                      gender={(profile as any).gender}
-                      size="md"
-                    />
-                  )}
-                </div>
-                <div className="mt-0.5 text-[15px] font-medium text-charcoal">
-                  @{profile.username}
                 </div>
               </div>
             </>
@@ -794,7 +777,7 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        <div className={`px-4 pb-3 ${isMusician ? "pt-[calc(4rem-11mm)] sm:pt-[calc(4.5rem-11mm)]" : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-[calc(1.5rem-4mm)]"}`}>
+        <div className={`px-4 pb-3 ${isMusician ? "pt-12 sm:pt-14" : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-[calc(1.5rem-4mm)]"}`}>
           <div className={`flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
@@ -842,7 +825,25 @@ export default function ProfilePage() {
               )}
             </div>
             )}
-            {isMusician && <div className="hidden" />}
+            {isMusician && (
+              <div className="mb-2 flex w-full flex-col items-center text-center">
+                <div className="flex max-w-full items-center justify-center gap-1.5">
+                  <h2 className="truncate text-[17px] font-bold leading-tight text-charcoal sm:text-xl">
+                    {profile.display_name}
+                  </h2>
+                  {(profile.verified || isForcedVerifiedUsername(profile.username)) && (
+                    <VerifiedBadge
+                      username={profile.username}
+                      gender={(profile as any).gender}
+                      size="md"
+                    />
+                  )}
+                </div>
+                <div className="mt-0.5 text-[15px] font-medium text-muted">
+                  @{profile.username}
+                </div>
+              </div>
+            )}
 
             {!isOwnProfile && (
               <div className={`flex flex-shrink-0 gap-2 ${isMusician ? "flex-row justify-center" : "flex-col sm:flex-row"}`}>
