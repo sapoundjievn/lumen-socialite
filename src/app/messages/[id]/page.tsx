@@ -60,20 +60,25 @@ export default function ConversationPage() {
     }
     setMeId(me.id);
 
-    const { data: members } = await supabase
+    const { data: members, error: memErr } = await supabase
       .from("conversation_members")
       .select("user_id")
-      .eq("conversation_id", convId)
-      .neq("user_id", me.id);
+      .eq("conversation_id", convId);
 
-    if (members && members[0]) {
-      setOtherId(members[0].user_id);
+    if (memErr) {
+      console.warn("members", memErr.message);
+    }
+    const otherMember = (members || []).find((m: any) => m.user_id !== me.id);
+    if (otherMember) {
+      setOtherId(otherMember.user_id);
       const { data: p } = await supabase
         .from("profiles")
         .select("username, display_name, avatar_url, verified, gender")
-        .eq("id", members[0].user_id)
+        .eq("id", otherMember.user_id)
         .single();
       if (p) setOther(p);
+    } else {
+      setOtherId(null);
     }
 
     const { data } = await getMessages(convId);
@@ -97,20 +102,38 @@ export default function ConversationPage() {
   }
 
   async function startCall(kind: "audio" | "video") {
-    if (!meId || !otherId) {
+    if (!meId) {
       alert("Sign in required");
       return;
     }
+    if (!otherId) {
+      alert("Could not find the other person in this chat. Open the conversation again.");
+      return;
+    }
     try {
+      // Unlock audio so rings work after this tap
+      try {
+        const { unlockAudio, playCallRing } = await import("@/lib/messageAlerts");
+        await unlockAudio();
+        playCallRing(kind === "video" ? "video" : "audio");
+      } catch {
+        /* */
+      }
       const { data, error } = await createCallSession({
         callerId: meId,
         calleeId: otherId,
         kind,
       });
       if (error || !data) {
+        try {
+          const { stopCallRing } = await import("@/lib/messageAlerts");
+          stopCallRing();
+        } catch {
+          /* */
+        }
         alert(
           error?.message ||
-            "Could not start call — run calls-webrtc.sql in Supabase SQL Editor."
+            "Could not start call — run calls-rls-twoway.sql in Supabase SQL Editor."
         );
         return;
       }

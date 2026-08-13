@@ -1454,3 +1454,22 @@ export async function upsertMusicDescription(
     .single();
   return { data, error };
 }
+
+
+export async function getLatestNotification(userId: string) {
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  const row: any = data;
+  return {
+    id: String(row.id),
+    type: row.type ? String(row.type) : undefined,
+    body: String(row.message || row.body || row.content || row.type || "New notification"),
+  };
+}
+

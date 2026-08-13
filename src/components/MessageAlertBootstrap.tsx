@@ -2,30 +2,32 @@
 
 import { useEffect } from "react";
 import { getCurrentUser } from "@/lib/auth";
-import { getLatestIncomingMessage } from "@/lib/posts";
+import { getLatestIncomingMessage, getLatestNotification } from "@/lib/posts";
 import {
   requestMessageAlertPermission,
   startMessageAlertWatcher,
+  startNotificationAlertWatcher,
+  unlockAudio,
 } from "@/lib/messageAlerts";
 
-/** Mount once in layout: ring + vibrate on new DMs */
+/** Mount once: rings for DMs + notifications */
 export default function MessageAlertBootstrap() {
   useEffect(() => {
-    let stop: (() => void) | undefined;
-    let unlocked = false;
+    let stopMsg: (() => void) | undefined;
+    let stopNotif: (() => void) | undefined;
 
     const unlock = () => {
-      if (unlocked) return;
-      unlocked = true;
+      void unlockAudio();
       void requestMessageAlertPermission();
     };
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    window.addEventListener("touchstart", unlock);
 
     (async () => {
       const user = await getCurrentUser();
       if (!user) return;
-      stop = startMessageAlertWatcher(user.id, async () => {
+      stopMsg = startMessageAlertWatcher(user.id, async () => {
         const row = await getLatestIncomingMessage(user.id);
         if (!row) return null;
         return {
@@ -34,12 +36,17 @@ export default function MessageAlertBootstrap() {
           content: row.content || "",
         };
       });
+      stopNotif = startNotificationAlertWatcher(user.id, async () => {
+        return await getLatestNotification(user.id);
+      });
     })();
 
     return () => {
-      stop?.();
+      stopMsg?.();
+      stopNotif?.();
       window.removeEventListener("pointerdown", unlock);
       window.removeEventListener("keydown", unlock);
+      window.removeEventListener("touchstart", unlock);
     };
   }, []);
 

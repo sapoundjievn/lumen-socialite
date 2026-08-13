@@ -11,6 +11,7 @@ import {
   CALL_ICE_SERVERS,
 } from "@/lib/calls";
 import { supabase } from "@/lib/supabase";
+import { playCallRing, stopCallRing, unlockAudio } from "@/lib/messageAlerts";
 
 type SignalRow = {
   id: string;
@@ -177,10 +178,12 @@ export default function CallPage() {
           return;
         }
         if (call.status === "ended") {
+          stopCallRing();
           setStatus("Call ended");
           cleanupMedia();
           setTimeout(() => router.back(), 700);
         } else if (call.status === "declined") {
+          stopCallRing();
           setStatus("Declined");
           setError("The other person declined the call.");
           cleanupMedia();
@@ -280,6 +283,11 @@ export default function CallPage() {
         const isVideo = call.kind === "video";
         setKind(isVideo ? "video" : "audio");
         setStatus(isCaller ? "Calling…" : "Connecting…");
+        void unlockAudio();
+        // Outgoing ring for caller until connected / declined
+        if (isCaller) {
+          playCallRing(isVideo ? "video" : "audio");
+        }
 
         if (!navigator?.mediaDevices?.getUserMedia) {
           fail("This browser does not support calls.");
@@ -372,9 +380,11 @@ export default function CallPage() {
         pc.onconnectionstatechange = () => {
           const s = pc.connectionState;
           if (s === "connected") {
+            stopCallRing();
             setStatus("Connected");
             setError(null);
           } else if (s === "failed") {
+            stopCallRing();
             fail("Connection failed. Check network and tap Retry.");
           } else if (s === "disconnected") {
             setStatus("Disconnected — trying to recover…");
@@ -432,6 +442,7 @@ export default function CallPage() {
 
     return () => {
       alive = false;
+      stopCallRing();
       if (pollTimer) window.clearInterval(pollTimer);
       if (statusTimer) window.clearInterval(statusTimer);
       if (waitActive) window.clearInterval(waitActive);
@@ -447,6 +458,7 @@ export default function CallPage() {
 
   async function hangUp() {
     endedRef.current = true;
+    stopCallRing();
     try {
       if (meIdRef.current) {
         await sendCallSignal({
