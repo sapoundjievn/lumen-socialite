@@ -505,17 +505,18 @@ export default function ProfilePage() {
   const accountType = ((profile as any).account_type || "personal") as string;
   const isBusiness = accountType === "business";
   const unameLower = (profile?.username || "").toLowerCase();
+  // 1-min music examples ONLY for musician accounts + founders/special artists (not personal)
   const isMusician =
     accountType === "musician" ||
     [
+      "thevip",
+      "kendall.vip",
       "mikeavramov",
       "mikeavramove",
       "mr.samsnuggles",
       "mrsamsnuggles",
       "samsnuggles1",
       "samsnuggles",
-      "thevip",
-      "kendall.vip",
     ].includes(unameLower);
   // Privileged: @thevip 100% owner, @kendall.vip co-founder, @kennicktechnologies company
   const isProtectedFounder = [
