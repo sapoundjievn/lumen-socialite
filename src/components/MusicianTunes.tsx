@@ -25,7 +25,9 @@ export default function MusicianTunes({
   verified?: boolean;
   username?: string;
 }) {
-  const [tracks, setTracks] = useState<(MusicTrack | null)[]>(Array(SLOTS).fill(null));
+  const [tracks, setTracks] = useState<(MusicTrack | null)[]>(
+    Array(SLOTS).fill(null)
+  );
   const [loading, setLoading] = useState(true);
   const [busySlot, setBusySlot] = useState<number | null>(null);
   const [playingSlot, setPlayingSlot] = useState<number | null>(null);
@@ -35,33 +37,50 @@ export default function MusicianTunes({
 
   const limit = verified ? 14 : 7;
 
+  function sampleName(t: MusicTrack, num: number) {
+    const raw = t?.title != null ? String(t.title).trim() : "";
+    return raw || `Song ${num}`;
+  }
+
   async function reload() {
     const { data } = await getMusicTracks(profileId);
     const list = (data || []) as MusicTrack[];
-    const samples = list.filter((t) => (t as any).is_sample === true);
+    // 1-min examples: is_sample true, OR free slot track (price 0 / null) with slot_index
+    const samples = list.filter((t) => {
+      const any = t as any;
+      if (any.is_sample === true) return true;
+      if (any.is_sample === false) return false;
+      // legacy rows without is_sample
+      return any.slot_index != null && Number(any.price_cents || 0) === 0;
+    });
+
     const slots: (MusicTrack | null)[] = Array(SLOTS).fill(null);
     const used = new Set<number>();
+
     for (const t of samples) {
       const si = (t as any).slot_index as number | null | undefined;
       if (si && si >= 1 && si <= SLOTS && !used.has(si)) {
-        // Always show a name on 1-min examples
-        const title =
-          (t.title && String(t.title).trim()) || `Song ${si}`;
-        slots[si - 1] = { ...t, title };
+        slots[si - 1] = {
+          ...t,
+          title: sampleName(t, si),
+        };
         used.add(si);
       }
     }
+
     let i = 0;
     for (const t of samples) {
-      if (slots.includes(t)) continue;
+      if (slots.some((s) => s && s.id === t.id)) continue;
       while (i < SLOTS && slots[i]) i++;
       if (i < SLOTS) {
-        const title =
-          (t.title && String(t.title).trim()) || `Song ${i + 1}`;
-        slots[i] = { ...t, title };
+        slots[i] = {
+          ...t,
+          title: sampleName(t, i + 1),
+        };
         i++;
       }
     }
+
     setTracks(slots);
     setLoading(false);
   }
@@ -83,6 +102,7 @@ export default function MusicianTunes({
   }
 
   function playSlot(slot: number, url: string) {
+    if (!url) return;
     if (!audioRef.current) audioRef.current = new Audio();
     const a = audioRef.current;
 
@@ -92,7 +112,7 @@ export default function MusicianTunes({
       return;
     }
     if (playingSlot === slot && a.paused && paused) {
-      void a.play();
+      void a.play().catch(() => {});
       setPaused(false);
       return;
     }
@@ -146,7 +166,7 @@ export default function MusicianTunes({
       const { url, error: upErr } = await uploadMusicFile(
         profileId,
         file,
-        "slot-" + (slot + 1)
+        "sample-slot-" + (slot + 1)
       );
       if (upErr || !url) throw new Error(upErr?.message || "Upload failed");
 
@@ -168,7 +188,7 @@ export default function MusicianTunes({
         if (error) {
           throw new Error(
             error.message ||
-              "Saved file but database rejected track — check music_tracks RLS policies"
+              "Saved file but database rejected track — check music_tracks RLS"
           );
         }
       }
@@ -182,7 +202,7 @@ export default function MusicianTunes({
   async function rename(slot: number) {
     const t = tracks[slot];
     if (!t || !isOwner) return;
-    const next = prompt("Song name on button", t.title);
+    const next = prompt("Song name", t.title || `Song ${slot + 1}`);
     if (next == null) return;
     const name = next.trim();
     if (!name) return;
@@ -194,22 +214,17 @@ export default function MusicianTunes({
     const t = tracks[slot];
     const locked = slot >= limit;
     const num = slot + 1;
-    const songName =
-      (t?.title && String(t.title).trim()) || (t ? "Song " + num : "");
-    const label = t
-      ? num + ". " + songName
-      : isOwner
-      ? locked
-        ? num + "."
-        : num + ". +"
-      : num + ".";
+    const songName = t ? sampleName(t, num) : "";
+    const hasAudio = !!(t && t.audio_url);
+
     return (
-      <div className="flex flex-col items-center gap-0.5">
+      <div className="flex min-w-0 flex-col items-center gap-0.5">
+        {/* Numbered play box (same style as before) */}
         <button
           type="button"
           disabled={busySlot === slot || (locked && !t)}
           onClick={() => {
-            if (t) playSlot(slot, t.audio_url);
+            if (hasAudio) playSlot(slot, t!.audio_url);
             else if (isOwner && !locked) fileRefs.current[slot]?.click();
           }}
           onContextMenu={(e) => {
@@ -219,9 +234,7 @@ export default function MusicianTunes({
           }}
           title={
             t
-              ? isOwner
-                ? songName + " — click play · right-click rename"
-                : songName
+              ? songName
               : locked
               ? "Unlock with verification"
               : "Upload 1-min sample"
@@ -235,23 +248,35 @@ export default function MusicianTunes({
               : "border-dashed border-border text-muted hover:border-gold hover:text-gold-deep")
           }
         >
-          {busySlot === slot ? "…" : label}
+          {busySlot === slot ? "…" : t ? `${num}. ${songName}` : isOwner && !locked ? `${num}. +` : `${num}.`}
         </button>
+
+        {/* Song name always under the box when uploaded */}
         {t && (
-          <div className="flex items-center justify-center gap-0.5">
+          <p
+            className="w-full truncate px-0.5 text-center text-[9px] font-semibold leading-tight text-charcoal sm:text-[10px]"
+            title={songName}
+          >
+            {songName}
+          </p>
+        )}
+
+        {/* Play / Pause / Stop when music is uploaded */}
+        {hasAudio && (
+          <div className="mt-0.5 flex items-center justify-center gap-1">
             <button
               type="button"
-              title="Play"
+              title={playingSlot === slot && !paused ? "Pause" : "Play"}
               onClick={(e) => {
                 e.stopPropagation();
-                playSlot(slot, t.audio_url);
+                playSlot(slot, t!.audio_url);
               }}
-              className="flex h-5 w-5 items-center justify-center rounded-full bg-gold/20 text-gold-deep hover:bg-gold/40"
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-gold/25 text-gold-deep hover:bg-gold/40"
             >
               {playingSlot === slot && !paused ? (
-                <Pause className="h-2.5 w-2.5" />
+                <Pause className="h-3 w-3" />
               ) : (
-                <Play className="h-2.5 w-2.5" />
+                <Play className="h-3 w-3" />
               )}
             </button>
             <button
@@ -261,12 +286,13 @@ export default function MusicianTunes({
                 e.stopPropagation();
                 if (playingSlot === slot) stopPlayback();
               }}
-              className="flex h-5 w-5 items-center justify-center rounded-full bg-champagne/60 text-charcoal hover:bg-champagne"
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-champagne/70 text-charcoal hover:bg-champagne"
             >
-              <Square className="h-2 w-2 fill-current" />
+              <Square className="h-2.5 w-2.5 fill-current" />
             </button>
           </div>
         )}
+
         {isOwner && (
           <input
             ref={(el) => {
@@ -307,7 +333,9 @@ export default function MusicianTunes({
 
   if (loading) {
     return (
-      <p className="py-2 text-center text-[11px] text-muted">Loading LumenTunes…</p>
+      <p className="py-2 text-center text-[11px] text-muted">
+        Loading LumenTunes…
+      </p>
     );
   }
 
