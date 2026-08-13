@@ -54,7 +54,7 @@ export default function MobileBottomNav() {
   const row1: NavItem[] = [
     { icon: Home, label: t("home"), href: "/" },
     { icon: Search, label: t("explore"), href: "/explore" },
-    { icon: Bell, badge: true as any, label: t("alerts"), href: "/notifications" },
+    { icon: Bell, label: t("alerts"), href: "/notifications" },
     { icon: Mail, label: t("inbox"), href: "/messages" },
     { icon: User, label: t("profile"), href: profileHref },
   ];
