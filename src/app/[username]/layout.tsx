@@ -39,9 +39,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       } else {
         bio = `@${data.username || username} on Lumen · Socialite`;
       }
-      if (data.avatar_url && String(data.avatar_url).startsWith("http")) {
-        image = data.avatar_url;
-      }
+      // Keep site logo for Facebook/Messenger — external avatars often fail their fetch
+      image = LOGO;
     }
   } catch {
     /* crawlers still get basic tags */
@@ -54,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: bio,
     alternates: { canonical: url },
     openGraph: {
-      type: "profile",
+      type: "website",
       url,
       title,
       description: bio,

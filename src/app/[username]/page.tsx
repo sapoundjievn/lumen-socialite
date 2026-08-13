@@ -444,19 +444,16 @@ export default function ProfilePage() {
 
   async function shareProfile() {
     if (!profile?.username) return;
-    // Absolute https link — required for Facebook Messenger / Facebook
     const origin =
       typeof window !== "undefined" && window.location?.origin
         ? window.location.origin
         : "https://lumen-socialite.vercel.app";
-    const url = origin.replace(/\/$/, "") + "/" + encodeURIComponent(profile.username).replace(/%40/g, "");
-    // Keep readable username path (dots ok); only encode unsafe chars if needed
-    const cleanUrl =
-      origin.replace(/\/$/, "") +
-      "/" +
-      String(profile.username).replace(/^@/, "");
+    const user = String(profile.username).replace(/^@/, "");
+    // /s/username = lightweight page Messenger can open (works without heavy app JS)
+    const cleanUrl = origin.replace(/\/$/, "") + "/s/" + user;
     const title = profile.display_name || profile.username;
-    const shareText = "See @" + profile.username + " on Lumen · Socialite — " + cleanUrl;
+    const shareText =
+      title + " (@" + user + ") on Lumen · Socialite\n" + cleanUrl;
     try {
       if (typeof navigator !== "undefined" && typeof (navigator as any).share === "function") {
         await (navigator as any).share({
@@ -471,7 +468,7 @@ export default function ProfilePage() {
     }
     try {
       await navigator.clipboard.writeText(cleanUrl);
-      alert("Profile link copied. Paste it in Messenger:\n" + cleanUrl);
+      alert("Profile link copied. Paste in Messenger:\n" + cleanUrl);
     } catch {
       prompt("Copy this profile link for Messenger:", cleanUrl);
     }
