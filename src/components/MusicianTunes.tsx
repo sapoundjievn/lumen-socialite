@@ -219,7 +219,13 @@ export default function MusicianTunes({
     await reload();
   }
 
-  function SlotButton({ slot }: { slot: number }) {
+  function SlotButton({
+    slot,
+    controls,
+  }: {
+    slot: number;
+    controls: "top" | "bottom";
+  }) {
     const t = tracks[slot];
     const locked = slot >= limit;
     const num = slot + 1;
@@ -231,8 +237,51 @@ export default function MusicianTunes({
       ? `${num}. +`
       : `${num}.`;
 
+    const controlsRow = hasAudio ? (
+      <div
+        className="flex items-center justify-center"
+        style={{ gap: "1mm" }}
+      >
+        <button
+          type="button"
+          title={playingSlot === slot && !paused ? "Pause" : "Play"}
+          onClick={(e) => {
+            e.stopPropagation();
+            playSlot(slot, t!.audio_url);
+          }}
+          style={{ width: "3mm", height: "3mm", borderRadius: 0 }}
+          className="flex items-center justify-center border border-gold/40 bg-gold/20 text-gold-deep hover:bg-gold/35"
+        >
+          {playingSlot === slot && !paused ? (
+            <Pause className="h-[2mm] w-[2mm]" />
+          ) : (
+            <Play className="h-[2mm] w-[2mm]" />
+          )}
+        </button>
+        <button
+          type="button"
+          title="Stop"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (playingSlot === slot) stopPlayback();
+          }}
+          style={{ width: "3mm", height: "3mm", borderRadius: 0 }}
+          className="flex items-center justify-center border border-border bg-champagne/50 text-charcoal hover:bg-champagne"
+        >
+          <Square className="h-[1.5mm] w-[1.5mm] fill-current" />
+        </button>
+      </div>
+    ) : (
+      <div style={{ height: "3mm" }} />
+    );
+
     return (
-      <div className="flex min-w-0 flex-col items-center gap-0.5">
+      <div
+        className="flex flex-col items-center"
+        style={{ gap: "1mm" }}
+      >
+        {controls === "top" && controlsRow}
+
         <button
           type="button"
           disabled={busySlot === slot || (locked && !t)}
@@ -246,9 +295,9 @@ export default function MusicianTunes({
             rename(slot);
           }}
           title={t ? name : locked ? "Locked" : "Upload 1-min sample"}
-          style={{ width: "3mm", height: "7mm", borderRadius: 0 }}
+          style={{ width: "10mm", height: "3mm", borderRadius: 0 }}
           className={
-            "flex shrink-0 items-center justify-center overflow-hidden border px-0 text-[5px] font-semibold leading-none transition " +
+            "flex shrink-0 items-center justify-center overflow-hidden border px-px text-[5px] font-semibold leading-none transition " +
             (t
               ? "border-gold/40 bg-champagne/40 text-charcoal hover:bg-gold/15"
               : locked
@@ -256,41 +305,12 @@ export default function MusicianTunes({
               : "border-dashed border-border text-muted hover:border-gold hover:text-gold-deep")
           }
         >
-          <span className="block max-h-full max-w-full truncate px-px text-center">
+          <span className="block max-h-full max-w-full truncate text-center">
             {busySlot === slot ? "…" : label}
           </span>
         </button>
 
-        {hasAudio && (
-          <div className="flex items-center gap-0.5">
-            <button
-              type="button"
-              title={playingSlot === slot && !paused ? "Pause" : "Play"}
-              onClick={(e) => {
-                e.stopPropagation();
-                playSlot(slot, t!.audio_url);
-              }}
-              className="flex h-4 w-4 items-center justify-center rounded-full bg-gold/20 text-gold-deep hover:bg-gold/35"
-            >
-              {playingSlot === slot && !paused ? (
-                <Pause className="h-2 w-2" />
-              ) : (
-                <Play className="h-2 w-2" />
-              )}
-            </button>
-            <button
-              type="button"
-              title="Stop"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (playingSlot === slot) stopPlayback();
-              }}
-              className="flex h-4 w-4 items-center justify-center rounded-full bg-champagne/50 text-charcoal hover:bg-champagne"
-            >
-              <Square className="h-1.5 w-1.5 fill-current" />
-            </button>
-          </div>
-        )}
+        {controls === "bottom" && controlsRow}
 
         {isOwner && (
           <input
@@ -304,11 +324,11 @@ export default function MusicianTunes({
           />
         )}
         {isOwner && t && (t as any).is_sample === true && (
-          <div className="flex gap-1">
+          <div className="flex" style={{ gap: "1mm" }}>
             <button
               type="button"
               onClick={() => rename(slot)}
-              className="text-[7px] text-gold-deep hover:underline"
+              className="text-[6px] text-gold-deep hover:underline"
             >
               name
             </button>
@@ -320,7 +340,7 @@ export default function MusicianTunes({
                 if (error) alert(error.message);
                 else await reload();
               }}
-              className="text-[7px] text-rose-500 hover:underline"
+              className="text-[6px] text-rose-500 hover:underline"
             >
               del
             </button>
@@ -353,18 +373,22 @@ export default function MusicianTunes({
           "LumenTunes · 1-min samples"
         )}
       </p>
-      <div className="grid w-full grid-cols-7 place-items-center gap-1 sm:gap-1.5">
+      {/* Top row: controls above slots, 1mm gaps, horizontal 10mm x 3mm */}
+      <div
+        className="grid w-full grid-cols-7 place-items-center"
+        style={{ gap: "1mm" }}
+      >
         {row1.map((s) => (
-          <div key={s} className="min-w-0">
-            <SlotButton slot={s} />
-          </div>
+          <SlotButton key={s} slot={s} controls="top" />
         ))}
       </div>
-      <div className="mt-1 grid w-full grid-cols-7 place-items-center gap-1 sm:gap-1.5">
+      {/* Bottom row: controls below slots */}
+      <div
+        className="grid w-full grid-cols-7 place-items-center"
+        style={{ gap: "1mm", marginTop: "1mm" }}
+      >
         {row2.map((s) => (
-          <div key={s} className="min-w-0">
-            <SlotButton slot={s} />
-          </div>
+          <SlotButton key={s} slot={s} controls="bottom" />
         ))}
       </div>
     </div>
