@@ -48,6 +48,8 @@ interface PostCardProps {
   post: Post;
   onLike: (id: string) => void;
   onRepost: (id: string) => void;
+  onReverseLike?: (id: string) => void;
+  onReverseRepost?: (id: string) => void;
   currentUserId?: string | null;
   onPostUpdated?: (post: Post) => void;
   onPostDeleted?: (id: string) => void;
@@ -58,6 +60,8 @@ export default function PostCard({
   post,
   onLike,
   onRepost,
+  onReverseLike,
+  onReverseRepost,
   currentUserId,
   onPostUpdated,
   onPostDeleted,
@@ -326,6 +330,13 @@ export default function PostCard({
                 e.stopPropagation();
                 onRepost(post.id);
               }}
+              onContextMenu={(e) => {
+                if (!onReverseRepost) return;
+                e.preventDefault();
+                e.stopPropagation();
+                onReverseRepost(post.id);
+              }}
+              title={onReverseRepost ? "Left-click: +154 · Right-click: undo one" : undefined}
               className={cn(
                 "group/btn flex items-center gap-1.5 transition",
                 post.reposted_by_user ? "text-green-600" : "hover:text-green-600"
@@ -353,6 +364,13 @@ export default function PostCard({
                 e.stopPropagation();
                 onLike(post.id);
               }}
+              onContextMenu={(e) => {
+                if (!onReverseLike) return;
+                e.preventDefault();
+                e.stopPropagation();
+                onReverseLike(post.id);
+              }}
+              title={onReverseLike ? "Left-click: +550,340 · Right-click: undo one" : undefined}
               className={cn(
                 "group/btn flex items-center gap-1.5 transition",
                 liked ? "text-rose-500" : "hover:text-rose-500"

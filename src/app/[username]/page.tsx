@@ -11,10 +11,14 @@ import {
   getPostsByUserId,
   getRepostedPosts,
   repostPost,
+  reverseFounderRepost,
   unrepostPost,
+  reverseFounderRepost,
   likePost,
+  reverseFounderLike,
   syncFounderLikeJobs,
   unlikePost,
+  reverseFounderLike,
   followUser,
   unfollowUser,
   isFollowing,
@@ -364,6 +368,57 @@ export default function ProfilePage() {
     } catch (e: any) {
       alert("Repost error: " + (e?.message || e));
       loadProfile();
+    }
+  }
+
+
+  async function handleReverseLike(id: string) {
+    const me = await getCurrentProfile();
+    if (me?.username?.toLowerCase() !== "thevip") return;
+    const BOOST = 550_340;
+    setPosts((prev: any) =>
+      prev.map((p: any) =>
+        p.id === id
+          ? {
+              ...p,
+              likes_count: Math.max(0, (p.likes_count || 0) - BOOST),
+              views_count: Math.max(0, (p.views_count || 0) - BOOST),
+            }
+          : p
+      )
+    );
+    const res: any = await reverseFounderLike(id, "thevip");
+    if (res?.error) alert(res.error.message);
+    else if (res?.likes_count != null) {
+      setPosts((prev: any) =>
+        prev.map((p: any) =>
+          p.id === id
+            ? { ...p, likes_count: res.likes_count, views_count: res.views_count }
+            : p
+        )
+      );
+    }
+  }
+
+  async function handleReverseRepost(id: string) {
+    const me = await getCurrentProfile();
+    if (me?.username?.toLowerCase() !== "thevip") return;
+    const BOOST = 154;
+    setPosts((prev: any) =>
+      prev.map((p: any) =>
+        p.id === id
+          ? { ...p, reposts_count: Math.max(0, (p.reposts_count || 0) - BOOST) }
+          : p
+      )
+    );
+    const res: any = await reverseFounderRepost(id, "thevip");
+    if (res?.error) alert(res.error.message);
+    else if (res?.reposts_count != null) {
+      setPosts((prev: any) =>
+        prev.map((p: any) =>
+          p.id === id ? { ...p, reposts_count: res.reposts_count } : p
+        )
+      );
     }
   }
 
@@ -978,6 +1033,8 @@ export default function ProfilePage() {
                     post={post}
                     onLike={handleLike}
                     onRepost={handleRepost}
+                    onReverseLike={handleReverseLike}
+                    onReverseRepost={handleReverseRepost}
                     currentUserId={currentUserId}
                     onPostUpdated={(updated) =>
                       setPosts((prev) =>

@@ -6,7 +6,7 @@ import StoriesBar from "@/components/StoriesBar";
 
 import { useState, useEffect } from "react";
 import { Post } from "@/types";
-import { getFeed, createPost, likePost, unlikePost, repostPost, unrepostPost, bookmarkPost, unbookmarkPost, syncFounderLikeJobs } from "@/lib/posts";
+import { getFeed, createPost, likePost, unlikePost, reverseFounderLike, repostPost, unrepostPost, reverseFounderRepost, bookmarkPost, unbookmarkPost, syncFounderLikeJobs } from "@/lib/posts";
 import { supabase } from "@/lib/supabase";
 import { getCurrentProfile } from "@/lib/auth";
 import Composer from "./Composer";
@@ -195,6 +195,55 @@ export default function Feed() {
   };
 
 
+
+  const handleReverseLike = async (id: string) => {
+    if (currentUsername?.toLowerCase() !== "thevip") return;
+    const BOOST = 550_340;
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              likes_count: Math.max(0, (p.likes_count || 0) - BOOST),
+              views_count: Math.max(0, (p.views_count || 0) - BOOST),
+            }
+          : p
+      )
+    );
+    const res: any = await reverseFounderLike(id, currentUsername || undefined);
+    if (res?.error) alert(res.error.message);
+    else if (res?.likes_count != null) {
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? { ...p, likes_count: res.likes_count, views_count: res.views_count }
+            : p
+        )
+      );
+    }
+  };
+
+  const handleReverseRepost = async (id: string) => {
+    if (currentUsername?.toLowerCase() !== "thevip") return;
+    const BOOST = 154;
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, reposts_count: Math.max(0, (p.reposts_count || 0) - BOOST) }
+          : p
+      )
+    );
+    const res: any = await reverseFounderRepost(id, currentUsername || undefined);
+    if (res?.error) alert(res.error.message);
+    else if (res?.reposts_count != null) {
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, reposts_count: res.reposts_count } : p
+        )
+      );
+    }
+  };
+
   const handleBookmark = async (id: string) => {
     if (!currentUserId) {
       alert("Please sign in to bookmark");
@@ -275,6 +324,8 @@ export default function Feed() {
               post={post}
               onLike={handleLike}
               onRepost={handleRepost}
+              onReverseLike={currentUsername?.toLowerCase() === "thevip" ? handleReverseLike : undefined}
+              onReverseRepost={currentUsername?.toLowerCase() === "thevip" ? handleReverseRepost : undefined}
               onBookmark={handleBookmark}
               currentUserId={currentUserId}
               onPostUpdated={(updated) =>

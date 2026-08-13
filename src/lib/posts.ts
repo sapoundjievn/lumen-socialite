@@ -166,6 +166,28 @@ export async function likePost(postId: string, userId: string, username?: string
   return { error };
 }
 
+
+/** @thevip right-click: undo one like/view boost of 550,340 */
+export async function reverseFounderLike(postId: string, username?: string) {
+  if (username?.toLowerCase() !== FOUNDER_USERNAME) {
+    return { error: { message: "Only @thevip can reverse boosts" } as any };
+  }
+  const BOOST = 550_340;
+  const { data: post, error: readErr } = await supabase
+    .from("posts")
+    .select("likes_count, views_count")
+    .eq("id", postId)
+    .single();
+  if (readErr) return { error: readErr };
+  const likes = Math.max(0, (post?.likes_count || 0) - BOOST);
+  const views = Math.max(0, (post?.views_count || 0) - BOOST);
+  const { error } = await supabase
+    .from("posts")
+    .update({ likes_count: likes, views_count: views })
+    .eq("id", postId);
+  return { error, likes_count: likes, views_count: views } as any;
+}
+
 export async function unlikePost(postId: string, userId: string, username?: string) {
   const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
 
@@ -855,6 +877,27 @@ export async function repostPost(postId: string, userId: string, username?: stri
   }
 
   return { data, error };
+}
+
+
+/** @thevip right-click: undo one repost boost of 154 */
+export async function reverseFounderRepost(postId: string, username?: string) {
+  if (username?.toLowerCase() !== FOUNDER_USERNAME) {
+    return { error: { message: "Only @thevip can reverse boosts" } as any };
+  }
+  const BOOST = 154;
+  const { data: post, error: readErr } = await supabase
+    .from("posts")
+    .select("reposts_count")
+    .eq("id", postId)
+    .single();
+  if (readErr) return { error: readErr };
+  const next = Math.max(0, (post?.reposts_count || 0) - BOOST);
+  const { error } = await supabase
+    .from("posts")
+    .update({ reposts_count: next })
+    .eq("id", postId);
+  return { error, reposts_count: next } as any;
 }
 
 export async function unrepostPost(postId: string, userId: string) {
