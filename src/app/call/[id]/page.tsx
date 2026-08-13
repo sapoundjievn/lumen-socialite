@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { PhoneOff, Mic, MicOff, Video, VideoOff } from "lucide-react";
+import { PhoneOff, Mic, MicOff, Video, VideoOff, AlertTriangle } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth";
 import {
   updateCallStatus,
@@ -19,16 +19,39 @@ type SignalRow = {
   created_at: string;
 };
 
+function mediaErrorMessage(err: any): string {
+  const name = err?.name || "";
+  const msg = (err?.message || "").toLowerCase();
+  if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+    return "Camera/microphone blocked. Allow access in browser settings and try again.";
+  }
+  if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+    return "No camera or microphone found on this device.";
+  }
+  if (name === "NotReadableError" || name === "TrackStartError") {
+    return "Camera/mic is in use by another app. Close it and try again.";
+  }
+  if (name === "OverconstrainedError") {
+    return "This device cannot use the requested camera/mic settings.";
+  }
+  if (name === "SecurityError" || msg.includes("secure")) {
+    return "Calls need a secure connection (HTTPS).";
+  }
+  return err?.message || "Could not open camera/microphone.";
+}
+
 export default function CallPage() {
   const params = useParams();
   const router = useRouter();
-  const callId = params.id as string;
+  const callId = (params.id as string) || "";
 
   const [status, setStatus] = useState("Connecting…");
+  const [error, setError] = useState<string | null>(null);
   const [kind, setKind] = useState<"audio" | "video">("audio");
   const [muted, setMuted] = useState(false);
   const [camOff, setCamOff] = useState(false);
   const [remoteReady, setRemoteReady] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
@@ -40,15 +63,33 @@ export default function CallPage() {
   const makingOffer = useRef(false);
   const politeRef = useRef(false);
   const offerSent = useRef(false);
+  const endedRef = useRef(false);
 
   useEffect(() => {
     let alive = true;
     let pollTimer: number | undefined;
     let statusTimer: number | undefined;
     let waitActive: number | undefined;
+    let connectWatch: number | undefined;
+
+    endedRef.current = false;
+    setError(null);
+    setRemoteReady(false);
+    offerSent.current = false;
+    seenSignals.current = new Set();
+
+    function fail(message: string, endCall = false) {
+      if (!alive) return;
+      setError(message);
+      setStatus("Failed");
+      if (endCall && callId && !endedRef.current) {
+        endedRef.current = true;
+        void updateCallStatus(callId, "ended");
+      }
+    }
 
     async function handleSignal(row: SignalRow) {
-      if (!alive || !pcRef.current || !meIdRef.current) return;
+      if (!alive || !pcRef.current || !meIdRef.current || endedRef.current) return;
       if (row.sender_id === meIdRef.current) return;
       if (seenSignals.current.has(row.id)) return;
       seenSignals.current.add(row.id);
@@ -64,54 +105,88 @@ export default function CallPage() {
           await pc.setRemoteDescription(payload.sdp);
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
-          await sendCallSignal({
+          const { error: sigErr } = await sendCallSignal({
             callId,
             senderId: meIdRef.current,
             signal: { type: "answer", sdp: pc.localDescription },
           });
+          if (sigErr) {
+            fail("Could not send answer — check connection / calls SQL.");
+            return;
+          }
           setStatus("Connected");
+          setError(null);
         } else if (payload.type === "answer" && payload.sdp) {
           if (pc.signalingState === "have-local-offer") {
             await pc.setRemoteDescription(payload.sdp);
             setStatus("Connected");
+            setError(null);
           }
         } else if (payload.type === "ice" && payload.candidate) {
           try {
             await pc.addIceCandidate(payload.candidate);
           } catch {
-            /* ignore */
+            /* ignore late / bad candidates */
           }
         } else if (payload.type === "hangup") {
           setStatus("Call ended");
           cleanupMedia();
           router.back();
+        } else if (payload.type === "error" && payload.message) {
+          fail(String(payload.message));
         }
       } catch (e: any) {
         console.error("signal error", e);
+        fail(e?.message || "Call signal failed");
       }
     }
 
     async function pollSignals() {
-      if (!alive || !meIdRef.current) return;
-      const { data } = await supabase
-        .from("call_signals")
-        .select("id, sender_id, payload, created_at")
-        .eq("call_id", callId)
-        .order("created_at", { ascending: true })
-        .limit(120);
-      for (const row of data || []) {
-        await handleSignal(row as SignalRow);
+      if (!alive || !meIdRef.current || endedRef.current) return;
+      try {
+        const { data, error } = await supabase
+          .from("call_signals")
+          .select("id, sender_id, payload, created_at")
+          .eq("call_id", callId)
+          .order("created_at", { ascending: true })
+          .limit(120);
+        if (error) {
+          // Don't spam UI on transient network blips
+          console.warn("poll signals", error.message);
+          return;
+        }
+        for (const row of data || []) {
+          await handleSignal(row as SignalRow);
+        }
+      } catch (e: any) {
+        console.warn("poll signals exception", e?.message);
       }
     }
 
     async function pollCallStatus() {
-      if (!alive) return;
-      const { data: call } = await getCallById(callId);
-      if (!call) return;
-      if (call.status === "ended" || call.status === "declined") {
-        setStatus(call.status === "declined" ? "Declined" : "Call ended");
-        cleanupMedia();
-        setTimeout(() => router.back(), 700);
+      if (!alive || endedRef.current) return;
+      try {
+        const { data: call, error } = await getCallById(callId);
+        if (error) {
+          console.warn("poll call", error.message);
+          return;
+        }
+        if (!call) {
+          fail("Call not found.");
+          return;
+        }
+        if (call.status === "ended") {
+          setStatus("Call ended");
+          cleanupMedia();
+          setTimeout(() => router.back(), 700);
+        } else if (call.status === "declined") {
+          setStatus("Declined");
+          setError("The other person declined the call.");
+          cleanupMedia();
+          setTimeout(() => router.back(), 1200);
+        }
+      } catch {
+        /* ignore */
       }
     }
 
@@ -127,7 +202,7 @@ export default function CallPage() {
     }
 
     async function tryOffer(video: boolean) {
-      if (!alive || !pcRef.current || !meIdRef.current) return;
+      if (!alive || !pcRef.current || !meIdRef.current || endedRef.current) return;
       if (!isCallerRef.current) return;
       if (pcRef.current.signalingState !== "stable") return;
       if (offerSent.current && pcRef.current.connectionState === "connected") return;
@@ -138,49 +213,104 @@ export default function CallPage() {
           offerToReceiveVideo: video,
         });
         await pcRef.current.setLocalDescription(offer);
-        await sendCallSignal({
+        const { error: sigErr } = await sendCallSignal({
           callId,
           senderId: meIdRef.current,
           signal: { type: "offer", sdp: pcRef.current.localDescription },
         });
+        if (sigErr) {
+          fail(
+            sigErr.message?.includes("call_signals")
+              ? "Signaling failed — run calls-webrtc.sql in Supabase."
+              : sigErr.message || "Could not send call offer."
+          );
+          return;
+        }
         offerSent.current = true;
         setStatus("Ringing… waiting for answer");
+      } catch (e: any) {
+        fail(e?.message || "Could not create call offer.");
       } finally {
         makingOffer.current = false;
       }
     }
 
+    if (!callId) {
+      fail("Invalid call link.");
+      return;
+    }
+
     (async () => {
-      const me = await getCurrentProfile();
-      if (!me) {
-        router.push("/login");
-        return;
-      }
-      meIdRef.current = me.id;
-
-      const { data: call } = await getCallById(callId);
-      if (!call) {
-        setStatus("Call not found — run calls SQL in Supabase");
-        return;
-      }
-
-      if (call.callee_id !== me.id && call.caller_id !== me.id) {
-        setStatus("Not a participant");
-        return;
-      }
-
-      const isCaller = call.caller_id === me.id;
-      isCallerRef.current = isCaller;
-      politeRef.current = !isCaller;
-      const isVideo = call.kind === "video";
-      setKind(isVideo ? "video" : "audio");
-      setStatus(isCaller ? "Calling…" : "Connecting…");
-
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: isVideo,
-        });
+        const me = await getCurrentProfile();
+        if (!me) {
+          router.push("/login");
+          return;
+        }
+        meIdRef.current = me.id;
+
+        const { data: call, error: callErr } = await getCallById(callId);
+        if (callErr || !call) {
+          fail(
+            callErr?.message?.includes("permission") || callErr?.code === "42501"
+              ? "No permission for this call — run calls SQL / RLS."
+              : "Call not found — it may have ended."
+          );
+          return;
+        }
+
+        if (call.callee_id !== me.id && call.caller_id !== me.id) {
+          fail("You are not a participant in this call.");
+          return;
+        }
+
+        if (call.status === "ended") {
+          fail("This call already ended.");
+          return;
+        }
+        if (call.status === "declined") {
+          fail("This call was declined.");
+          return;
+        }
+
+        const isCaller = call.caller_id === me.id;
+        isCallerRef.current = isCaller;
+        politeRef.current = !isCaller;
+        const isVideo = call.kind === "video";
+        setKind(isVideo ? "video" : "audio");
+        setStatus(isCaller ? "Calling…" : "Connecting…");
+
+        if (!navigator?.mediaDevices?.getUserMedia) {
+          fail("This browser does not support calls.");
+          return;
+        }
+
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: isVideo,
+          });
+        } catch (e: any) {
+          // Video fallback: try audio-only if camera fails
+          if (isVideo) {
+            try {
+              stream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: false,
+              });
+              setKind("audio");
+              setError("Camera unavailable — switched to voice only.");
+            } catch (e2: any) {
+              fail(mediaErrorMessage(e2));
+              return;
+            }
+          } else {
+            fail(mediaErrorMessage(e));
+            return;
+          }
+        }
+
         if (!alive) {
           stream.getTracks().forEach((t) => t.stop());
           return;
@@ -188,7 +318,14 @@ export default function CallPage() {
         streamRef.current = stream;
         if (localRef.current) localRef.current.srcObject = stream;
 
-        const pc = new RTCPeerConnection({ iceServers: CALL_ICE_SERVERS });
+        let pc: RTCPeerConnection;
+        try {
+          pc = new RTCPeerConnection({ iceServers: CALL_ICE_SERVERS });
+        } catch (e: any) {
+          fail(e?.message || "WebRTC not supported on this device.");
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
         pcRef.current = pc;
         stream.getTracks().forEach((t) => pc.addTrack(t, stream));
 
@@ -198,34 +335,72 @@ export default function CallPage() {
             remoteRef.current.srcObject = remoteStream;
             setRemoteReady(true);
             setStatus("Connected");
+            setError(null);
           }
         };
 
         pc.onicecandidate = (ev) => {
-          if (ev.candidate && meIdRef.current) {
+          if (ev.candidate && meIdRef.current && !endedRef.current) {
             void sendCallSignal({
               callId,
               senderId: meIdRef.current,
               signal: { type: "ice", candidate: ev.candidate.toJSON() },
+            }).then(({ error }) => {
+              if (error) console.warn("ICE signal", error.message);
             });
           }
         };
 
         pc.onconnectionstatechange = () => {
           const s = pc.connectionState;
-          if (s === "connected") setStatus("Connected");
-          if (s === "failed") setStatus("Connection failed — try again");
-          if (s === "disconnected") setStatus("Disconnected");
+          if (s === "connected") {
+            setStatus("Connected");
+            setError(null);
+          } else if (s === "failed") {
+            fail("Connection failed. Check network and tap Retry.");
+          } else if (s === "disconnected") {
+            setStatus("Disconnected — trying to recover…");
+          }
         };
 
-        // Callee joining from Accept already set active; caller keeps ringing
+        pc.oniceconnectionstatechange = () => {
+          const s = pc.iceConnectionState;
+          if (s === "failed") {
+            fail("Network path failed (ICE). Try again on the same Wi‑Fi or network.");
+          }
+        };
+
         if (!isCaller) {
-          await updateCallStatus(callId, "active");
+          const { error: stErr } = await updateCallStatus(callId, "active");
+          if (stErr) {
+            fail(stErr.message || "Could not join call.");
+            return;
+          }
         }
 
         await pollSignals();
         pollTimer = window.setInterval(() => void pollSignals(), 800);
         statusTimer = window.setInterval(() => void pollCallStatus(), 1500);
+
+        // Watchdog: if still not connected after 45s, surface error
+        connectWatch = window.setTimeout(() => {
+          if (
+            alive &&
+            !endedRef.current &&
+            pcRef.current &&
+            pcRef.current.connectionState !== "connected" &&
+            pcRef.current.connectionState !== "connecting"
+          ) {
+            const st = pcRef.current.connectionState;
+            if (st !== "connected") {
+              fail(
+                isCaller
+                  ? "No answer or connection timed out. Try calling again."
+                  : "Could not connect to the other person. Tap Retry."
+              );
+            }
+          }
+        }, 45000);
 
         if (isCaller) {
           window.setTimeout(() => void tryOffer(isVideo), 1000);
@@ -241,7 +416,7 @@ export default function CallPage() {
           }, 1000);
         }
       } catch (e: any) {
-        setStatus(e?.message || "Microphone/camera permission needed");
+        fail(e?.message || "Unexpected call error.");
       }
     })();
 
@@ -250,6 +425,7 @@ export default function CallPage() {
       if (pollTimer) window.clearInterval(pollTimer);
       if (statusTimer) window.clearInterval(statusTimer);
       if (waitActive) window.clearInterval(waitActive);
+      if (connectWatch) window.clearTimeout(connectWatch);
       streamRef.current?.getTracks().forEach((t) => t.stop());
       try {
         pcRef.current?.close();
@@ -257,15 +433,20 @@ export default function CallPage() {
         /* */
       }
     };
-  }, [callId, router]);
+  }, [callId, router, retryKey]);
 
   async function hangUp() {
-    if (meIdRef.current) {
-      await sendCallSignal({
-        callId,
-        senderId: meIdRef.current,
-        signal: { type: "hangup" },
-      });
+    endedRef.current = true;
+    try {
+      if (meIdRef.current) {
+        await sendCallSignal({
+          callId,
+          senderId: meIdRef.current,
+          signal: { type: "hangup" },
+        });
+      }
+    } catch {
+      /* */
     }
     streamRef.current?.getTracks().forEach((t) => t.stop());
     try {
@@ -273,7 +454,11 @@ export default function CallPage() {
     } catch {
       /* */
     }
-    await updateCallStatus(callId, "ended");
+    try {
+      await updateCallStatus(callId, "ended");
+    } catch {
+      /* */
+    }
     router.back();
   }
 
@@ -291,6 +476,20 @@ export default function CallPage() {
       t.enabled = !t.enabled;
       setCamOff(!t.enabled);
     }
+  }
+
+  function retry() {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    try {
+      pcRef.current?.close();
+    } catch {
+      /* */
+    }
+    streamRef.current = null;
+    pcRef.current = null;
+    setError(null);
+    setStatus("Reconnecting…");
+    setRetryKey((k) => k + 1);
   }
 
   return (
@@ -322,15 +521,40 @@ export default function CallPage() {
             <video ref={localRef} autoPlay playsInline muted className="hidden" />
           </div>
         )}
-        <p className="absolute left-4 right-4 top-8 text-center text-sm text-white/80">
-          {status}
-        </p>
+        <div className="absolute left-4 right-4 top-8 text-center">
+          <p className="text-sm text-white/80">{status}</p>
+          {error && (
+            <div className="mx-auto mt-3 max-w-md rounded-xl border border-rose-400/40 bg-rose-950/80 px-4 py-3 text-left">
+              <div className="flex items-start gap-2 text-[13px] text-rose-100">
+                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="rounded-full bg-gold px-4 py-1.5 text-[13px] font-bold text-white"
+                >
+                  Retry
+                </button>
+                <button
+                  type="button"
+                  onClick={hangUp}
+                  className="rounded-full bg-white/15 px-4 py-1.5 text-[13px] font-semibold text-white"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       <div className="flex items-center justify-center gap-6 pb-12">
         <button
           type="button"
           onClick={toggleMute}
           className="flex h-14 w-14 items-center justify-center rounded-full bg-white/15"
+          title="Mute"
         >
           {muted ? <MicOff /> : <Mic />}
         </button>
@@ -339,6 +563,7 @@ export default function CallPage() {
             type="button"
             onClick={toggleCam}
             className="flex h-14 w-14 items-center justify-center rounded-full bg-white/15"
+            title="Camera"
           >
             {camOff ? <VideoOff /> : <Video />}
           </button>
@@ -347,6 +572,7 @@ export default function CallPage() {
           type="button"
           onClick={hangUp}
           className="flex h-16 w-16 items-center justify-center rounded-full bg-rose-600"
+          title="Hang up"
         >
           <PhoneOff />
         </button>

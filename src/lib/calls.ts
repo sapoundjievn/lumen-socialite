@@ -5,6 +5,18 @@ export async function createCallSession(opts: {
   calleeId: string;
   kind: "audio" | "video";
 }) {
+  if (!opts.callerId || !opts.calleeId) {
+    return {
+      data: null,
+      error: { message: "Missing caller or recipient for this call." } as any,
+    };
+  }
+  if (opts.callerId === opts.calleeId) {
+    return {
+      data: null,
+      error: { message: "You cannot call yourself." } as any,
+    };
+  }
   const { data, error } = await supabase
     .from("call_sessions")
     .insert({
@@ -15,6 +27,29 @@ export async function createCallSession(opts: {
     })
     .select("*")
     .single();
+  if (error) {
+    const msg = error.message || "";
+    if (/call_sessions|schema cache|does not exist/i.test(msg)) {
+      return {
+        data: null,
+        error: {
+          ...error,
+          message:
+            "Calls table missing — run calls-webrtc.sql in Supabase SQL Editor.",
+        },
+      };
+    }
+    if (/row-level security|RLS|permission/i.test(msg)) {
+      return {
+        data: null,
+        error: {
+          ...error,
+          message:
+            "Call blocked by security policy — re-run calls-webrtc.sql (RLS policies).",
+        },
+      };
+    }
+  }
   return { data, error };
 }
 

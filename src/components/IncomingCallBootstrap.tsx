@@ -92,7 +92,11 @@ export default function IncomingCallBootstrap() {
     if (!incoming) return;
     stopCallRing();
     const id = incoming.id;
-    await updateCallStatus(id, "active");
+    const { error } = await updateCallStatus(id, "active");
+    if (error) {
+      alert(error.message || "Could not accept call. Check connection.");
+      return;
+    }
     activeId.current = null;
     setIncoming(null);
     router.push(`/call/${id}`);
@@ -101,7 +105,10 @@ export default function IncomingCallBootstrap() {
   async function decline() {
     if (!incoming) return;
     stopCallRing();
-    await updateCallStatus(incoming.id, "declined");
+    const { error } = await updateCallStatus(incoming.id, "declined");
+    if (error) {
+      alert(error.message || "Could not decline call.");
+    }
     activeId.current = null;
     setIncoming(null);
   }

@@ -101,16 +101,23 @@ export default function ConversationPage() {
       alert("Sign in required");
       return;
     }
-    const { data, error } = await createCallSession({
-      callerId: meId,
-      calleeId: otherId,
-      kind,
-    });
-    if (error || !data) {
-      alert(error?.message || "Could not start call — run calls SQL in Supabase");
-      return;
+    try {
+      const { data, error } = await createCallSession({
+        callerId: meId,
+        calleeId: otherId,
+        kind,
+      });
+      if (error || !data) {
+        alert(
+          error?.message ||
+            "Could not start call — run calls-webrtc.sql in Supabase SQL Editor."
+        );
+        return;
+      }
+      router.push(`/call/${data.id}`);
+    } catch (e: any) {
+      alert(e?.message || "Could not start call.");
     }
-    router.push(`/call/${data.id}`);
   }
 
   function onPressStart() {
