@@ -8,7 +8,7 @@ import { getMyConversations } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import { formatTime } from "@/lib/utils";
+import { formatTime, isForcedVerifiedUsername } from "@/lib/utils";
 
 type ConvItem = {
   conversation_id: string;
@@ -102,7 +102,7 @@ export default function MessagesPage() {
                     <span className="truncate font-bold text-charcoal">
                       {o.display_name}
                     </span>
-                    {o.verified && (
+                    {(o.verified || isForcedVerifiedUsername(o.username)) && (
                       <VerifiedBadge username={o.username} gender={(o as any).gender} />
                     )}
                     {c.last_message && (

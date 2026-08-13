@@ -754,7 +754,7 @@ export async function getMyConversations(userId: string) {
   const otherIds = [...new Set((others || []).map((o) => o.user_id))];
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id, username, display_name, avatar_url, verified")
+    .select("id, username, display_name, avatar_url, verified, gender")
     .in("id", otherIds);
 
   const profileMap: Record<string, any> = {};
@@ -789,11 +789,21 @@ export async function getMyConversations(userId: string) {
 }
 
 export async function getMessages(conversationId: string) {
-  const { data, error } = await supabase
+  // Prefer with is_secret; fall back if column not migrated yet
+  let { data, error } = await supabase
     .from("messages")
-    .select("id, content, sender_id, created_at")
+    .select("id, content, sender_id, created_at, is_secret")
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
+  if (error) {
+    const retry = await supabase
+      .from("messages")
+      .select("id, content, sender_id, created_at")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true });
+    data = retry.data;
+    error = retry.error;
+  }
   return { data: data || [], error };
 }
 
@@ -803,7 +813,8 @@ export async function sendMessage(
   content: string,
   opts?: { isSecret?: boolean }
 ) {
-  const { data, error } = await supabase
+  // Try with is_secret; if column missing, send plain message (still works)
+  let { data, error } = await supabase
     .from("messages")
     .insert({
       conversation_id: conversationId,
@@ -813,6 +824,20 @@ export async function sendMessage(
     })
     .select()
     .single();
+
+  if (error && /is_secret|column/i.test(error.message || "")) {
+    const retry = await supabase
+      .from("messages")
+      .insert({
+        conversation_id: conversationId,
+        sender_id: senderId,
+        content,
+      })
+      .select()
+      .single();
+    data = retry.data;
+    error = retry.error;
+  }
 
   if (!error) {
     await supabase

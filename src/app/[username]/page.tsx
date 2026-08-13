@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Calendar, ArrowLeft, Camera, Flag, Ban } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import { isForcedVerifiedUsername } from "@/lib/utils";
 import {
   getProfileByUsername,
   getPostsByUserId,
@@ -648,7 +649,7 @@ export default function ProfilePage() {
                   <h2 className="truncate text-[17px] font-bold leading-tight text-charcoal sm:text-xl">
                     {profile.display_name}
                   </h2>
-                  {profile.verified && (
+                  {(profile.verified || isForcedVerifiedUsername(profile.username)) && (
                     <VerifiedBadge
                       username={profile.username}
                       gender={(profile as any).gender}
@@ -735,7 +736,7 @@ export default function ProfilePage() {
                 >
                   {profile.display_name}
                 </h2>
-                {profile.verified && (
+                {(profile.verified || isForcedVerifiedUsername(profile.username)) && (
                   <VerifiedBadge username={profile.username} gender={(profile as any).gender} size="md" />
                 )}
               </div>
@@ -1273,7 +1274,7 @@ export default function ProfilePage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-1">
                         <span className="truncate font-bold text-charcoal">{u.display_name}</span>
-                        {u.verified && (
+                        {(u.verified || isForcedVerifiedUsername(u.username)) && (
                           <VerifiedBadge username={u.username} gender={u.gender} size="sm" />
                         )}
                       </div>

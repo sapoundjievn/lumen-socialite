@@ -11,6 +11,7 @@ import { createCallSession } from "@/lib/calls";
 import { supabase } from "@/lib/supabase";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { isForcedVerifiedUsername } from "@/lib/utils";
 
 type Msg = {
   id: string;
@@ -69,7 +70,7 @@ export default function ConversationPage() {
       setOtherId(members[0].user_id);
       const { data: p } = await supabase
         .from("profiles")
-        .select("username, display_name, avatar_url, verified")
+        .select("username, display_name, avatar_url, verified, gender")
         .eq("id", members[0].user_id)
         .single();
       if (p) setOther(p);
@@ -152,8 +153,8 @@ export default function ConversationPage() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-1 truncate font-bold text-charcoal">
                     {other.display_name}
-                    {other.verified && (
-                      <VerifiedBadge username={other.username} size="sm" />
+                    {(other.verified || isForcedVerifiedUsername(other.username)) && (
+                      <VerifiedBadge username={other.username} gender={(other as any).gender} size="sm" />
                     )}
                   </div>
                   <div className="truncate text-[12px] text-muted">@{other.username}</div>

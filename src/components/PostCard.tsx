@@ -15,7 +15,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Post } from "@/types";
-import { cn, formatNumber, formatTime } from "@/lib/utils";
+import { cn, formatNumber, formatTime, isForcedVerifiedUsername } from "@/lib/utils";
 import { reportContent, blockUser } from "@/lib/safety";
 import { getCurrentUser } from "@/lib/auth";
 import VerifiedBadge from "@/components/VerifiedBadge";
@@ -78,7 +78,7 @@ export default function PostCard({
   const avatar =
     profile?.avatar_url ||
     `https://api.dicebear.com/9.x/avataaars/svg?seed=${post.user_id}`;
-  const verified = profile?.verified || false;
+  const verified = !!(profile?.verified || isForcedVerifiedUsername(profile?.username));
   const isOwner = !!currentUserId && currentUserId === post.user_id;
   const isProtectedFounder = [
     "thevip",

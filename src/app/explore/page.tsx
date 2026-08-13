@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Search } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import { isForcedVerifiedUsername } from "@/lib/utils";
 import { searchProfiles } from "@/lib/posts";
 import type { Profile } from "@/types";
 import Sidebar from "@/components/Sidebar";
@@ -139,7 +140,7 @@ function ExploreInner() {
                   <span className="truncate font-bold text-charcoal">
                     {p.display_name}
                   </span>
-                  {p.verified && (
+                  {(p.verified || isForcedVerifiedUsername(p.username)) && (
                     <VerifiedBadge username={p.username} gender={(p as any).gender} />
                   )}
                 </div>

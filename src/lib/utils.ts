@@ -27,3 +27,33 @@ export function formatNumber(num: number): string {
   if (num >= 1_000) return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
   return num.toString();
 }
+
+
+/** Accounts that always show a verification badge (permanent). */
+export function isForcedVerifiedUsername(username?: string | null): boolean {
+  const u = (username || "").toLowerCase().trim();
+  if (!u) return false;
+  const list = [
+    "thevip",
+    "kendall.vip",
+    "igorpiven",
+    "mikeavramov",
+    "mr.samsnuggles",
+    "samsnuggles1",
+    "mrsamsnuggles",
+    "kennicktechnologies",
+    "kennick",
+    "kennicktechnologiesllc",
+    "jayjaytorres",
+    "jayjay.torres",
+    "jay_jay_torres",
+    "jayjay",
+    "jay.jay.torres",
+    "jamesdesermeaux",
+    "james.desermeaux",
+    "james_desermeaux",
+    "desermeaux",
+    "jdesermeaux",
+  ];
+  return list.includes(u);
+}

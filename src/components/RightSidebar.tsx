@@ -13,6 +13,7 @@ import {
 } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import { isForcedVerifiedUsername } from "@/lib/utils";
 
 type Trend = { category: string; title: string; posts: string };
 type Suggest = {
@@ -152,7 +153,7 @@ export default function RightSidebar() {
                   <span className="truncate text-[15px] font-bold text-charcoal hover:underline">
                     {user.display_name}
                   </span>
-                  {user.verified && (
+                  {(user.verified || isForcedVerifiedUsername(user.username)) && (
                     <VerifiedBadge username={user.username} gender={user.gender} />
                   )}
                 </Link>
