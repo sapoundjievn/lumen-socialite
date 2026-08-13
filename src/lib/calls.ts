@@ -41,3 +41,29 @@ export async function sendCallSignal(opts: {
   });
   return { error };
 }
+
+export async function getIncomingRingingCalls(userId: string) {
+  const { data, error } = await supabase
+    .from("call_sessions")
+    .select("id, caller_id, callee_id, kind, status, created_at")
+    .eq("callee_id", userId)
+    .eq("status", "ringing")
+    .order("created_at", { ascending: false })
+    .limit(5);
+  return { data: data || [], error };
+}
+
+export async function getCallById(callId: string) {
+  const { data, error } = await supabase
+    .from("call_sessions")
+    .select("*")
+    .eq("id", callId)
+    .single();
+  return { data, error };
+}
+
+export const CALL_ICE_SERVERS: RTCIceServer[] = [
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "stun:stun1.l.google.com:19302" },
+  { urls: "stun:stun2.l.google.com:19302" },
+];

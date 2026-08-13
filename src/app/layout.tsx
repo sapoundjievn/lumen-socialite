@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MessageAlertBootstrap from "@/components/MessageAlertBootstrap";
+import IncomingCallBootstrap from "@/components/IncomingCallBootstrap";
 import { LanguageProvider } from "@/lib/i18n";
 
 const geistSans = Geist({
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className="min-h-full bg-pearl text-charcoal">
         <LanguageProvider>
           <MessageAlertBootstrap />
+          <IncomingCallBootstrap />
           {children}
         </LanguageProvider>
       </body>
