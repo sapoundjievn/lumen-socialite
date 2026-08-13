@@ -297,7 +297,7 @@ export default function MusicianTunes({
           title={t ? name : locked ? "Locked" : "Upload 1-min sample"}
           style={{ width: "10mm", height: "3mm", borderRadius: 0 }}
           className={
-            "flex shrink-0 items-center justify-center overflow-hidden border px-px text-[5px] font-semibold leading-none transition " +
+            "flex shrink-0 items-center justify-center overflow-hidden border px-0 font-semibold leading-none transition " +
             (t
               ? "border-gold/40 bg-champagne/40 text-charcoal hover:bg-gold/15"
               : locked
@@ -305,7 +305,15 @@ export default function MusicianTunes({
               : "border-dashed border-border text-muted hover:border-gold hover:text-gold-deep")
           }
         >
-          <span className="block max-h-full max-w-full truncate text-center">
+          <span
+            className="block overflow-hidden truncate text-center font-semibold leading-none"
+            style={{
+              width: "9mm",
+              height: "2mm",
+              fontSize: "1.6mm",
+              lineHeight: "2mm",
+            }}
+          >
             {busySlot === slot ? "…" : label}
           </span>
         </button>
