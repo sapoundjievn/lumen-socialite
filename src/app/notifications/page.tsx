@@ -91,7 +91,8 @@ export default function NotificationsPage() {
   }
 
   async function openSecret(n: NotifRow) {
-    await markNotificationRead(n.id);
+    if (!currentUserId) return;
+    await markNotificationRead(n.id, currentUserId);
     setNotifs((prev) =>
       prev.map((x) => (x.id === n.id ? { ...x, read: true } : x))
     );
