@@ -295,7 +295,7 @@ export default function MusicianTunes({
             rename(slot);
           }}
           title={t ? name : locked ? "Locked" : "Upload 1-min sample"}
-          style={{ width: "10mm", height: "3mm", borderRadius: 0 }}
+          style={{ width: "15mm", height: "5mm", borderRadius: 0 }}
           className={
             "flex shrink-0 items-center justify-center overflow-hidden border px-0 font-semibold leading-none transition " +
             (t
@@ -306,12 +306,12 @@ export default function MusicianTunes({
           }
         >
           <span
-            className="block overflow-hidden truncate text-center font-semibold leading-none"
+            className="block overflow-hidden truncate text-center font-semibold"
             style={{
-              width: "9mm",
-              height: "2mm",
-              fontSize: "1.6mm",
-              lineHeight: "2mm",
+              width: "14mm",
+              height: "4mm",
+              fontSize: "2.4mm",
+              lineHeight: "4mm",
             }}
           >
             {busySlot === slot ? "…" : label}
