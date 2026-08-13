@@ -16,8 +16,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://lumen-socialite.vercel.app"),
   title: "Lumen · Socialite",
   description: "Lumen social media platform — Socialite. Champagne Frost Pearl.",
+  openGraph: {
+    type: "website",
+    siteName: "Lumen · Socialite",
+    title: "Lumen · Socialite",
+    description: "Lumen social media platform — Socialite. Champagne Frost Pearl.",
+    url: "https://lumen-socialite.vercel.app",
+    images: [
+      {
+        url: "https://lumen-socialite.vercel.app/logo-official.jpg",
+        width: 512,
+        height: 512,
+        alt: "Lumen · Socialite",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Lumen · Socialite",
+    description: "Lumen social media platform — Socialite. Champagne Frost Pearl.",
+    images: ["https://lumen-socialite.vercel.app/logo-official.jpg"],
+  },
 };
 
 export default function RootLayout({

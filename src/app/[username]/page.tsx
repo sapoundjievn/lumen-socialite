@@ -444,25 +444,36 @@ export default function ProfilePage() {
 
   async function shareProfile() {
     if (!profile?.username) return;
-    const url =
-      (typeof window !== "undefined" ? window.location.origin : "https://lumen-socialite.vercel.app") +
+    // Absolute https link — required for Facebook Messenger / Facebook
+    const origin =
+      typeof window !== "undefined" && window.location?.origin
+        ? window.location.origin
+        : "https://lumen-socialite.vercel.app";
+    const url = origin.replace(/\/$/, "") + "/" + encodeURIComponent(profile.username).replace(/%40/g, "");
+    // Keep readable username path (dots ok); only encode unsafe chars if needed
+    const cleanUrl =
+      origin.replace(/\/$/, "") +
       "/" +
-      profile.username;
+      String(profile.username).replace(/^@/, "");
     const title = profile.display_name || profile.username;
-    const text = "See @" + profile.username + " on Lumen · Socialite";
+    const shareText = "See @" + profile.username + " on Lumen · Socialite — " + cleanUrl;
     try {
       if (typeof navigator !== "undefined" && typeof (navigator as any).share === "function") {
-        await (navigator as any).share({ title, text, url });
+        await (navigator as any).share({
+          title,
+          text: shareText,
+          url: cleanUrl,
+        });
         return;
       }
     } catch {
-      /* user cancelled or share failed — fall through to copy */
+      /* cancelled — copy instead */
     }
     try {
-      await navigator.clipboard.writeText(url);
-      alert("Profile link copied:\n" + url);
+      await navigator.clipboard.writeText(cleanUrl);
+      alert("Profile link copied. Paste it in Messenger:\n" + cleanUrl);
     } catch {
-      prompt("Copy this profile link:", url);
+      prompt("Copy this profile link for Messenger:", cleanUrl);
     }
   }
 
