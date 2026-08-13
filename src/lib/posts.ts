@@ -1303,9 +1303,10 @@ export async function getLatestIncomingMessage(userId: string) {
   if (!ids.length) return null;
   const { data } = await supabase
     .from("messages")
-    .select("id, sender_id, content, conversation_id, created_at")
+    .select("id, sender_id, content, conversation_id, created_at, is_secret")
     .in("conversation_id", ids)
     .neq("sender_id", userId)
+    .or("is_secret.is.null,is_secret.eq.false")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -1473,3 +1474,85 @@ export async function getLatestNotification(userId: string) {
   };
 }
 
+
+
+export async function deleteMessage(messageId: string, userId: string) {
+  const { error } = await supabase
+    .from("messages")
+    .delete()
+    .eq("id", messageId)
+    .eq("sender_id", userId);
+  return { error };
+}
+
+export async function editMessage(messageId: string, userId: string, content: string) {
+  const { data, error } = await supabase
+    .from("messages")
+    .update({ content, updated_at: new Date().toISOString() })
+    .eq("id", messageId)
+    .eq("sender_id", userId)
+    .select()
+    .single();
+  // if updated_at column missing, retry content only
+  if (error && /updated_at|column/i.test(error.message || "")) {
+    const retry = await supabase
+      .from("messages")
+      .update({ content })
+      .eq("id", messageId)
+      .eq("sender_id", userId)
+      .select()
+      .single();
+    return { data: retry.data, error: retry.error };
+  }
+  return { data, error };
+}
+
+/** Unread secret messages for current user (red badge count) */
+export async function getUnreadSecretCount(userId: string) {
+  const { data: memberships } = await supabase
+    .from("conversation_members")
+    .select("conversation_id")
+    .eq("user_id", userId);
+  const ids = (memberships || []).map((m: any) => m.conversation_id);
+  if (!ids.length) return 0;
+
+  const { data: secrets } = await supabase
+    .from("messages")
+    .select("id")
+    .in("conversation_id", ids)
+    .eq("is_secret", true)
+    .neq("sender_id", userId);
+
+  if (!secrets?.length) return 0;
+
+  const { data: reads } = await supabase
+    .from("secret_message_reads")
+    .select("message_id")
+    .eq("user_id", userId);
+
+  const readSet = new Set((reads || []).map((r: any) => r.message_id));
+  return secrets.filter((s: any) => !readSet.has(s.id)).length;
+}
+
+export async function markSecretMessagesRead(userId: string, messageIds: string[]) {
+  if (!messageIds.length) return { error: null };
+  const rows = messageIds.map((id) => ({
+    user_id: userId,
+    message_id: id,
+    read_at: new Date().toISOString(),
+  }));
+  const { error } = await supabase
+    .from("secret_message_reads")
+    .upsert(rows, { onConflict: "user_id,message_id" });
+  return { error };
+}
+
+export async function getSecretMessages(conversationId: string) {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("id, content, sender_id, created_at, is_secret")
+    .eq("conversation_id", conversationId)
+    .eq("is_secret", true)
+    .order("created_at", { ascending: true });
+  return { data: data || [], error };
+}

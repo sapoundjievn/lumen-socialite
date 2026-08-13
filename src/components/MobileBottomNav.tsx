@@ -18,6 +18,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
+import { getUnreadSecretCount } from "@/lib/posts";
+import { getUnreadSecretCount } from "@/lib/posts";
 import { useI18n } from "@/lib/i18n";
 
 type NavItem = {
@@ -33,12 +35,14 @@ export default function MobileBottomNav() {
   const [profileHref, setProfileHref] = useState("/login");
   const [signedIn, setSignedIn] = useState(false);
   const [accountType, setAccountType] = useState<string | null>(null);
+  const [secretCount, setSecretCount] = useState(0);
 
   useEffect(() => {
     getCurrentProfile().then((p) => {
       if (p?.username) {
         setProfileHref(`/${p.username}`);
         setSignedIn(true);
+        if (p?.id) getUnreadSecretCount(p.id).then((n) => setSecretCount(n || 0));
         setAccountType((p as any).account_type || "personal");
       } else {
         setProfileHref("/login");
@@ -51,7 +55,7 @@ export default function MobileBottomNav() {
   const row1: NavItem[] = [
     { icon: Home, label: t("home"), href: "/" },
     { icon: Search, label: t("explore"), href: "/explore" },
-    { icon: Bell, label: t("alerts"), href: "/notifications" },
+    { icon: Bell, badge: true as any, label: t("alerts"), href: "/notifications" },
     { icon: Mail, label: t("inbox"), href: "/messages" },
     { icon: User, label: t("profile"), href: profileHref },
   ];
@@ -78,6 +82,8 @@ export default function MobileBottomNav() {
   function NavButton({ item }: { item: NavItem }) {
     const Icon = item.icon;
     const active = isActive(item.href);
+    const showSecret =
+      item.href === "/notifications" && secretCount > 0;
     return (
       <Link
         href={item.href}
@@ -86,10 +92,17 @@ export default function MobileBottomNav() {
           active ? "text-gold-deep" : "text-muted"
         )}
       >
-        <Icon
-          className={cn("h-[18px] w-[18px]", active && "stroke-[2.5]")}
-          strokeWidth={active ? 2.5 : 1.75}
-        />
+        <span className="relative">
+          <Icon
+            className={cn("h-[18px] w-[18px]", active && "stroke-[2.5]")}
+            strokeWidth={active ? 2.5 : 1.75}
+          />
+          {showSecret && (
+            <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-0.5 text-[9px] font-bold text-white">
+              {secretCount}
+            </span>
+          )}
+        </span>
         <span className="max-w-full truncate text-[9px] font-medium leading-none">
           {item.label}
         </span>

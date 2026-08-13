@@ -8,6 +8,7 @@ import {
   startMessageAlertWatcher,
   startNotificationAlertWatcher,
   unlockAudio,
+  playMessageRing,
 } from "@/lib/messageAlerts";
 
 /** Mount once: rings for DMs + notifications */
@@ -19,7 +20,14 @@ export default function MessageAlertBootstrap() {
     const unlock = () => {
       void unlockAudio();
       void requestMessageAlertPermission();
+      // test that audio path works (very quiet)
+      try {
+        playMessageRing();
+      } catch {
+        /* */
+      }
     };
+    // Keep listeners so every tap re-unlocks mobile audio
     window.addEventListener("pointerdown", unlock);
     window.addEventListener("keydown", unlock);
     window.addEventListener("touchstart", unlock);
@@ -30,6 +38,8 @@ export default function MessageAlertBootstrap() {
       stopMsg = startMessageAlertWatcher(user.id, async () => {
         const row = await getLatestIncomingMessage(user.id);
         if (!row) return null;
+        // Only ring for non-secret messages in main alert
+        if ((row as any).is_secret) return null;
         return {
           id: row.id,
           sender_id: row.sender_id,

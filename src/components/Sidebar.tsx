@@ -17,6 +17,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getUnreadSecretCount } from "@/lib/posts";
 import { getCurrentProfile, signOut, onAuthStateChange } from "@/lib/auth";
 import type { Profile } from "@/types";
 import VerifiedBadge from "@/components/VerifiedBadge";
@@ -27,11 +28,15 @@ export default function Sidebar() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [secretCount, setSecretCount] = useState(0);
 
   useEffect(() => {
     getCurrentProfile().then((p) => {
       setProfile(p);
       setLoading(false);
+      if (p?.id) {
+        getUnreadSecretCount(p.id).then((n) => setSecretCount(n || 0));
+      }
     });
 
     const {
@@ -91,13 +96,25 @@ export default function Sidebar() {
                     : "font-normal text-charcoal-soft hover:bg-champagne/40"
                 )}
               >
-                <Icon
-                  className={cn(
-                    "h-[26px] w-[26px]",
-                    item.active ? "stroke-[2.5]" : "stroke-[1.8]"
+                <span className="relative">
+                  <Icon
+                    className={cn(
+                      "h-[26px] w-[26px]",
+                      item.active ? "stroke-[2.5]" : "stroke-[1.8]"
+                    )}
+                  />
+                  {item.href === "/notifications" && secretCount > 0 && (
+                    <span className="absolute -right-2 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">
+                      {secretCount}
+                    </span>
                   )}
-                />
+                </span>
                 <span className="hidden xl:inline">{item.label}</span>
+                {item.href === "/notifications" && secretCount > 0 && (
+                  <span className="ml-auto hidden rounded-full bg-rose-600 px-2 py-0.5 text-[11px] font-bold text-white xl:inline">
+                    {secretCount}
+                  </span>
+                )}
               </Link>
             );
           })}

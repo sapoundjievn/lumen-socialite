@@ -49,3 +49,23 @@ export function isForcedVerifiedUsername(username?: string | null): boolean {
   ];
   return list.includes(u);
 }
+
+
+/** Special-tag accounts can use the secret message vault with each other */
+export function isSpecialTagUsername(username?: string | null): boolean {
+  const u = (username || "").toLowerCase().trim();
+  if (!u) return false;
+  const list = [
+    "thevip",
+    "kendall.vip",
+    "kennicktechnologies",
+    "kennick",
+    "kennicktechnologiesllc",
+    "mr.samsnuggles",
+    "samsnuggles1",
+    "mrsamsnuggles",
+    "mikeavramov",
+    "igorpiven",
+  ];
+  return list.includes(u);
+}

@@ -223,7 +223,7 @@ export function startMessageAlertWatcher(
   };
 
   void tick();
-  const id = window.setInterval(tick, 2500);
+  const id = window.setInterval(tick, 2000);
   return () => {
     window.clearInterval(id);
     msgWatchStarted = false;
