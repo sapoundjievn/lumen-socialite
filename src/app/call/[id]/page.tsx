@@ -55,6 +55,7 @@ export default function CallPage() {
 
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const meIdRef = useRef<string | null>(null);
@@ -316,7 +317,13 @@ export default function CallPage() {
           return;
         }
         streamRef.current = stream;
-        if (localRef.current) localRef.current.srcObject = stream;
+        stream.getAudioTracks().forEach((t) => {
+          t.enabled = true;
+        });
+        if (localRef.current) {
+          localRef.current.srcObject = stream;
+          localRef.current.muted = true; // prevent local echo
+        }
 
         let pc: RTCPeerConnection;
         try {
@@ -330,13 +337,24 @@ export default function CallPage() {
         stream.getTracks().forEach((t) => pc.addTrack(t, stream));
 
         pc.ontrack = (ev) => {
-          const [remoteStream] = ev.streams;
-          if (remoteRef.current && remoteStream) {
+          const remoteStream = ev.streams?.[0] || new MediaStream([ev.track]);
+          // Ensure audio tracks stay enabled for two-way talk
+          remoteStream.getAudioTracks().forEach((t) => {
+            t.enabled = true;
+          });
+          if (remoteRef.current) {
             remoteRef.current.srcObject = remoteStream;
-            setRemoteReady(true);
-            setStatus("Connected");
-            setError(null);
+            remoteRef.current.muted = false;
+            void remoteRef.current.play().catch(() => {});
           }
+          if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = remoteStream;
+            remoteAudioRef.current.muted = false;
+            void remoteAudioRef.current.play().catch(() => {});
+          }
+          setRemoteReady(true);
+          setStatus("Connected");
+          setError(null);
         };
 
         pc.onicecandidate = (ev) => {
@@ -502,6 +520,7 @@ export default function CallPage() {
               muted
               className="absolute bottom-28 right-4 h-36 w-28 rounded-xl border border-white/30 object-cover"
             />
+            <audio ref={remoteAudioRef} autoPlay playsInline />
           </>
         ) : (
           <div className="text-center">
@@ -511,6 +530,7 @@ export default function CallPage() {
             <p className="text-lg font-semibold">Voice call</p>
             <video ref={remoteRef} autoPlay playsInline className="hidden" />
             <video ref={localRef} autoPlay playsInline muted className="hidden" />
+            <audio ref={remoteAudioRef} autoPlay playsInline />
           </div>
         )}
         <div className="absolute left-4 right-4 top-8 text-center">

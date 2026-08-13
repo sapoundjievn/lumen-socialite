@@ -1,4 +1,4 @@
-/** SMS-style alert + call ring */
+/** Distinct rings: message vs voice call vs video call */
 
 let lastSeenId: string | null = null;
 let started = false;
@@ -14,71 +14,94 @@ function ensureAudio() {
   return audioCtx;
 }
 
-/** Two short beeps — text / DM alert */
+function tone(
+  ctx: AudioContext,
+  start: number,
+  freq: number,
+  dur: number,
+  vol = 0.22,
+  type: OscillatorType = "sine"
+) {
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type;
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, start);
+  g.gain.exponentialRampToValueAtTime(vol, start + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+  o.connect(g);
+  g.connect(ctx.destination);
+  o.start(start);
+  o.stop(start + dur + 0.02);
+}
+
+/** Short double-beep — new message / DM */
 export function playMessageRing() {
   try {
     const ctx = ensureAudio();
     if (!ctx) return;
     if (ctx.state === "suspended") void ctx.resume();
-
-    const beep = (start: number, freq: number, dur: number) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = "sine";
-      o.frequency.value = freq;
-      g.gain.setValueAtTime(0.0001, start);
-      g.gain.exponentialRampToValueAtTime(0.22, start + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.start(start);
-      o.stop(start + dur + 0.02);
-    };
-
     const t = ctx.currentTime;
-    beep(t, 1200, 0.12);
-    beep(t + 0.16, 1400, 0.14);
+    tone(ctx, t, 1200, 0.1, 0.2, "sine");
+    tone(ctx, t + 0.14, 1500, 0.12, 0.2, "sine");
   } catch {
     /* ignore */
   }
 }
 
-/** Longer repeating ring for incoming voice/video calls */
-export function playCallRing() {
+/** Classic phone-style ring — voice call (lower, slower) */
+export function playVoiceCallRingOnce() {
+  try {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    if (ctx.state === "suspended") void ctx.resume();
+    const t = ctx.currentTime;
+    // two bursts: 440+480 style
+    for (const off of [0, 0.2, 0.4, 0.6]) {
+      tone(ctx, t + off, 440, 0.16, 0.26, "sine");
+      tone(ctx, t + off, 480, 0.16, 0.18, "sine");
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Brighter faster ring — video call */
+export function playVideoCallRingOnce() {
+  try {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    if (ctx.state === "suspended") void ctx.resume();
+    const t = ctx.currentTime;
+    for (const off of [0, 0.15, 0.3, 0.45, 0.6, 0.75]) {
+      tone(ctx, t + off, 880, 0.1, 0.24, "triangle");
+      tone(ctx, t + off + 0.05, 1175, 0.08, 0.16, "triangle");
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+export function playCallRing(kind: "audio" | "video" = "audio") {
   stopCallRing();
   const once = () => {
-    try {
-      const ctx = ensureAudio();
-      if (!ctx) return;
-      if (ctx.state === "suspended") void ctx.resume();
-      const t = ctx.currentTime;
-      const tones = [0, 0.25, 0.5, 0.75];
-      for (const off of tones) {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = "sine";
-        o.frequency.value = off % 0.5 === 0 ? 880 : 1040;
-        g.gain.setValueAtTime(0.0001, t + off);
-        g.gain.exponentialRampToValueAtTime(0.28, t + off + 0.03);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + off + 0.2);
-        o.connect(g);
-        g.connect(ctx.destination);
-        o.start(t + off);
-        o.stop(t + off + 0.22);
-      }
-    } catch {
-      /* ignore */
-    }
+    if (kind === "video") playVideoCallRingOnce();
+    else playVoiceCallRingOnce();
     try {
       if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate([300, 120, 300, 120, 400]);
+        if (kind === "video") {
+          navigator.vibrate([180, 80, 180, 80, 180, 80, 300]);
+        } else {
+          navigator.vibrate([400, 200, 400, 200, 400]);
+        }
       }
     } catch {
       /* ignore */
     }
   };
   once();
-  callRingTimer = window.setInterval(once, 2200) as unknown as number;
+  // Keep ringing until Accept / Decline
+  callRingTimer = window.setInterval(once, kind === "video" ? 2000 : 2800) as unknown as number;
 }
 
 export function stopCallRing() {
@@ -91,7 +114,7 @@ export function stopCallRing() {
 export function vibrateMessage() {
   try {
     if (typeof navigator !== "undefined" && navigator.vibrate) {
-      navigator.vibrate([120, 60, 120, 60, 180]);
+      navigator.vibrate([100, 50, 100]);
     }
   } catch {
     /* ignore */
