@@ -637,7 +637,7 @@ export default function ProfilePage() {
           </Link>
           {/* Personal only: avatar bottom-left. Business: never show profile photo. Musician: centered on banner */}
           {!isMusician && !isBusiness && (
-            <div className="absolute -bottom-5 left-4">
+            <div className="absolute -bottom-[calc(1.25rem+2mm)] left-4">
               <div className="relative">
                 <img
                   src={avatar}
@@ -709,7 +709,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               {/* Name + @tag right under banner bottom border (all musician accounts) */}
-              <div className="absolute left-0 right-0 top-full z-[6] flex -translate-y-0 flex-col items-center border-t border-border bg-pearl px-4 pt-2 pb-1 text-center">
+              <div className="absolute left-0 right-0 top-full z-[6] flex flex-col items-center border-t border-border bg-pearl px-4 pt-1 pb-1 text-center" style={{ marginTop: "-4mm" }}>
                 <div className="flex max-w-full items-center justify-center gap-1.5">
                   <h2 className="truncate text-[17px] font-bold leading-tight text-charcoal sm:text-xl">
                     {profile.display_name}
@@ -794,7 +794,7 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        <div className={`px-4 pb-3 ${isMusician ? "pt-16 sm:pt-[4.5rem]" : isBusiness ? "pt-3" : "pt-6"}`}>
+        <div className={`px-4 pb-3 ${isMusician ? "pt-[calc(4rem-4mm)] sm:pt-[calc(4.5rem-4mm)]" : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-[calc(1.5rem-4mm)]"}`}>
           <div className={`flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
