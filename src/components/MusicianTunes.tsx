@@ -1,5 +1,13 @@
 "use client";
 
+/* ============================================================
+ * SAMPLE SLOT SIZE LOCKED (owner approval required to change)
+ * Boxes: 22mm wide x 5mm tall, horizontal, square corners
+ * Text fitted inside (~21mm x 4mm)
+ * Controls: top row above slots, bottom row below slots
+ * Gap: 1mm between controls/slots
+ * ============================================================ */
+
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Play, Pause, Square } from "lucide-react";
@@ -295,6 +303,7 @@ export default function MusicianTunes({
             rename(slot);
           }}
           title={t ? name : locked ? "Locked" : "Upload 1-min sample"}
+          /* LOCKED by owner — sample slots 22mm x 5mm square corners. Do NOT change size/shape without explicit approval. */
           style={{ width: "22mm", height: "5mm", borderRadius: 0 }}
           className={
             "flex shrink-0 items-center justify-center overflow-hidden border px-0 font-semibold leading-none transition " +
