@@ -790,21 +790,27 @@ export async function getMyConversations(userId: string) {
 
 export async function getMessages(conversationId: string) {
   // Prefer with is_secret; fall back if column not migrated yet
-  let { data, error } = await supabase
+  const primary = await supabase
     .from("messages")
     .select("id, content, sender_id, created_at, is_secret")
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
-  if (error) {
-    const retry = await supabase
-      .from("messages")
-      .select("id, content, sender_id, created_at")
-      .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true });
-    data = retry.data;
-    error = retry.error;
+
+  if (!primary.error) {
+    return { data: primary.data || [], error: null };
   }
-  return { data: data || [], error };
+
+  const retry = await supabase
+    .from("messages")
+    .select("id, content, sender_id, created_at")
+    .eq("conversation_id", conversationId)
+    .order("created_at", { ascending: true });
+
+  const normalized = (retry.data || []).map((m: any) => ({
+    ...m,
+    is_secret: false,
+  }));
+  return { data: normalized, error: retry.error };
 }
 
 export async function sendMessage(
@@ -814,7 +820,7 @@ export async function sendMessage(
   opts?: { isSecret?: boolean }
 ) {
   // Try with is_secret; if column missing, send plain message (still works)
-  let { data, error } = await supabase
+  const primary = await supabase
     .from("messages")
     .insert({
       conversation_id: conversationId,
@@ -824,6 +830,9 @@ export async function sendMessage(
     })
     .select()
     .single();
+
+  let data = primary.data;
+  let error = primary.error;
 
   if (error && /is_secret|column/i.test(error.message || "")) {
     const retry = await supabase
@@ -835,7 +844,7 @@ export async function sendMessage(
       })
       .select()
       .single();
-    data = retry.data;
+    data = retry.data as any;
     error = retry.error;
   }
 
