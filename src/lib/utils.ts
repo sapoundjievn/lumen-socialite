@@ -44,16 +44,8 @@ export function isForcedVerifiedUsername(username?: string | null): boolean {
     "kennicktechnologies",
     "kennick",
     "kennicktechnologiesllc",
-    "jayjaytorres",
-    "jayjay.torres",
-    "jay_jay_torres",
-    "jayjay",
-    "jay.jay.torres",
-    "jamesdesermeaux",
-    "james.desermeaux",
-    "james_desermeaux",
-    "desermeaux",
-    "jdesermeaux",
+    "jaytowers69",
+    "tireur",
   ];
   return list.includes(u);
 }

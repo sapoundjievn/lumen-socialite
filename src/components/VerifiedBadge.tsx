@@ -10,8 +10,8 @@ import { BadgeCheck } from "lucide-react";
  *   @thevip              → Champagne Frost Pearl
  *   @kendall.vip         → solid pink
  *   @igorpiven           → blue
- *   @jayjaytorres / Jay Jay Torres → blue (permanent)
- *   @jamesdesermeaux / James Desermeaux → blue (permanent)
+ *   @JayTowers69 (Jay Jay Torres) → blue (permanent)
+ *   @Tireur (James Desermeaux) → blue (permanent)
  *   @mikeavramov         → red
  *   @mr.samsnuggles      → Champagne Frost Pearl
  *   @kennicktechnologies → Champagne Frost Pearl (same simple design as founders)
@@ -46,24 +46,12 @@ export default function VerifiedBadge({
   if (u === "igorpiven") {
     return <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />;
   }
-  // Jay Jay Torres — permanent blue (everywhere)
-  if (
-    u === "jayjaytorres" ||
-    u === "jayjay.torres" ||
-    u === "jay_jay_torres" ||
-    u === "jayjay" ||
-    u === "jay.jay.torres"
-  ) {
+  // Jay Jay Torres @JayTowers69 — permanent blue EVERYWHERE
+  if (u === "jaytowers69") {
     return <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />;
   }
-  // James Desermeaux — permanent blue (everywhere)
-  if (
-    u === "jamesdesermeaux" ||
-    u === "james.desermeaux" ||
-    u === "james_desermeaux" ||
-    u === "desermeaux" ||
-    u === "jdesermeaux"
-  ) {
+  // James Desermeaux @Tireur — permanent blue EVERYWHERE
+  if (u === "tireur") {
     return <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />;
   }
   if (u === "mikeavramov") {
