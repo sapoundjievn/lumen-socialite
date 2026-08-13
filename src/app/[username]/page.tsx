@@ -709,7 +709,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               {/* Name + @tag right under banner bottom border (all musician accounts) */}
-              <div className="absolute left-0 right-0 top-full z-[6] flex flex-col items-center border-t border-border bg-pearl px-4 pt-1 pb-1 text-center" style={{ marginTop: "-4mm" }}>
+              <div className="absolute left-0 right-0 top-full z-[6] flex flex-col items-center border-t border-border bg-pearl px-4 pt-0.5 pb-1 text-center" style={{ marginTop: "-7mm" }}>
                 <div className="flex max-w-full items-center justify-center gap-1.5">
                   <h2 className="truncate text-[17px] font-bold leading-tight text-charcoal sm:text-xl">
                     {profile.display_name}
@@ -794,7 +794,7 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        <div className={`px-4 pb-3 ${isMusician ? "pt-[calc(4rem-4mm)] sm:pt-[calc(4.5rem-4mm)]" : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-[calc(1.5rem-4mm)]"}`}>
+        <div className={`px-4 pb-3 ${isMusician ? "pt-[calc(4rem-11mm)] sm:pt-[calc(4.5rem-11mm)]" : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-[calc(1.5rem-4mm)]"}`}>
           <div className={`flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
@@ -1023,7 +1023,7 @@ export default function ProfilePage() {
         </div>
 
         {isMusician && (
-          <div className="mt-3">
+          <div className="mt-0" style={{ marginTop: "1mm" }}>
             <MusicianTunes
               profileId={profile.id}
               isOwner={!!isOwnProfile}

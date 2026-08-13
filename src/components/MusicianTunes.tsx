@@ -378,7 +378,7 @@ export default function MusicianTunes({
 
   return (
     <div className="w-full px-0">
-      <p className="mb-1.5 text-center text-[11px] font-bold tracking-wide text-gold-deep">
+      <p className="mb-1 text-center text-[11px] font-bold tracking-wide text-gold-deep" style={{ marginTop: "-2mm" }}>
         {username ? (
           <Link
             href={`/music-description?artist=${encodeURIComponent(username)}`}
