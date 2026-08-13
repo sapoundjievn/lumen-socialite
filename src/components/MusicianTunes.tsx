@@ -44,7 +44,10 @@ export default function MusicianTunes({
     for (const t of samples) {
       const si = (t as any).slot_index as number | null | undefined;
       if (si && si >= 1 && si <= SLOTS && !used.has(si)) {
-        slots[si - 1] = t;
+        // Always show a name on 1-min examples
+        const title =
+          (t.title && String(t.title).trim()) || `Song ${si}`;
+        slots[si - 1] = { ...t, title };
         used.add(si);
       }
     }
@@ -53,7 +56,9 @@ export default function MusicianTunes({
       if (slots.includes(t)) continue;
       while (i < SLOTS && slots[i]) i++;
       if (i < SLOTS) {
-        slots[i] = t;
+        const title =
+          (t.title && String(t.title).trim()) || `Song ${i + 1}`;
+        slots[i] = { ...t, title };
         i++;
       }
     }
@@ -97,25 +102,40 @@ export default function MusicianTunes({
       setPaused(false);
     };
     a.ontimeupdate = () => {
-      if (a.currentTime >= 60) stopPlayback();
+      if (a.currentTime >= 60) {
+        a.pause();
+        a.currentTime = 0;
+        setPlayingSlot(null);
+        setPaused(false);
+      }
     };
     a.src = url;
     a.currentTime = 0;
+    void a.play().catch(() => {});
     setPlayingSlot(slot);
     setPaused(false);
-    void a.play();
   }
 
   async function onPickFile(slot: number, file: File | null) {
     if (!file || !isOwner) return;
     if (slot >= limit) {
-      alert("Verified artists can use 14 slots. Free: 7. Get verified to unlock 8–14.");
+      alert(
+        verified
+          ? "Slot unavailable"
+          : "Verified artists can use 14 slots. Free: 7. Get verified to unlock 8–14."
+      );
       return;
     }
     setBusySlot(slot);
     try {
-      const base = (file.name || "Sample").replace(/\.[^.]+$/, "").replace(/_/g, " ");
-      const suggested = (tracks[slot]?.title || base.trim() || "Sample " + (slot + 1)).trim();
+      const base = (file.name || "Sample")
+        .replace(/\.[^.]+$/, "")
+        .replace(/_/g, " ");
+      const suggested = (
+        tracks[slot]?.title ||
+        base.trim() ||
+        "Song " + (slot + 1)
+      ).trim();
       const named = prompt("Song name for this example", suggested);
       if (named == null) {
         setBusySlot(null);
@@ -123,29 +143,28 @@ export default function MusicianTunes({
       }
       const title = named.trim() || suggested;
 
-      const { url: audio_url, error: upErr } = await uploadMusicFile(
+      const { url, error: upErr } = await uploadMusicFile(
         profileId,
         file,
         "slot-" + (slot + 1)
       );
-      if (upErr || !audio_url) {
-        throw new Error(upErr?.message || "Storage upload failed");
-      }
+      if (upErr || !url) throw new Error(upErr?.message || "Upload failed");
+
       const existing = tracks[slot];
       if (existing) {
         const { error } = await updateMusicTrack(existing.id, profileId, {
-          audio_url,
+          audio_url: url,
           title,
         });
         if (error) throw new Error(error.message || "Could not update track");
       } else {
         const { error } = await createMusicTrack(profileId, {
           title,
-          audio_url,
-          price_cents: 99,
+          audio_url: url,
+          price_cents: 0,
           is_sample: true,
           slot_index: slot + 1,
-        } as any);
+        });
         if (error) {
           throw new Error(
             error.message ||
@@ -155,7 +174,7 @@ export default function MusicianTunes({
       }
       await reload();
     } catch (e: any) {
-      alert(e?.message || e?.error_description || "Upload failed");
+      alert(e?.message || "Upload failed");
     }
     setBusySlot(null);
   }
@@ -176,10 +195,16 @@ export default function MusicianTunes({
     const locked = slot >= limit;
     const num = slot + 1;
     const songName =
-      (t?.title && String(t.title).trim()) ||
-      (t ? "Song " + num : "");
+      (t?.title && String(t.title).trim()) || (t ? "Song " + num : "");
+    const label = t
+      ? num + ". " + songName
+      : isOwner
+      ? locked
+        ? num + "."
+        : num + ". +"
+      : num + ".";
     return (
-      <div className="flex min-w-0 flex-col items-center gap-0.5">
+      <div className="flex flex-col items-center gap-0.5">
         <button
           type="button"
           disabled={busySlot === slot || (locked && !t)}
@@ -202,7 +227,7 @@ export default function MusicianTunes({
               : "Upload 1-min sample"
           }
           className={
-            "flex min-h-[3.25rem] w-full flex-col items-center justify-center rounded-xl border px-1 py-1 text-center transition " +
+            "w-full truncate rounded-full border px-1 py-1.5 text-[9px] font-semibold leading-tight transition sm:text-[10px] " +
             (t
               ? "border-gold/50 bg-champagne/50 text-charcoal hover:bg-gold/20"
               : locked
@@ -210,16 +235,7 @@ export default function MusicianTunes({
               : "border-dashed border-border text-muted hover:border-gold hover:text-gold-deep")
           }
         >
-          {busySlot === slot ? (
-            <span className="text-[11px]">…</span>
-          ) : (
-            <>
-              <span className="text-[10px] font-bold text-muted">{num}.</span>
-              <span className="line-clamp-2 w-full px-0.5 text-[10px] font-semibold leading-tight text-charcoal sm:text-[11px]">
-                {t ? songName : isOwner && !locked ? "+" : locked ? "—" : ""}
-              </span>
-            </>
-          )}
+          {busySlot === slot ? "…" : label}
         </button>
         {t && (
           <div className="flex items-center justify-center gap-0.5">
@@ -299,36 +315,36 @@ export default function MusicianTunes({
   const row2 = [7, 8, 9, 10, 11, 12, 13];
 
   return (
-    <div className="w-full border-t border-border px-2 pt-3">
-      <p className="mb-1 text-center text-[13px] font-bold text-charcoal">
-        Music examples · 1 minute
+    <div className="w-full px-0">
+      <p className="mb-2 text-center text-[11px] font-bold tracking-wide text-gold-deep">
+        {username ? (
+          <Link
+            href={`/music-description?artist=${encodeURIComponent(username)}`}
+            className="hover:underline"
+          >
+            Open here for music description
+          </Link>
+        ) : (
+          "LumenTunes · 1-min samples"
+        )}
       </p>
-      <p className="mb-2 text-center text-[11px] text-muted">
-        {verified ? "Slots 1–14" : "Slots 1–7 (verify for 8–14)"}
-        {isOwner ? " · tap empty slot to upload · long-press name to rename" : ""}
-      </p>
-      <div className="grid w-full grid-cols-4 gap-2 sm:grid-cols-7">
+      <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">
         {row1.map((s) => (
           <div key={s} className="min-w-0">
             <SlotButton slot={s} />
           </div>
         ))}
       </div>
-      <div className="mt-2 grid w-full grid-cols-4 gap-2 sm:grid-cols-7">
+      <div className="mt-1.5 grid w-full grid-cols-7 gap-1.5 sm:gap-2">
         {row2.map((s) => (
           <div key={s} className="min-w-0">
             <SlotButton slot={s} />
           </div>
         ))}
       </div>
-      {username && (
-        <p className="mt-2 text-center text-[11px]">
-          <Link
-            href={`/music?artist=${encodeURIComponent(username)}`}
-            className="font-semibold text-gold-deep hover:underline"
-          >
-            Open LumenTunes Store
-          </Link>
+      {isOwner && (
+        <p className="mt-2 text-center text-[10px] text-muted">
+          Examples 1–14 · Play / Pause / Stop · preview max 1 min.
         </p>
       )}
     </div>
