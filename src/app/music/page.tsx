@@ -80,7 +80,12 @@ function MusicInner() {
   function mapSlots(list: MusicTrack[]) {
     const slots: (MusicTrack | null)[] = Array(SLOTS).fill(null);
     const used = new Set<number>();
-    for (const t of list) {
+    const withNames = list.map((t, idx) => {
+      const title =
+        (t.title && String(t.title).trim()) || `Song ${idx + 1}`;
+      return { ...t, title };
+    });
+    for (const t of withNames) {
       const si = (t as any).slot_index as number | undefined;
       if (si && si >= 1 && si <= SLOTS && !used.has(si)) {
         slots[si - 1] = t;
@@ -88,12 +93,18 @@ function MusicInner() {
       }
     }
     let i = 0;
-    for (const t of list) {
+    for (const t of withNames) {
       if (slots.includes(t)) continue;
       while (i < SLOTS && slots[i]) i++;
       if (i < SLOTS) {
-        slots[i] = t;
+        slots[i] = { ...t, title: (t.title && t.title.trim()) || `Song ${i + 1}` };
         i++;
+      }
+    }
+    // Ensure every filled slot has a visible name
+    for (let s = 0; s < SLOTS; s++) {
+      if (slots[s] && !(slots[s]!.title && slots[s]!.title.trim())) {
+        slots[s] = { ...slots[s]!, title: `Song ${s + 1}` };
       }
     }
     return slots;
@@ -543,7 +554,10 @@ function MusicInner() {
                       <span className="w-6 text-[13px] font-bold text-muted">{n}.</span>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-[14px] font-semibold text-charcoal">
-                          {has ? t!.title : "—"}
+                          {has
+                            ? (t!.title && String(t!.title).trim()) ||
+                              `Song ${n}`
+                            : "—"}
                         </div>
                         {has && (
                           <div className="text-[11px] text-muted">

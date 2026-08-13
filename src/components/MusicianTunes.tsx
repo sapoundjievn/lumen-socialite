@@ -175,8 +175,11 @@ export default function MusicianTunes({
     const t = tracks[slot];
     const locked = slot >= limit;
     const num = slot + 1;
-    const label = t?.title
-      ? num + ". " + t.title
+    const songName =
+      (t?.title && String(t.title).trim()) ||
+      (t ? "Song " + num : "");
+    const label = t
+      ? num + ". " + songName
       : isOwner
       ? locked
         ? num + "."
@@ -199,8 +202,8 @@ export default function MusicianTunes({
           title={
             t
               ? isOwner
-                ? t.title + " — click play · right-click rename"
-                : t.title
+                ? songName + " — click play · right-click rename"
+                : songName
               : locked
               ? "Unlock with verification"
               : "Upload 1-min sample"

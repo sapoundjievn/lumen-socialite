@@ -1208,9 +1208,14 @@ export async function createMusicTrack(
   }
 ) {
   // Only columns that exist on music_tracks (avoid schema cache errors)
+  const safeTitle =
+    (payload.title && String(payload.title).trim()) ||
+    (payload.is_sample
+      ? `Sample ${payload.slot_index || 1}`
+      : `Song ${payload.slot_index || 1}`);
   const row: Record<string, unknown> = {
     user_id: userId,
-    title: payload.title,
+    title: safeTitle,
     audio_url: payload.audio_url,
     price_cents: payload.price_cents ?? 99,
   };
