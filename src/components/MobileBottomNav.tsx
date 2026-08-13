@@ -19,7 +19,6 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
 import { getUnreadSecretCount } from "@/lib/posts";
-import { getUnreadSecretCount } from "@/lib/posts";
 import { useI18n } from "@/lib/i18n";
 
 type NavItem = {
