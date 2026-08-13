@@ -384,22 +384,14 @@ export default function CallPage() {
 
         // Watchdog: if still not connected after 45s, surface error
         connectWatch = window.setTimeout(() => {
-          if (
-            alive &&
-            !endedRef.current &&
-            pcRef.current &&
-            pcRef.current.connectionState !== "connected" &&
-            pcRef.current.connectionState !== "connecting"
-          ) {
-            const st = pcRef.current.connectionState;
-            if (st !== "connected") {
-              fail(
-                isCaller
-                  ? "No answer or connection timed out. Try calling again."
-                  : "Could not connect to the other person. Tap Retry."
-              );
-            }
-          }
+          if (!alive || endedRef.current || !pcRef.current) return;
+          const st: string = pcRef.current.connectionState;
+          if (st === "connected" || st === "connecting") return;
+          fail(
+            isCaller
+              ? "No answer or connection timed out. Try calling again."
+              : "Could not connect to the other person. Tap Retry."
+          );
         }, 45000);
 
         if (isCaller) {
