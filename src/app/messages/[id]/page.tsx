@@ -20,6 +20,8 @@ import {
   editMessage,
   getSecretMessages,
   markSecretMessagesRead,
+  notifySecretMessage,
+  resolveUsernameToId,
 } from "@/lib/posts";
 import { getCurrentProfile } from "@/lib/auth";
 import { createCallSession } from "@/lib/calls";
@@ -45,6 +47,7 @@ export default function ConversationPage() {
   const [secretMessages, setSecretMessages] = useState<Msg[]>([]);
   const [text, setText] = useState("");
   const [secretText, setSecretText] = useState("");
+  const [secretTag, setSecretTag] = useState("");
   const [meId, setMeId] = useState<string | null>(null);
   const [meUsername, setMeUsername] = useState<string>("");
   const [otherId, setOtherId] = useState<string | null>(null);
@@ -105,7 +108,10 @@ export default function ConversationPage() {
         .select("username, display_name, avatar_url, verified, gender")
         .eq("id", otherMember.user_id)
         .single();
-      if (p) setOther(p as any);
+      if (p) {
+        setOther(p as any);
+        if (p.username) setSecretTag("@" + p.username);
+      }
     }
 
     const { data } = await getMessages(convId);
@@ -175,6 +181,20 @@ export default function ConversationPage() {
 
   async function handleSendSecret() {
     if (!meId || !secretText.trim() || !bothSpecial) return;
+    const tag = secretTag.trim();
+    if (!tag) {
+      alert("Enter the special tag, e.g. @thevip");
+      return;
+    }
+    const recipientId = await resolveUsernameToId(tag);
+    if (!recipientId) {
+      alert("Tag not found");
+      return;
+    }
+    if (!isSpecialTagUsername(tag.replace(/^@/, ""))) {
+      alert("Secret vault is only for special-tag accounts");
+      return;
+    }
     setSending(true);
     const { data, error } = await sendMessage(convId, meId, secretText.trim(), {
       isSecret: true,
@@ -184,7 +204,17 @@ export default function ConversationPage() {
       alert(error.message || "Could not send secret");
       return;
     }
-    if (data) setSecretMessages((prev) => [...prev, data as Msg]);
+    if (data) {
+      setSecretMessages((prev) => [...prev, data as Msg]);
+      if (recipientId !== meId) {
+        await notifySecretMessage({
+          recipientId,
+          actorId: meId,
+          conversationId: convId,
+          messageId: (data as any).id,
+        });
+      }
+    }
     setSecretText("");
   }
 
@@ -410,22 +440,21 @@ export default function ConversationPage() {
                   startHold();
                 }}
                 onTouchEnd={clearHold}
-                className="relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-charcoal/20 bg-charcoal px-4 py-2.5 text-[13px] font-bold text-pearl"
+                className="relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-charcoal/20 bg-charcoal px-4 py-2.5 text-pearl"
+                title=""
+                aria-label="Lock"
               >
                 <span
                   className="absolute inset-y-0 left-0 bg-gold/80 transition-all"
                   style={{ width: `${holdProgress}%` }}
                 />
                 <Lock className="relative z-10 h-4 w-4" />
-                <span className="relative z-10">
-                  {holding
-                    ? `Hold… ${Math.ceil((100 - holdProgress) / 10)}s`
-                    : "Hold 10s for Secret Vault"}
-                </span>
+                {holding && (
+                  <span className="relative z-10 text-[12px] font-semibold tabular-nums">
+                    {Math.max(1, Math.ceil((10000 - (holdProgress / 100) * 10000) / 1000))}
+                  </span>
+                )}
               </button>
-              <p className="mt-1 text-center text-[11px] text-muted">
-                Secret messages stay hidden in the normal chat. Special-tag only.
-              </p>
             </div>
           )}
           <div className="flex gap-2">
@@ -456,7 +485,7 @@ export default function ConversationPage() {
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div className="flex items-center gap-2">
                 <Lock className="h-4 w-4 text-charcoal" />
-                <h3 className="text-[16px] font-bold text-charcoal">Secret Vault</h3>
+                <h3 className="text-[16px] font-bold text-charcoal">✦</h3>
               </div>
               <button
                 type="button"
@@ -501,14 +530,22 @@ export default function ConversationPage() {
                 })
               )}
             </div>
-            <div className="border-t border-border p-3">
+            <div className="border-t border-border p-3 space-y-2">
+              <input
+                value={secretTag}
+                onChange={(e) => setSecretTag(e.target.value)}
+                placeholder="@tag"
+                className="w-full rounded-full border border-charcoal/30 bg-white px-4 py-2 text-[14px] outline-none"
+                autoComplete="off"
+              />
               <div className="flex gap-2">
                 <input
                   value={secretText}
                   onChange={(e) => setSecretText(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSendSecret()}
-                  placeholder="Secret message to special tag…"
+                  placeholder="Message"
                   className="min-w-0 flex-1 rounded-full border border-charcoal/30 bg-white px-4 py-2.5 text-[14px] outline-none"
+                  autoComplete="off"
                 />
                 <button
                   type="button"

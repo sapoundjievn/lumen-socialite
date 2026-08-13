@@ -27,10 +27,12 @@ type NotifRow = {
   id: string;
   type: string;
   message: string | null;
+  body?: string | null;
   read: boolean;
   post_id: string | null;
   created_at: string;
   actor: Profile | Profile[] | null;
+  data?: { conversation_id?: string; message_id?: string } | null;
 };
 
 function getActor(row: NotifRow): Profile | null {
@@ -88,6 +90,20 @@ export default function NotificationsPage() {
     setActionId(null);
   }
 
+  async function openSecret(n: NotifRow) {
+    await markNotificationRead(n.id);
+    setNotifs((prev) =>
+      prev.map((x) => (x.id === n.id ? { ...x, read: true } : x))
+    );
+    const conv =
+      (n as any).data?.conversation_id ||
+      (typeof n.message === "string" && n.message.startsWith("conv:")
+        ? n.message.slice(5)
+        : null);
+    if (conv) router.push(`/messages/${conv}`);
+    else router.push("/messages");
+  }
+
   async function openMention(n: NotifRow) {
     if (!currentUserId) return;
     await markNotificationRead(n.id, currentUserId);
@@ -98,6 +114,8 @@ export default function NotificationsPage() {
   }
 
   const mentionNotifs = notifs.filter((n) => n.type === "mention");
+  const secretNotifs = notifs.filter((n) => n.type === "secret_message");
+  const secretUnread = secretNotifs.filter((n) => !n.read).length;
 
   return (
     <div className="mx-auto flex min-h-screen max-w-[1280px] justify-center">
@@ -129,7 +147,7 @@ export default function NotificationsPage() {
               Sign in
             </Link>
           </div>
-        ) : requests.length === 0 && mentionNotifs.length === 0 ? (
+        ) : requests.length === 0 && mentionNotifs.length === 0 && secretNotifs.length === 0 ? (
           <div className="px-6 py-16 text-center">
             <div className="mb-3 text-4xl">🔔</div>
             <h2 className="text-xl font-bold text-charcoal">No new notifications</h2>
@@ -197,6 +215,52 @@ export default function NotificationsPage() {
                         </button>
                       </div>
                     </div>
+                  );
+                })}
+              </>
+            )}
+
+            {secretNotifs.length > 0 && (
+              <>
+                <div className="border-b border-border px-4 py-3 flex items-center gap-2">
+                  <h2 className="text-[13px] font-bold uppercase tracking-wide text-muted">
+                    Private
+                  </h2>
+                  {secretUnread > 0 && (
+                    <span className="rounded-full bg-rose-600 px-2 py-0.5 text-[11px] font-bold text-white">
+                      {secretUnread}
+                    </span>
+                  )}
+                </div>
+                {secretNotifs.map((n) => {
+                  const actor = getActor(n);
+                  const avatar =
+                    actor?.avatar_url ||
+                    `https://api.dicebear.com/9.x/avataaars/svg?seed=${actor?.id || "x"}`;
+                  return (
+                    <button
+                      key={n.id}
+                      type="button"
+                      onClick={() => openSecret(n)}
+                      className={`flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left transition hover:bg-champagne/30 ${
+                        !n.read ? "bg-rose-50/50" : ""
+                      }`}
+                    >
+                      <img src={avatar} alt="" className="h-10 w-10 rounded-full object-cover" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-charcoal">
+                            {actor?.display_name || "Someone"}
+                          </span>
+                          {!n.read && (
+                            <span className="rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">
+                              1
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[13px] text-muted">✦ · open chat, hold lock</div>
+                      </div>
+                    </button>
                   );
                 })}
               </>

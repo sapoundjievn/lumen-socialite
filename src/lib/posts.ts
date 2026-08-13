@@ -1556,3 +1556,49 @@ export async function getSecretMessages(conversationId: string) {
     .order("created_at", { ascending: true });
   return { data: data || [], error };
 }
+
+
+/** Create a private notification for a secret message (red badge target) */
+export async function notifySecretMessage(opts: {
+  recipientId: string;
+  actorId: string;
+  conversationId: string;
+  messageId?: string;
+}) {
+  const row: any = {
+    user_id: opts.recipientId,
+    actor_id: opts.actorId,
+    type: "secret_message",
+    post_id: null,
+    message: `conv:${opts.conversationId}`,
+    body: "Secret message",
+    data: {
+      conversation_id: opts.conversationId,
+      message_id: opts.messageId || null,
+    },
+  };
+  // Try common notification shapes
+  let { error } = await supabase.from("notifications").insert(row);
+  if (error) {
+    const slim = {
+      user_id: opts.recipientId,
+      actor_id: opts.actorId,
+      type: "secret_message",
+    };
+    ({ error } = await supabase.from("notifications").insert(slim));
+  }
+  return { error };
+}
+
+export async function resolveUsernameToId(username: string) {
+  let u = username.trim();
+  if (u.startsWith("@")) u = u.slice(1);
+  u = u.toLowerCase();
+  if (!u) return null;
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, username")
+    .ilike("username", u)
+    .maybeSingle();
+  return data?.id || null;
+}
