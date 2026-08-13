@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Calendar, ArrowLeft, Camera, Flag, Ban } from "lucide-react";
+import { Calendar, ArrowLeft, Camera, Flag, Ban , Share } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { isForcedVerifiedUsername } from "@/lib/utils";
 import {
@@ -441,6 +441,31 @@ export default function ProfilePage() {
     }
   }
 
+
+  async function shareProfile() {
+    if (!profile?.username) return;
+    const url =
+      (typeof window !== "undefined" ? window.location.origin : "https://lumen-socialite.vercel.app") +
+      "/" +
+      profile.username;
+    const title = profile.display_name || profile.username;
+    const text = "See @" + profile.username + " on Lumen · Socialite";
+    try {
+      if (typeof navigator !== "undefined" && typeof (navigator as any).share === "function") {
+        await (navigator as any).share({ title, text, url });
+        return;
+      }
+    } catch {
+      /* user cancelled or share failed — fall through to copy */
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      alert("Profile link copied:\n" + url);
+    } catch {
+      prompt("Copy this profile link:", url);
+    }
+  }
+
   function friendButtonLabel() {
     switch (friendStatus) {
       case "friends":
@@ -743,6 +768,13 @@ export default function ProfilePage() {
               >
                 Edit profile
               </button>
+              <button
+                type="button"
+                onClick={shareProfile}
+                className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
+              >
+                Share
+              </button>
             </div>
           )}
         </div>
@@ -838,6 +870,13 @@ export default function ProfilePage() {
                   className="rounded-full border border-border px-2.5 py-1 text-[12px] font-semibold text-charcoal transition hover:bg-champagne/40"
                 >
                   Message
+                </button>
+                <button
+                  type="button"
+                  onClick={shareProfile}
+                  className="rounded-full border border-border px-2.5 py-1 text-[12px] font-semibold text-charcoal transition hover:bg-champagne/40"
+                >
+                  Share
                 </button>
                 {/* No Block/Report on privileged @thevip @kendall.vip @kennicktechnologies */}
                 {!isProtectedFounder && (

@@ -436,6 +436,37 @@ export default function PostCard({
 
             <button
               type="button"
+              title="Share"
+              onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const url =
+                  (typeof window !== "undefined" ? window.location.origin : "https://lumen-socialite.vercel.app") +
+                  "/post/" +
+                  post.id;
+                const title = "Enlightenment on Lumen · Socialite";
+                try {
+                  if (typeof navigator !== "undefined" && typeof (navigator as any).share === "function") {
+                    await (navigator as any).share({ title, url });
+                    return;
+                  }
+                } catch {}
+                try {
+                  await navigator.clipboard.writeText(url);
+                  alert("Link copied:\n" + url);
+                } catch {
+                  prompt("Copy this link:", url);
+                }
+              }}
+              className="group/btn flex items-center gap-1.5 transition hover:text-gold-deep"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full transition group-hover/btn:bg-gold/10">
+                <Share className="h-[18px] w-[18px]" />
+              </div>
+            </button>
+
+            <button
+              type="button"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
