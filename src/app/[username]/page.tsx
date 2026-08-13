@@ -525,19 +525,18 @@ export default function ProfilePage() {
   const accountType = ((profile as any).account_type || "personal") as string;
   const isBusiness = accountType === "business";
   const unameLower = (profile?.username || "").toLowerCase();
-  // 1-min music examples ONLY for musician accounts + founders/special artists (not personal)
+  // Music layout/slots ONLY for real musician accounts — NEVER founders @thevip / @kendall.vip
   const isMusician =
-    accountType === "musician" ||
-    [
-      "thevip",
-      "kendall.vip",
-      "mikeavramov",
-      "mikeavramove",
-      "mr.samsnuggles",
-      "mrsamsnuggles",
-      "samsnuggles1",
-      "samsnuggles",
-    ].includes(unameLower);
+    !["thevip", "kendall.vip"].includes(unameLower) &&
+    (accountType === "musician" ||
+      [
+        "mikeavramov",
+        "mikeavramove",
+        "mr.samsnuggles",
+        "mrsamsnuggles",
+        "samsnuggles1",
+        "samsnuggles",
+      ].includes(unameLower));
   // Privileged: @thevip 100% owner, @kendall.vip co-founder, @kennicktechnologies company
   const isProtectedFounder = [
     "thevip",
@@ -985,7 +984,7 @@ export default function ProfilePage() {
               username={profile.username}
             />
             {(((profile as any).account_type === "musician" && profile.verified) ||
-            ["mikeavramov","mikeavramove","thevip","kendall.vip","mr.samsnuggles","mrsamsnuggles","samsnuggles","samsnuggles1"].includes(
+            ["mikeavramov","mikeavramove","mr.samsnuggles","mrsamsnuggles","samsnuggles","samsnuggles1"].includes(
               (profile.username || "").toLowerCase()
             )) ? (
               <p className="mt-2 text-center text-[12px]">
