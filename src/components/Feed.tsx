@@ -225,20 +225,34 @@ export default function Feed() {
 
   const handleReverseRepost = async (id: string) => {
     if (currentUsername?.toLowerCase() !== "thevip") return;
+    if (!currentUserId) return;
     const BOOST = 154;
     setPosts((prev) =>
       prev.map((p) =>
         p.id === id
-          ? { ...p, reposts_count: Math.max(0, (p.reposts_count || 0) - BOOST) }
+          ? {
+              ...p,
+              reposts_count: Math.max(0, (p.reposts_count || 0) - BOOST),
+            }
           : p
       )
     );
-    const res: any = await reverseFounderRepost(id, currentUsername || undefined);
+    const res: any = await reverseFounderRepost(
+      id,
+      currentUsername || undefined,
+      currentUserId
+    );
     if (res?.error) alert(res.error.message);
     else if (res?.reposts_count != null) {
       setPosts((prev) =>
         prev.map((p) =>
-          p.id === id ? { ...p, reposts_count: res.reposts_count } : p
+          p.id === id
+            ? {
+                ...p,
+                reposts_count: res.reposts_count,
+                reposted_by_user: res.reposts_count > 0,
+              }
+            : p
         )
       );
     }

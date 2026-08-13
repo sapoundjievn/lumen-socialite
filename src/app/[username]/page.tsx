@@ -401,23 +401,43 @@ export default function ProfilePage() {
 
   async function handleReverseRepost(id: string) {
     const me = await getCurrentProfile();
-    if (me?.username?.toLowerCase() !== "thevip") return;
+    if (me?.username?.toLowerCase() !== "thevip" || !me?.id) return;
     const BOOST = 154;
     setPosts((prev: any) =>
       prev.map((p: any) =>
         p.id === id
-          ? { ...p, reposts_count: Math.max(0, (p.reposts_count || 0) - BOOST) }
+          ? {
+              ...p,
+              reposts_count: Math.max(0, (p.reposts_count || 0) - BOOST),
+            }
           : p
       )
     );
-    const res: any = await reverseFounderRepost(id, "thevip");
+    const res: any = await reverseFounderRepost(id, "thevip", me.id);
     if (res?.error) alert(res.error.message);
     else if (res?.reposts_count != null) {
-      setPosts((prev: any) =>
-        prev.map((p: any) =>
-          p.id === id ? { ...p, reposts_count: res.reposts_count } : p
-        )
-      );
+      setPosts((prev: any) => {
+        const nextCount = res.reposts_count as number;
+        if (nextCount === 0) {
+          // Remove repost card from own profile list
+          return prev
+            .filter((p: any) => !(p.id === id && p._isRepost))
+            .map((p: any) =>
+              p.id === id
+                ? { ...p, reposts_count: 0, reposted_by_user: false }
+                : p
+            );
+        }
+        return prev.map((p: any) =>
+          p.id === id
+            ? {
+                ...p,
+                reposts_count: nextCount,
+                reposted_by_user: nextCount > 0,
+              }
+            : p
+        );
+      });
     }
   }
 

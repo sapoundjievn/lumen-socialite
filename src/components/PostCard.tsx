@@ -336,7 +336,7 @@ export default function PostCard({
                 e.stopPropagation();
                 onReverseRepost(post.id);
               }}
-              title={onReverseRepost ? "Left-click: +154 · Right-click: undo one" : undefined}
+              title={onReverseRepost ? "Left-click: repost (+154) · Right-click: un-repost (−154, removes at 0)" : "Repost"}
               className={cn(
                 "group/btn flex items-center gap-1.5 transition",
                 post.reposted_by_user ? "text-green-600" : "hover:text-green-600"

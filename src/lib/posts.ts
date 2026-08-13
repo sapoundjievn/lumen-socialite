@@ -914,8 +914,12 @@ export async function repostPost(postId: string, userId: string, username?: stri
 }
 
 
-/** @thevip right-click: undo one repost boost of 154 */
-export async function reverseFounderRepost(postId: string, username?: string) {
+/** @thevip right-click: undo one repost boost of 154; at 0 remove repost row */
+export async function reverseFounderRepost(
+  postId: string,
+  username?: string,
+  userId?: string
+) {
   if (username?.toLowerCase() !== FOUNDER_USERNAME) {
     return { error: { message: "Only @thevip can reverse boosts" } as any };
   }
@@ -931,7 +935,19 @@ export async function reverseFounderRepost(postId: string, username?: string) {
     .from("posts")
     .update({ reposts_count: next })
     .eq("id", postId);
-  return { error, reposts_count: next } as any;
+  // When boost is fully undone, remove the actual repost so it leaves profiles
+  if (!error && next === 0 && userId) {
+    await supabase
+      .from("reposts")
+      .delete()
+      .eq("post_id", postId)
+      .eq("user_id", userId);
+  }
+  return {
+    error,
+    reposts_count: next,
+    cleared: next === 0,
+  } as any;
 }
 
 export async function unrepostPost(postId: string, userId: string) {
@@ -940,7 +956,16 @@ export async function unrepostPost(postId: string, userId: string) {
     .delete()
     .eq("post_id", postId)
     .eq("user_id", userId);
-  return { error };
+  if (error) return { error };
+  // Keep public count in sync (non-founder path / full unrepost)
+  const { data: post } = await supabase
+    .from("posts")
+    .select("reposts_count")
+    .eq("id", postId)
+    .single();
+  const next = Math.max(0, (post?.reposts_count || 1) - 1);
+  await supabase.from("posts").update({ reposts_count: next }).eq("id", postId);
+  return { error: null, reposts_count: next } as any;
 }
 
 export async function getRepostedPosts(userId: string, limit = 50) {
