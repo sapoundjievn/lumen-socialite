@@ -504,7 +504,19 @@ export default function ProfilePage() {
   const isOwnProfile = currentUserId === profile.id;
   const accountType = ((profile as any).account_type || "personal") as string;
   const isBusiness = accountType === "business";
-  const isMusician = accountType === "musician";
+  const unameLower = (profile?.username || "").toLowerCase();
+  const isMusician =
+    accountType === "musician" ||
+    [
+      "mikeavramov",
+      "mikeavramove",
+      "mr.samsnuggles",
+      "mrsamsnuggles",
+      "samsnuggles1",
+      "samsnuggles",
+      "thevip",
+      "kendall.vip",
+    ].includes(unameLower);
   // Privileged: @thevip 100% owner, @kendall.vip co-founder, @kennicktechnologies company
   const isProtectedFounder = [
     "thevip",
@@ -1240,12 +1252,15 @@ export default function ProfilePage() {
       ) : null}
 
       {listModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={() => setListModal(null)}>
+        <div
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 pb-[calc(3.75rem+env(safe-area-inset-bottom))] sm:items-center sm:pb-0"
+          onClick={() => setListModal(null)}
+        >
           <div
-            className="max-h-[70vh] w-full max-w-md overflow-hidden rounded-t-2xl border border-border bg-pearl shadow-xl sm:rounded-2xl"
+            className="flex max-h-[min(85vh,calc(100dvh-4.5rem))] w-full max-w-md flex-col overflow-hidden rounded-t-2xl border border-border bg-pearl shadow-xl sm:max-h-[85vh] sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <div className="flex flex-shrink-0 items-center justify-between border-b border-border px-4 py-3">
               <h3 className="text-[16px] font-bold capitalize text-charcoal">
                 {listModal}
               </h3>
@@ -1253,7 +1268,7 @@ export default function ProfilePage() {
                 Close
               </button>
             </div>
-            <div className="max-h-[60vh] overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
               {listLoading ? (
                 <p className="p-6 text-center text-muted">Loading…</p>
               ) : listUsers.length === 0 ? (

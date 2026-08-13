@@ -178,15 +178,8 @@ export default function MusicianTunes({
     const songName =
       (t?.title && String(t.title).trim()) ||
       (t ? "Song " + num : "");
-    const label = t
-      ? num + ". " + songName
-      : isOwner
-      ? locked
-        ? num + "."
-        : num + ". +"
-      : num + ".";
     return (
-      <div className="flex flex-col items-center gap-0.5">
+      <div className="flex min-w-0 flex-col items-center gap-0.5">
         <button
           type="button"
           disabled={busySlot === slot || (locked && !t)}
@@ -209,7 +202,7 @@ export default function MusicianTunes({
               : "Upload 1-min sample"
           }
           className={
-            "w-full truncate rounded-full border px-1 py-1.5 text-[9px] font-semibold leading-tight transition sm:text-[10px] " +
+            "flex min-h-[3.25rem] w-full flex-col items-center justify-center rounded-xl border px-1 py-1 text-center transition " +
             (t
               ? "border-gold/50 bg-champagne/50 text-charcoal hover:bg-gold/20"
               : locked
@@ -217,7 +210,16 @@ export default function MusicianTunes({
               : "border-dashed border-border text-muted hover:border-gold hover:text-gold-deep")
           }
         >
-          {busySlot === slot ? "…" : label}
+          {busySlot === slot ? (
+            <span className="text-[11px]">…</span>
+          ) : (
+            <>
+              <span className="text-[10px] font-bold text-muted">{num}.</span>
+              <span className="line-clamp-2 w-full px-0.5 text-[10px] font-semibold leading-tight text-charcoal sm:text-[11px]">
+                {t ? songName : isOwner && !locked ? "+" : locked ? "—" : ""}
+              </span>
+            </>
+          )}
         </button>
         {t && (
           <div className="flex items-center justify-center gap-0.5">
@@ -297,36 +299,36 @@ export default function MusicianTunes({
   const row2 = [7, 8, 9, 10, 11, 12, 13];
 
   return (
-    <div className="w-full px-0">
-      <p className="mb-2 text-center text-[11px] font-bold tracking-wide text-gold-deep">
-        {username ? (
-          <Link
-            href={`/music-description?artist=${encodeURIComponent(username)}`}
-            className="hover:underline"
-          >
-            Open here for music description
-          </Link>
-        ) : (
-          "LumenTunes · 1-min samples"
-        )}
+    <div className="w-full border-t border-border px-2 pt-3">
+      <p className="mb-1 text-center text-[13px] font-bold text-charcoal">
+        Music examples · 1 minute
       </p>
-      <div className="grid w-full grid-cols-7 gap-1.5 sm:gap-2">
+      <p className="mb-2 text-center text-[11px] text-muted">
+        {verified ? "Slots 1–14" : "Slots 1–7 (verify for 8–14)"}
+        {isOwner ? " · tap empty slot to upload · long-press name to rename" : ""}
+      </p>
+      <div className="grid w-full grid-cols-4 gap-2 sm:grid-cols-7">
         {row1.map((s) => (
           <div key={s} className="min-w-0">
             <SlotButton slot={s} />
           </div>
         ))}
       </div>
-      <div className="mt-1.5 grid w-full grid-cols-7 gap-1.5 sm:gap-2">
+      <div className="mt-2 grid w-full grid-cols-4 gap-2 sm:grid-cols-7">
         {row2.map((s) => (
           <div key={s} className="min-w-0">
             <SlotButton slot={s} />
           </div>
         ))}
       </div>
-      {isOwner && (
-        <p className="mt-2 text-center text-[10px] text-muted">
-          Examples 1–14 · Play / Pause / Stop · preview max 1 min.
+      {username && (
+        <p className="mt-2 text-center text-[11px]">
+          <Link
+            href={`/music?artist=${encodeURIComponent(username)}`}
+            className="font-semibold text-gold-deep hover:underline"
+          >
+            Open LumenTunes Store
+          </Link>
         </p>
       )}
     </div>
