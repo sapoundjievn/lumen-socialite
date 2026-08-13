@@ -75,19 +75,12 @@ export default function MusicianTunes({
         i++;
       }
     }
+    // Only mirror store → example when the SAME slot number exists in the store.
+    // Never dump extra store tracks into empty slots (keeps 4,5,6 empty if empty).
     for (const t of storeTracks) {
       const si = Number((t as any).slot_index);
       if (si >= 1 && si <= SLOTS && !slots[si - 1]) {
         slots[si - 1] = { ...t, title: displayTitle(t, si) };
-      }
-    }
-    let j = 0;
-    for (const t of storeTracks) {
-      if (slots.some((s) => s && s.id === t.id)) continue;
-      while (j < SLOTS && slots[j]) j++;
-      if (j < SLOTS) {
-        slots[j] = { ...t, title: displayTitle(t, j + 1) };
-        j++;
       }
     }
 
@@ -253,8 +246,9 @@ export default function MusicianTunes({
             rename(slot);
           }}
           title={t ? name : locked ? "Locked" : "Upload 1-min sample"}
+          style={{ width: "3mm", height: "7mm", borderRadius: 0 }}
           className={
-            "w-full truncate rounded-full border px-0.5 py-1 text-[8px] font-semibold leading-tight transition sm:text-[9px] " +
+            "flex shrink-0 items-center justify-center overflow-hidden border px-0 text-[5px] font-semibold leading-none transition " +
             (t
               ? "border-gold/40 bg-champagne/40 text-charcoal hover:bg-gold/15"
               : locked
@@ -262,7 +256,9 @@ export default function MusicianTunes({
               : "border-dashed border-border text-muted hover:border-gold hover:text-gold-deep")
           }
         >
-          {busySlot === slot ? "…" : label}
+          <span className="block max-h-full max-w-full truncate px-px text-center">
+            {busySlot === slot ? "…" : label}
+          </span>
         </button>
 
         {hasAudio && (
@@ -357,14 +353,14 @@ export default function MusicianTunes({
           "LumenTunes · 1-min samples"
         )}
       </p>
-      <div className="grid w-full grid-cols-7 gap-1 sm:gap-1.5">
+      <div className="grid w-full grid-cols-7 place-items-center gap-1 sm:gap-1.5">
         {row1.map((s) => (
           <div key={s} className="min-w-0">
             <SlotButton slot={s} />
           </div>
         ))}
       </div>
-      <div className="mt-1 grid w-full grid-cols-7 gap-1 sm:gap-1.5">
+      <div className="mt-1 grid w-full grid-cols-7 place-items-center gap-1 sm:gap-1.5">
         {row2.map((s) => (
           <div key={s} className="min-w-0">
             <SlotButton slot={s} />
