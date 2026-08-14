@@ -649,28 +649,17 @@ export default function ProfilePage() {
           </Link>
           {/* Personal only: avatar bottom-left. Business: never show profile photo. Musician: centered on banner */}
           {!isMusician && !isBusiness && (
+            /* Personal accounts: 17mm diameter, bottom of image flush with bottom of banner */
             <div
-              className="absolute left-4"
-              style={
-                isFounderAvatar
-                  ? { bottom: "calc(-1.25rem + 5mm)", width: "4mm", height: "4mm" }
-                  : { bottom: "calc(-1.25rem - 2mm)" }
-              }
+              className="absolute left-4 z-[5]"
+              style={{ bottom: 0, width: "17mm", height: "17mm" }}
             >
-              <div className="relative" style={isFounderAvatar ? { width: "4mm", height: "4mm" } : undefined}>
+              <div className="relative" style={{ width: "17mm", height: "17mm" }}>
                 <img
                   src={avatar}
                   alt={profile.display_name}
-                  className={
-                    isFounderAvatar
-                      ? "rounded-full border border-pearl bg-champagne object-cover"
-                      : "h-[6.5rem] w-[6.5rem] rounded-full border-4 border-pearl bg-champagne object-cover sm:h-28 sm:w-28"
-                  }
-                  style={
-                    isFounderAvatar
-                      ? { width: "4mm", height: "4mm", minWidth: "4mm", minHeight: "4mm" }
-                      : undefined
-                  }
+                  className="rounded-full border-[2px] border-pearl bg-champagne object-cover shadow-sm"
+                  style={{ width: "17mm", height: "17mm", minWidth: "17mm", minHeight: "17mm" }}
                 />
                 {isOwnProfile && (
                   <>
@@ -678,18 +667,14 @@ export default function ProfilePage() {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className={
-                        isFounderAvatar
-                          ? "absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
-                          : "absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
-                      }
-                      style={isFounderAvatar ? { width: "3mm", height: "3mm" } : undefined}
+                      className="absolute bottom-0 right-0 flex items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
+                      style={{ width: "5mm", height: "5mm" }}
                       title="Change photo"
                     >
                       {uploading ? (
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       ) : (
-                        <Camera className={isFounderAvatar ? "h-[2mm] w-[2mm]" : "h-4 w-4"} />
+                        <Camera style={{ width: "3mm", height: "3mm" }} />
                       )}
                     </button>
                     <input
@@ -815,7 +800,7 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        <div className={`px-4 pb-3 ${isMusician ? (isSamSnuggles ? "pt-3 sm:pt-4" : "pt-12 sm:pt-14") : isBusiness ? "pt-[calc(0.75rem-2mm)]" : isFounderAvatar ? "pt-[calc(1.5rem-4mm-7mm)]" : "pt-[calc(1.5rem-4mm)]"}`}>
+        <div className={`px-4 pb-3 ${isMusician ? (isSamSnuggles ? "pt-3 sm:pt-4" : "pt-12 sm:pt-14") : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-3"}`}>
           <div className={`flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
