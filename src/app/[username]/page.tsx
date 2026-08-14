@@ -778,17 +778,17 @@ export default function ProfilePage() {
             </>
           )}
 
-          {/* Own profile actions under banner */}
+          {/* Own profile actions on banner — high z so never hidden */}
           {isOwnProfile && (
-            <div className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
+            <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setBannerPickerOpen(true)}
                 disabled={uploading}
-                className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
+                className="rounded-full border border-border bg-pearl px-3.5 py-1.5 text-[12px] font-bold text-charcoal shadow-md transition hover:bg-champagne sm:px-4 sm:py-2 sm:text-[13px]"
                 title={isBusiness ? "Storefront banner / photo" : "Change banner"}
               >
-                {isBusiness ? "Storefront banner" : "Banner"}
+                {isBusiness ? "Storefront banner" : "Change banner"}
               </button>
               <input
                 ref={bannerInputRef}
@@ -1088,6 +1088,37 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+
+        {isOwnProfile && (
+          <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
+            <button
+              type="button"
+              onClick={() => setBannerPickerOpen(true)}
+              disabled={uploading}
+              className="rounded-full border border-border bg-pearl px-3 py-1.5 text-[12px] font-bold text-charcoal shadow-sm hover:bg-champagne disabled:opacity-60"
+            >
+              {isBusiness ? "Storefront banner" : "Change banner"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditName(profile.display_name);
+                setEditBio(profile.bio || "");
+                setEditBusinessAddress((profile as any).business_address || "");
+                setEditBusinessType((profile as any).business_type || "");
+                const existing = (profile as any).links || [];
+                setEditLinks([existing[0] || "", existing[1] || "", existing[2] || ""]);
+                setEditPassword("");
+                setEditPassword2("");
+                setAccountMsg("");
+                setEditOpen(true);
+              }}
+              className="rounded-full border border-border bg-pearl px-3 py-1.5 text-[12px] font-bold text-charcoal shadow-sm hover:bg-champagne"
+            >
+              Edit profile
+            </button>
+          </div>
+        )}
 
         {isMusician && (
           <div className="mt-0" style={{ marginTop: "1mm" }}>

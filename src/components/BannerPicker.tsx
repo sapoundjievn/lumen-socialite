@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   COLOR_BANNERS,
   FLAG_BANNERS,
@@ -31,6 +31,7 @@ export default function BannerPicker({
   const [query, setQuery] = useState("");
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const flags = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -42,9 +43,23 @@ export default function BannerPicker({
     );
   }, [query]);
 
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open && scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [open, tab]);
+
   if (!open) return null;
 
   async function pick(preset: BannerPreset) {
+    if (saving || uploading) return;
     setSaving(true);
     try {
       await onSelect(preset.url);
@@ -58,36 +73,59 @@ export default function BannerPicker({
     { id: "colors", label: "Colors" },
     { id: "flags", label: "Flags" },
     { id: "music", label: "Music" },
-    { id: "upload", label: isBusiness ? "Storefront photo" : "Upload" },
+    { id: "upload", label: isBusiness ? "Photo" : "Upload" },
   ];
 
+  const list =
+    tab === "colors" ? COLOR_BANNERS : tab === "music" ? MUSIC_BANNERS : tab === "flags" ? flags : [];
+
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/45 sm:items-center">
-      <div className="flex max-h-[88vh] w-full max-w-lg flex-col rounded-t-2xl border border-border bg-pearl shadow-xl sm:rounded-2xl">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h3 className="text-[16px] font-bold text-charcoal">
-            {isBusiness ? "Storefront banner" : "Choose banner"}
-          </h3>
+    <div
+      className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center"
+      style={{ background: "rgba(0,0,0,0.55)" }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !saving && !uploading) onClose();
+      }}
+    >
+      <div
+        className="flex w-full flex-col bg-pearl shadow-2xl sm:max-w-xl sm:rounded-2xl"
+        style={{
+          height: "min(92vh, 720px)",
+          maxHeight: "92vh",
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+        }}
+      >
+        {/* Header — always visible */}
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+          <div>
+            <h3 className="text-[16px] font-bold text-charcoal">
+              {isBusiness ? "Storefront banner" : "Choose banner"}
+            </h3>
+            <p className="text-[11px] text-muted">Fabric design · tap to apply</p>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full px-3 py-1 text-[13px] font-semibold text-muted hover:bg-champagne/50"
+            disabled={saving || uploading}
+            className="rounded-full bg-champagne px-4 py-2 text-[13px] font-bold text-charcoal"
           >
             Close
           </button>
         </div>
 
-        <div className="flex gap-1 overflow-x-auto border-b border-border px-2 py-2">
+        {/* Tabs — always visible */}
+        <div className="flex shrink-0 gap-1 border-b border-border bg-pearl px-2 py-2">
           {tabs.map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
               className={
-                "shrink-0 rounded-full px-3 py-1.5 text-[12px] font-semibold transition " +
+                "flex-1 rounded-full py-2 text-[12px] font-bold transition " +
                 (tab === t.id
                   ? "bg-charcoal text-pearl"
-                  : "text-charcoal hover:bg-champagne/50")
+                  : "bg-champagne/60 text-charcoal")
               }
             >
               {t.label}
@@ -95,101 +133,34 @@ export default function BannerPicker({
           ))}
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-3">
-          {tab === "colors" && (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {COLOR_BANNERS.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  disabled={saving || uploading}
-                  onClick={() => pick(b)}
-                  className="overflow-hidden rounded-xl border border-border text-left transition hover:border-gold hover:shadow-md disabled:opacity-60"
-                >
-                  <div className="relative h-16 w-full overflow-hidden bg-champagne">
-                    <img src={b.url} alt={b.name} className="h-full w-full object-cover object-center" loading="lazy" />
-                  </div>
-                  <div className="px-2 py-1.5 text-[11px] font-semibold text-charcoal">
-                    {b.name}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {tab === "music" && (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {MUSIC_BANNERS.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  disabled={saving || uploading}
-                  onClick={() => pick(b)}
-                  className="overflow-hidden rounded-xl border border-border text-left transition hover:border-gold hover:shadow-md disabled:opacity-60"
-                >
-                  <div className="relative h-16 w-full overflow-hidden bg-champagne">
-                    <img src={b.url} alt={b.name} className="h-full w-full object-cover object-center" loading="lazy" />
-                  </div>
-                  <div className="px-2 py-1.5 text-[11px] font-semibold text-charcoal">
-                    {b.name}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
+        {/* Scrollable content — full remaining height */}
+        <div
+          ref={scrollRef}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           {tab === "flags" && (
-            <div>
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search country…"
-                className="mb-2 w-full rounded-xl border border-border bg-white px-3 py-2 text-[13px] outline-none focus:border-gold"
-              />
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {flags.map((b) => (
-                  <button
-                    key={b.id}
-                    type="button"
-                    disabled={saving || uploading}
-                    onClick={() => pick(b)}
-                    className="overflow-hidden rounded-xl border border-border text-left transition hover:border-gold hover:shadow-md disabled:opacity-60"
-                  >
-                    <div className="relative h-16 w-full overflow-hidden bg-champagne">
-                      <img
-                        src={b.url}
-                        alt={b.name}
-                        className="h-full w-full object-cover object-center"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="truncate px-2 py-1.5 text-[11px] font-semibold text-charcoal">
-                      {b.name}
-                    </div>
-                  </button>
-                ))}
-              </div>
-              {flags.length === 0 && (
-                <p className="py-6 text-center text-[13px] text-muted">
-                  No countries match.
-                </p>
-              )}
-            </div>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search country…"
+              className="mb-3 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-[14px] outline-none focus:border-gold"
+            />
           )}
 
-          {tab === "upload" && (
-            <div className="flex flex-col items-center gap-3 py-6">
-              <p className="px-4 text-center text-[13px] text-muted">
+          {tab === "upload" ? (
+            <div className="flex flex-col items-center gap-4 py-10">
+              <p className="px-4 text-center text-[14px] text-muted">
                 {isBusiness
                   ? "Upload a photo of your storefront, restaurant, or office."
                   : "Upload your own banner image (JPG, PNG, WebP)."}
               </p>
               <button
                 type="button"
-                disabled={uploading}
+                disabled={!!uploading || saving}
                 onClick={() => fileRef.current?.click()}
-                className="rounded-full bg-charcoal px-5 py-2.5 text-[13px] font-semibold text-pearl hover:bg-charcoal-soft disabled:opacity-60"
+                className="rounded-full bg-charcoal px-6 py-3 text-[14px] font-bold text-pearl"
               >
                 {uploading ? "Uploading…" : "Choose photo"}
               </button>
@@ -207,11 +178,45 @@ export default function BannerPicker({
                 }}
               />
             </div>
+          ) : (
+            <>
+              <p className="mb-2 text-[12px] text-muted">
+                {list.length} option{list.length === 1 ? "" : "s"}
+              </p>
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {list.map((b) => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    disabled={saving || uploading}
+                    onClick={() => pick(b)}
+                    className="overflow-hidden rounded-xl border border-border bg-white text-left shadow-sm transition active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <div className="aspect-[3/1] w-full overflow-hidden bg-champagne">
+                      <img
+                        src={b.url}
+                        alt={b.name}
+                        className="h-full w-full object-cover object-center"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="truncate px-2 py-1.5 text-[11px] font-semibold text-charcoal">
+                      {b.name}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {tab === "flags" && flags.length === 0 && (
+                <p className="py-10 text-center text-[14px] text-muted">No countries match.</p>
+              )}
+            </>
           )}
+          {/* bottom spacer so last row is not under mobile chrome */}
+          <div className="h-8" />
         </div>
 
         {(saving || uploading) && (
-          <div className="border-t border-border px-4 py-2 text-center text-[12px] text-muted">
+          <div className="shrink-0 border-t border-border bg-pearl px-4 py-3 text-center text-[13px] font-semibold text-charcoal">
             Saving banner…
           </div>
         )}
