@@ -46,6 +46,7 @@ import { formatNumber } from "@/lib/utils";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import MusicianTunes from "@/components/MusicianTunes";
+import BannerPicker from "@/components/BannerPicker";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -80,6 +81,7 @@ export default function ProfilePage() {
   const [reposts, setReposts] = useState<Post[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const [bannerPickerOpen, setBannerPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!username) return;
@@ -489,6 +491,47 @@ export default function ProfilePage() {
 
 
 
+  async function applyPresetBanner(url: string) {
+    if (!currentUserId || !profile) return;
+    setUploading(true);
+    try {
+      const { error } = await updateProfile(currentUserId, { banner_url: url } as any);
+      if (error) {
+        alert(error.message || "Could not save banner");
+        return;
+      }
+      setProfile({ ...profile, banner_url: url } as any);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleBannerFile(file: File) {
+    if (!currentUserId || !profile) return;
+    setUploading(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${currentUserId}/banner-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("banners")
+        .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+      if (upErr) {
+        alert("Banner upload failed: " + upErr.message);
+        return;
+      }
+      const { data: pub } = supabase.storage.from("banners").getPublicUrl(path);
+      const url = pub.publicUrl;
+      const { error } = await updateProfile(currentUserId, { banner_url: url } as any);
+      if (error) {
+        alert(error.message || "Could not save banner");
+        return;
+      }
+      setProfile({ ...profile, banner_url: url } as any);
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !currentUserId || !profile) return;
@@ -742,12 +785,12 @@ export default function ProfilePage() {
             <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => bannerInputRef.current?.click()}
+                onClick={() => setBannerPickerOpen(true)}
                 disabled={uploading}
                 className="rounded-full border border-border bg-pearl px-3.5 py-1.5 text-[12px] font-bold text-charcoal shadow-md transition hover:bg-champagne sm:px-4 sm:py-2 sm:text-[13px]"
                 title={isBusiness ? "Upload storefront photo" : "Upload banner"}
               >
-                {uploading ? "Uploading…" : isBusiness ? "Storefront photo" : "Banner"}
+                {uploading ? "Uploading…" : isBusiness ? "Storefront banner" : "Banner"}
               </button>
               <input
                 ref={bannerInputRef}
@@ -1396,6 +1439,14 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+        <BannerPicker
+          open={bannerPickerOpen}
+          onClose={() => setBannerPickerOpen(false)}
+          onSelect={applyPresetBanner}
+          onUploadFile={handleBannerFile}
+          uploading={uploading}
+          isBusiness={isBusiness}
+        />
         <MobileBottomNav />
     </div>
   );
