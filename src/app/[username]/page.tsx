@@ -570,8 +570,19 @@ export default function ProfilePage() {
         "mrsamsnuggles",
         "samsnuggles1",
         "samsnuggles",
+        "sam.snuggles",
+        "samsnuggles",
       ].includes(unameLower));
   // Privileged: @thevip 100% owner, @kendall.vip co-founder, @kennicktechnologies company
+  const isSamSnuggles = [
+    "mr.samsnuggles",
+    "mrsamsnuggles",
+    "samsnuggles1",
+    "samsnuggles",
+    "sam.snuggles",
+  ].includes(unameLower);
+  const isFounderAvatar =
+    unameLower === "thevip" || unameLower === "kendall.vip";
   const isProtectedFounder = [
     "thevip",
     "kendall.vip",
@@ -638,12 +649,28 @@ export default function ProfilePage() {
           </Link>
           {/* Personal only: avatar bottom-left. Business: never show profile photo. Musician: centered on banner */}
           {!isMusician && !isBusiness && (
-            <div className="absolute -bottom-[calc(1.25rem+2mm)] left-4">
-              <div className="relative">
+            <div
+              className="absolute left-4"
+              style={
+                isFounderAvatar
+                  ? { bottom: "calc(-1.25rem + 5mm)", width: "4mm", height: "4mm" }
+                  : { bottom: "calc(-1.25rem - 2mm)" }
+              }
+            >
+              <div className="relative" style={isFounderAvatar ? { width: "4mm", height: "4mm" } : undefined}>
                 <img
                   src={avatar}
                   alt={profile.display_name}
-                  className="h-[6.5rem] w-[6.5rem] rounded-full border-4 border-pearl bg-champagne object-cover sm:h-28 sm:w-28"
+                  className={
+                    isFounderAvatar
+                      ? "rounded-full border border-pearl bg-champagne object-cover"
+                      : "h-[6.5rem] w-[6.5rem] rounded-full border-4 border-pearl bg-champagne object-cover sm:h-28 sm:w-28"
+                  }
+                  style={
+                    isFounderAvatar
+                      ? { width: "4mm", height: "4mm", minWidth: "4mm", minHeight: "4mm" }
+                      : undefined
+                  }
                 />
                 {isOwnProfile && (
                   <>
@@ -651,13 +678,18 @@ export default function ProfilePage() {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
+                      className={
+                        isFounderAvatar
+                          ? "absolute -bottom-1 -right-1 flex items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
+                          : "absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full bg-charcoal text-pearl shadow-md transition hover:bg-charcoal-soft disabled:opacity-60"
+                      }
+                      style={isFounderAvatar ? { width: "3mm", height: "3mm" } : undefined}
                       title="Change photo"
                     >
                       {uploading ? (
                         <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                       ) : (
-                        <Camera className="h-4 w-4" />
+                        <Camera className={isFounderAvatar ? "h-[2mm] w-[2mm]" : "h-4 w-4"} />
                       )}
                     </button>
                     <input
@@ -675,8 +707,14 @@ export default function ProfilePage() {
 
           {isMusician && (
             <>
-              {/* Avatar bottom-center of banner (same for ALL musician accounts) */}
-              <div className="absolute bottom-0 left-1/2 z-[5] -translate-x-1/2 translate-y-1/2">
+              {/* Sam: true center of banner. Other musicians: bottom-center overlap */}
+              <div
+                className={
+                  isSamSnuggles
+                    ? "absolute left-1/2 top-1/2 z-[5] -translate-x-1/2 -translate-y-1/2"
+                    : "absolute bottom-0 left-1/2 z-[5] -translate-x-1/2 translate-y-1/2"
+                }
+              >
                 <div className="relative">
                   <img
                     src={avatar}
@@ -777,7 +815,7 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        <div className={`px-4 pb-3 ${isMusician ? "pt-12 sm:pt-14" : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-[calc(1.5rem-4mm)]"}`}>
+        <div className={`px-4 pb-3 ${isMusician ? (isSamSnuggles ? "pt-3 sm:pt-4" : "pt-12 sm:pt-14") : isBusiness ? "pt-[calc(0.75rem-2mm)]" : isFounderAvatar ? "pt-[calc(1.5rem-4mm-7mm)]" : "pt-[calc(1.5rem-4mm)]"}`}>
           <div className={`flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
