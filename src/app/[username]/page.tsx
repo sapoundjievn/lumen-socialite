@@ -46,7 +46,6 @@ import { formatNumber } from "@/lib/utils";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import MusicianTunes from "@/components/MusicianTunes";
-import BannerPicker from "@/components/BannerPicker";
 
 export default function ProfilePage() {
   const params = useParams();
@@ -81,7 +80,6 @@ export default function ProfilePage() {
   const [reposts, setReposts] = useState<Post[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
-  const [bannerPickerOpen, setBannerPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!username) return;
@@ -489,46 +487,7 @@ export default function ProfilePage() {
     }
   }
 
-  async function applyPresetBanner(url: string) {
-    if (!currentUserId || !profile) return;
-    setUploading(true);
-    try {
-      const { error } = await updateProfile(currentUserId, { banner_url: url } as any);
-      if (error) {
-        alert(error.message || "Could not save banner");
-        return;
-      }
-      setProfile({ ...profile, banner_url: url } as any);
-    } finally {
-      setUploading(false);
-    }
-  }
 
-  async function handleBannerFile(file: File) {
-    if (!currentUserId || !profile) return;
-    setUploading(true);
-    try {
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-      const path = `${currentUserId}/banner-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("banners")
-        .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
-      if (upErr) {
-        alert("Banner upload failed: " + upErr.message + " — create a public Storage bucket named banners");
-        return;
-      }
-      const { data: pub } = supabase.storage.from("banners").getPublicUrl(path);
-      const url = pub.publicUrl;
-      const { error } = await updateProfile(currentUserId, { banner_url: url } as any);
-      if (error) {
-        alert(error.message || "Could not save banner");
-        return;
-      }
-      setProfile({ ...profile, banner_url: url } as any);
-    } finally {
-      setUploading(false);
-    }
-  }
 
   async function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -778,17 +737,17 @@ export default function ProfilePage() {
             </>
           )}
 
-          {/* Own profile actions on banner — high z so never hidden */}
+          {/* Own profile: simple banner upload */}
           {isOwnProfile && (
             <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setBannerPickerOpen(true)}
+                onClick={() => bannerInputRef.current?.click()}
                 disabled={uploading}
                 className="rounded-full border border-border bg-pearl px-3.5 py-1.5 text-[12px] font-bold text-charcoal shadow-md transition hover:bg-champagne sm:px-4 sm:py-2 sm:text-[13px]"
-                title={isBusiness ? "Storefront banner / photo" : "Change banner"}
+                title={isBusiness ? "Upload storefront photo" : "Upload banner"}
               >
-                {isBusiness ? "Storefront banner" : "Change banner"}
+                {uploading ? "Uploading…" : isBusiness ? "Storefront photo" : "Banner"}
               </button>
               <input
                 ref={bannerInputRef}
@@ -1089,36 +1048,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {isOwnProfile && (
-          <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
-            <button
-              type="button"
-              onClick={() => setBannerPickerOpen(true)}
-              disabled={uploading}
-              className="rounded-full border border-border bg-pearl px-3 py-1.5 text-[12px] font-bold text-charcoal shadow-sm hover:bg-champagne disabled:opacity-60"
-            >
-              {isBusiness ? "Storefront banner" : "Change banner"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setEditName(profile.display_name);
-                setEditBio(profile.bio || "");
-                setEditBusinessAddress((profile as any).business_address || "");
-                setEditBusinessType((profile as any).business_type || "");
-                const existing = (profile as any).links || [];
-                setEditLinks([existing[0] || "", existing[1] || "", existing[2] || ""]);
-                setEditPassword("");
-                setEditPassword2("");
-                setAccountMsg("");
-                setEditOpen(true);
-              }}
-              className="rounded-full border border-border bg-pearl px-3 py-1.5 text-[12px] font-bold text-charcoal shadow-sm hover:bg-champagne"
-            >
-              Edit profile
-            </button>
-          </div>
-        )}
 
         {isMusician && (
           <div className="mt-0" style={{ marginTop: "1mm" }}>
@@ -1467,15 +1396,6 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
-
-      <BannerPicker
-          open={bannerPickerOpen}
-          onClose={() => setBannerPickerOpen(false)}
-          onSelect={applyPresetBanner}
-          onUploadFile={handleBannerFile}
-          uploading={uploading}
-          isBusiness={isBusiness}
-        />
         <MobileBottomNav />
     </div>
   );
