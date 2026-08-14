@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   COLOR_BANNERS,
-  FLAG_BANNERS,
   MUSIC_BANNERS,
   type BannerPreset,
 } from "@/lib/banner-presets";
 
-type Tab = "colors" | "flags" | "music" | "upload";
+type Tab = "colors" | "music" | "upload";
 
 interface Props {
   open: boolean;
@@ -28,18 +27,9 @@ export default function BannerPicker({
   isBusiness,
 }: Props) {
   const [tab, setTab] = useState<Tab>("colors");
-  const [query, setQuery] = useState("");
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const flags = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return FLAG_BANNERS;
-    return FLAG_BANNERS.filter(
-      (f) => f.name.toLowerCase().includes(q) || f.id.includes(q)
-    );
-  }, [query]);
 
   useEffect(() => {
     if (!open) return;
@@ -67,18 +57,10 @@ export default function BannerPicker({
     }
   }
 
-  const list =
-    tab === "colors"
-      ? COLOR_BANNERS
-      : tab === "music"
-        ? MUSIC_BANNERS
-        : tab === "flags"
-          ? flags
-          : [];
+  const list = tab === "colors" ? COLOR_BANNERS : tab === "music" ? MUSIC_BANNERS : [];
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "colors", label: "Colors" },
-    { id: "flags", label: "Flags" },
     { id: "music", label: "Music" },
     { id: "upload", label: "Upload" },
   ];
@@ -132,16 +114,6 @@ export default function BannerPicker({
           className="min-h-0 flex-1 overflow-y-auto px-3 py-3"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          {tab === "flags" && (
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search country…"
-              className="mb-3 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-[14px] outline-none"
-            />
-          )}
-
           {tab === "upload" ? (
             <div className="flex flex-col items-center gap-4 py-10">
               <p className="text-center text-[14px] text-muted">
