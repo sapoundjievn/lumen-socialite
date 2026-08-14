@@ -68,27 +68,18 @@ export default function Sidebar() {
     { icon: MoreHorizontal, label: t("more"), href: "/more" },
   ];
 
-  const isMusician =
-    ((profile as any)?.account_type || "personal") === "musician";
-  const logoSrc = isMusician
-    ? "/gold-record-framed.jpg"
-    : "/logo-official.jpg";
-
   return (
     <aside className="sticky top-0 flex h-screen w-[275px] shrink-0 flex-col justify-between self-start overflow-y-auto px-3 py-3 xl:w-[275px]">
       <div>
-        {/* Logo: framed gold record for musician accounts only; coin logo for everyone else — same size */}
+        {/* Square plaque logo ~2×2 inch, no border, matches page pearl */}
         <div className="mb-1 flex items-center px-3 pt-1">
-          <Link href="/">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={logoSrc}
-              alt="Lumen · Socialite"
-              className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-pearl shadow-none outline-none ring-0"
-              width={192}
-              height={192}
-            />
-          </Link>
+          <img
+            src="/logo-official.jpg"
+            alt="Lumen · Socialite"
+            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-pearl shadow-none outline-none ring-0"
+            width={192}
+            height={192}
+          />
         </div>
 
         <nav className="mt-0.5 space-y-0.5">
