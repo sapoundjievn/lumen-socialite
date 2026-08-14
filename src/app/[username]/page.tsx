@@ -1097,6 +1097,21 @@ export default function ProfilePage() {
 
 
         {isMusician && (
+          <div className="flex w-full justify-center border-b border-border bg-gradient-to-b from-champagne/40 to-pearl px-4 py-4">
+            <div className="w-full max-w-[220px] sm:max-w-[260px]">
+              <img
+                src="/gold-record-framed.jpg"
+                alt="Lumen · Socialite Gold Record"
+                className="h-auto w-full rounded-sm shadow-md"
+              />
+              <p className="mt-2 text-center text-[10px] font-semibold tracking-wide text-gold-deep">
+                Lumen · Socialite · Gold Record
+              </p>
+            </div>
+          </div>
+        )}
+
+        {isMusician && (
           <div className="mt-0" style={{ marginTop: "1mm" }}>
             <MusicianTunes
               profileId={profile.id}
