@@ -4,7 +4,7 @@
  */
 const config = {
   appId: "com.kennicktechnologies.lumen",
-  appName: "Lumen Socialite",
+  appName: "LUMS",
   webDir: "public",
   server: {
     url: "https://lumen-socialite.vercel.app",
