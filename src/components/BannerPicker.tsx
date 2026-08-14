@@ -158,10 +158,14 @@ export default function BannerPicker({
                     onClick={() => pick(b)}
                     className="overflow-hidden rounded-xl border border-border text-left transition hover:border-gold hover:shadow-md disabled:opacity-60"
                   >
-                    <div
-                      className="h-14 w-full bg-cover bg-center"
-                      style={{ backgroundImage: `url("${b.url}")` }}
-                    />
+                    <div className="relative h-16 w-full overflow-hidden bg-champagne">
+                      <img
+                        src={b.url}
+                        alt={b.name}
+                        className="h-full w-full object-cover object-center"
+                        loading="lazy"
+                      />
+                    </div>
                     <div className="truncate px-2 py-1.5 text-[11px] font-semibold text-charcoal">
                       {b.name}
                     </div>
