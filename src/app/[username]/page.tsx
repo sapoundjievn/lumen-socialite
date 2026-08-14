@@ -780,61 +780,65 @@ export default function ProfilePage() {
             </>
           )}
 
-          {/* Own profile: simple banner upload */}
+          {/* Own profile: Banner left, Edit + Share right */}
           {isOwnProfile && (
-            <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setBannerPickerOpen(true)}
-                disabled={uploading}
-                className="rounded-full border border-border bg-pearl px-3.5 py-1.5 text-[12px] font-bold text-charcoal shadow-md transition hover:bg-champagne sm:px-4 sm:py-2 sm:text-[13px]"
-                title={isBusiness ? "Upload storefront photo" : "Upload banner"}
-              >
-                {uploading ? "Uploading…" : isBusiness ? "Storefront banner" : "Banner"}
-              </button>
-              <input
-                ref={bannerInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleBannerChange}
-              />
-              <button
-                type="button"
-                onClick={async () => {
-                  setEditName(profile.display_name);
-                  setEditBio(profile.bio || "");
-                  setEditBusinessAddress((profile as any).business_address || "");
-                  setEditBusinessType((profile as any).business_type || "");
-                  const existing = (profile as any).links || [];
-                  setEditLinks([
-                    existing[0] || "",
-                    existing[1] || "",
-                    existing[2] || "",
-                  ]);
-                  setEditPassword("");
-                  setEditPassword2("");
-                  setAccountMsg("");
-                  try {
-                    const { data: { user } } = await supabase.auth.getUser();
-                    setEditEmail(user?.email || "");
-                  } catch {
-                    setEditEmail("");
-                  }
-                  setEditOpen(true);
-                }}
-                className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
-              >
-                Edit profile
-              </button>
-              <button
-                type="button"
-                onClick={shareProfile}
-                className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
-              >
-                Share
-              </button>
-            </div>
+            <>
+              <div className="absolute bottom-3 left-3 z-30">
+                <button
+                  type="button"
+                  onClick={() => setBannerPickerOpen(true)}
+                  disabled={uploading}
+                  className="rounded-full border border-border bg-pearl px-3.5 py-1.5 text-[12px] font-bold text-charcoal shadow-md transition hover:bg-champagne sm:px-4 sm:py-2 sm:text-[13px]"
+                  title={isBusiness ? "Upload storefront photo" : "Upload banner"}
+                >
+                  {uploading ? "Uploading…" : isBusiness ? "Storefront banner" : "Banner"}
+                </button>
+                <input
+                  ref={bannerInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleBannerChange}
+                />
+              </div>
+              <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setEditName(profile.display_name);
+                    setEditBio(profile.bio || "");
+                    setEditBusinessAddress((profile as any).business_address || "");
+                    setEditBusinessType((profile as any).business_type || "");
+                    const existing = (profile as any).links || [];
+                    setEditLinks([
+                      existing[0] || "",
+                      existing[1] || "",
+                      existing[2] || "",
+                    ]);
+                    setEditPassword("");
+                    setEditPassword2("");
+                    setAccountMsg("");
+                    try {
+                      const { data: { user } } = await supabase.auth.getUser();
+                      setEditEmail(user?.email || "");
+                    } catch {
+                      setEditEmail("");
+                    }
+                    setEditOpen(true);
+                  }}
+                  className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
+                >
+                  Edit profile
+                </button>
+                <button
+                  type="button"
+                  onClick={shareProfile}
+                  className="rounded-full border border-border/80 bg-pearl/95 px-3 py-1 text-[12px] font-semibold text-charcoal shadow-sm backdrop-blur-sm transition hover:bg-champagne/60 sm:px-3.5 sm:py-1.5 sm:text-[13px]"
+                >
+                  Share
+                </button>
+              </div>
+            </>
           )}
         </div>
 

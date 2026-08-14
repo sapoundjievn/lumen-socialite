@@ -378,17 +378,20 @@ export default function MusicianTunes({
   const row2 = [7, 8, 9, 10, 11, 12, 13];
 
   return (
-    <div className="w-full min-w-0 overflow-hidden px-1 sm:px-0">
-      <p className="mb-1 text-center text-[11px] font-bold tracking-wide text-gold-deep" style={{ marginTop: "-2mm" }}>
+    <div className="w-full min-w-0 px-1 sm:px-0">
+      <p
+        className="mb-1 w-full text-center text-[11px] font-bold tracking-wide text-gold-deep sm:text-[12px]"
+        style={{ marginTop: "-2mm" }}
+      >
         {username ? (
           <Link
             href={`/music-description?artist=${encodeURIComponent(username)}`}
-            className="hover:underline"
+            className="inline-block w-full whitespace-normal break-words hover:underline"
           >
             Open here for music description
           </Link>
         ) : (
-          "LumenTunes · 1-min samples"
+          <span className="inline-block w-full">LumenTunes · 1-min samples</span>
         )}
       </p>
       {/* Top row: controls above slots, 1mm gaps, horizontal 10mm x 3mm */}
