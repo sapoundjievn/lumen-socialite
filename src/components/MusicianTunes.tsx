@@ -1,11 +1,10 @@
 "use client";
 
 /* ============================================================
- * SAMPLE SLOT SIZE LOCKED (owner approval required to change)
- * Boxes: 22mm wide x 5mm tall, horizontal, square corners
- * Text fitted inside (~21mm x 4mm)
+ * SAMPLE SLOTS — 7 per row, square corners, horizontal
+ * Desktop: similar to prior 22mm x 5mm look
+ * Mobile: equal-width fluid boxes (no overflow / no stacking)
  * Controls: top row above slots, bottom row below slots
- * Gap: 1mm between controls/slots
  * ============================================================ */
 
 import { useEffect, useRef, useState } from "react";
@@ -285,7 +284,7 @@ export default function MusicianTunes({
 
     return (
       <div
-        className="flex flex-col items-center"
+        className="flex w-full min-w-0 flex-col items-center"
         style={{ gap: "1mm" }}
       >
         {controls === "top" && controlsRow}
@@ -303,10 +302,14 @@ export default function MusicianTunes({
             rename(slot);
           }}
           title={t ? name : locked ? "Locked" : "Upload 1-min sample"}
-          /* LOCKED by owner — sample slots 22mm x 5mm square corners. Do NOT change size/shape without explicit approval. */
-          style={{ width: "22mm", height: "5mm", borderRadius: 0 }}
+          style={{
+            width: "100%",
+            height: "clamp(18px, 5mm, 26px)",
+            borderRadius: 0,
+            minWidth: 0,
+          }}
           className={
-            "flex shrink-0 items-center justify-center overflow-hidden border px-0 font-semibold leading-none transition " +
+            "flex w-full min-w-0 items-center justify-center overflow-hidden border px-0.5 font-semibold leading-none transition " +
             (t
               ? "border-gold/40 bg-champagne/40 text-charcoal hover:bg-gold/15"
               : locked
@@ -315,12 +318,10 @@ export default function MusicianTunes({
           }
         >
           <span
-            className="block overflow-hidden truncate text-center font-semibold"
+            className="block w-full min-w-0 overflow-hidden truncate text-center font-semibold"
             style={{
-              width: "21mm",
-              height: "4mm",
-              fontSize: "2.7mm",
-              lineHeight: "4mm",
+              fontSize: "clamp(7px, 2.2vw, 11px)",
+              lineHeight: "clamp(18px, 5mm, 26px)",
             }}
           >
             {busySlot === slot ? "…" : label}
@@ -377,7 +378,7 @@ export default function MusicianTunes({
   const row2 = [7, 8, 9, 10, 11, 12, 13];
 
   return (
-    <div className="w-full px-0">
+    <div className="w-full min-w-0 overflow-hidden px-1 sm:px-0">
       <p className="mb-1 text-center text-[11px] font-bold tracking-wide text-gold-deep" style={{ marginTop: "-2mm" }}>
         {username ? (
           <Link
@@ -392,8 +393,11 @@ export default function MusicianTunes({
       </p>
       {/* Top row: controls above slots, 1mm gaps, horizontal 10mm x 3mm */}
       <div
-        className="grid w-full grid-cols-7 place-items-center"
-        style={{ gap: "1mm" }}
+        className="grid w-full grid-cols-7 items-start"
+        style={{
+          gap: "1mm",
+          gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+        }}
       >
         {row1.map((s) => (
           <SlotButton key={s} slot={s} controls="top" />
@@ -401,8 +405,12 @@ export default function MusicianTunes({
       </div>
       {/* Bottom row: controls below slots */}
       <div
-        className="grid w-full grid-cols-7 place-items-center"
-        style={{ gap: "1mm", marginTop: "1mm" }}
+        className="grid w-full grid-cols-7 items-start"
+        style={{
+          gap: "1mm",
+          marginTop: "1mm",
+          gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+        }}
       >
         {row2.map((s) => (
           <SlotButton key={s} slot={s} controls="bottom" />
