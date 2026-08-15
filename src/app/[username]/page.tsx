@@ -635,6 +635,11 @@ export default function ProfilePage() {
     "kennick",
     "kennicktechnologiesllc",
   ].includes((profile?.username || "").toLowerCase());
+  // Personal + business only: action buttons sit under stats (not founders, not musicians)
+  const actionsBelowStats =
+    !isMusician &&
+    unameLower !== "thevip" &&
+    unameLower !== "kendall.vip";
 
   async function openPeopleList(kind: "followers" | "following" | "friends") {
     if (!profile) return;
@@ -929,7 +934,8 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {!isOwnProfile && (
+            {/* Top-side actions only for musicians + @thevip / @kendall.vip */}
+            {!isOwnProfile && !actionsBelowStats && (
               <div className={`flex flex-shrink-0 gap-2 ${isMusician ? "flex-row justify-center" : "flex-col sm:flex-row"}`}>
                 <button
                   type="button"
@@ -971,7 +977,6 @@ export default function ProfilePage() {
                 >
                   Share
                 </button>
-                {/* No Block/Report on privileged @thevip @kendall.vip @kennicktechnologies */}
                 {!isProtectedFounder && (
                   <div className="flex items-center gap-1">
                     <button
@@ -1105,6 +1110,114 @@ export default function ProfilePage() {
               </button>
             )}
           </div>
+
+          {/* Personal + business: action row between stats and Enlightenments border */}
+          {!isOwnProfile && actionsBelowStats && (
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleFollow}
+                disabled={followLoading}
+                className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition ${
+                  following
+                    ? "border border-border text-charcoal hover:bg-champagne/40"
+                    : "bg-charcoal text-pearl hover:bg-charcoal-soft"
+                }`}
+              >
+                {followLoading ? "..." : following ? "Following" : "Follow"}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!currentUserId || !profile) {
+                    alert("Please sign in");
+                    return;
+                  }
+                  const { conversationId, error } = await getOrCreateConversation(
+                    currentUserId,
+                    profile.id
+                  );
+                  if (error || !conversationId) {
+                    alert(error?.message || "Could not open messages");
+                    return;
+                  }
+                  router.push(`/messages/${conversationId}`);
+                }}
+                className="rounded-full border border-border px-2.5 py-1 text-[12px] font-semibold text-charcoal transition hover:bg-champagne/40"
+              >
+                Message
+              </button>
+              <button
+                type="button"
+                onClick={shareProfile}
+                className="rounded-full border border-border px-2.5 py-1 text-[12px] font-semibold text-charcoal transition hover:bg-champagne/40"
+              >
+                Share
+              </button>
+              <button
+                type="button"
+                onClick={handleFriend}
+                disabled={friendLoading}
+                className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition ${
+                  friendStatus === "friends"
+                    ? "border border-[#C9A86C] text-[#C9A86C] hover:bg-champagne/40"
+                    : friendStatus === "pending_received"
+                    ? "bg-gold text-white hover:bg-gold-deep"
+                    : friendStatus === "pending_sent"
+                    ? "border border-border text-muted hover:bg-champagne/40"
+                    : "border border-border text-charcoal hover:bg-champagne/40"
+                }`}
+              >
+                {friendLoading ? "..." : friendButtonLabel()}
+              </button>
+              {!isProtectedFounder && (
+                <>
+                  <button
+                    type="button"
+                    title="Block"
+                    onClick={async () => {
+                      if (!currentUserId || !profile) {
+                        alert("Please sign in");
+                        return;
+                      }
+                      if (!confirm(`Block @${profile.username}?`)) return;
+                      const { error } = await blockUser(currentUserId, profile.id);
+                      if (error) alert(error.message);
+                      else {
+                        alert("Blocked. Their posts will be hidden from your feed.");
+                        router.push("/");
+                      }
+                    }}
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-rose-200/80 text-rose-500 transition hover:bg-rose-50"
+                  >
+                    <Ban className="h-3 w-3" />
+                  </button>
+                  <button
+                    type="button"
+                    title="Report"
+                    onClick={async () => {
+                      if (!currentUserId || !profile) {
+                        alert("Please sign in");
+                        return;
+                      }
+                      const reason = window.prompt("Report reason:", "other");
+                      if (!reason) return;
+                      const { error } = await reportContent({
+                        reporterId: currentUserId,
+                        reason,
+                        reportedUserId: profile.id,
+                      });
+                      if (error) alert(error.message);
+                      else alert("Report submitted.");
+                    }}
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-muted transition hover:bg-champagne/40 hover:text-charcoal"
+                  >
+                    <Flag className="h-3 w-3" />
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
 
