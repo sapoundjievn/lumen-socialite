@@ -1,0 +1,431 @@
+2026-08-15 07:19:30 +0000  Initial pipeline context: <IDEDistributionProcessingPipelineContext: 0xc8760ad00; archive(resolved)="<IDEArchive: 0xc971857a0>", distributionTask(resolved)="2", distributionDestination(resolved)="1", distributionMethod(resolved)="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team(resolved)="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	Chain (22, self inclusive):
+	<IDEDistributionProcessingPipelineContext: 0xc8760ad00; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionProcessingPipelineContext: 0xc8760b000; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionContext: 0xc87607980; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionContext: 0xc87606d00; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionContext: 0xc87606a80; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionContext: 0xc87606800; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionContext: 0xc87606580; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionContext: 0xc87605180; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionContext: 0xc87604c80; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="<IDEProvisioningDisambiguatableBasicTeam: 0xc8f5a2000; teamID='29VV27HDN5', teamName='Nikolay Sapoundjiev', teamType='Individual', username='sapoundjievn@icloud.com', isFreeProvisioningTeam='0'>">
+	<IDEDistributionContext: 0xc87605680; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="(null)">
+	<IDEDistributionContext: 0xc87604f00; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="(null)">
+	<IDEDistributionContext: 0xc87605400; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="(null)">
+	<IDEDistributionContext: 0xc87606300; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="<IDEDistributionMethodDevelopmentSigned: 0xcc279d840>", team="(null)">
+	<IDEDistributionContext: 0xc87605900; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+	<IDEDistributionContext: 0xc88c16f80; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+	<IDEDistributionContext: 0xc897f6800; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+	<IDEDistributionContext: 0xc8aedad00; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+	<IDEDistributionContext: 0xc89640500; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+	<IDEDistributionContext: 0xc8ae4d400; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+	<IDEDistributionContext: 0xc8a6eb700; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+	<IDEDistributionContext: 0xc8a640780; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+	<IDEDistributionContext: 0xc8a640a00; archive = "<IDEArchive: 0xc971857a0>", distributionMethod="(null)", team="(null)">
+</IDEDistributionProcessingPipelineContext: 0xc8760ad00>
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionCreateDestRootStep
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionCopyItemStep
+2026-08-15 07:19:30 +0000  Running /usr/bin/ditto '-V' '/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app' '/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app'
+2026-08-15 07:19:30 +0000  >>> Copying /Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app 
+2026-08-15 07:19:30 +0000  copying file ./_CodeSignature/CodeResources ... 
+2026-08-15 07:19:30 +0000  16617 bytes for ./_CodeSignature/CodeResources
+2026-08-15 07:19:30 +0000  copying file ./App ... 
+2026-08-15 07:19:30 +0000  107408 bytes for ./App
+2026-08-15 07:19:30 +0000  copying file ./AppIcon60x60@2x.png ... 
+2026-08-15 07:19:30 +0000  20106 bytes for ./AppIcon60x60@2x.png
+2026-08-15 07:19:30 +0000  copying file ./Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib ... 
+2026-08-15 07:19:30 +0000  858 bytes for ./Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib
+2026-08-15 07:19:30 +0000  copying file ./Base.lproj/Main.storyboardc/Info.plist ... 
+2026-08-15 07:19:30 +0000  258 bytes for ./Base.lproj/Main.storyboardc/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-snD-IY-ifK.nib ... 
+2026-08-15 07:19:30 +0000  1278 bytes for ./Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-snD-IY-ifK.nib
+2026-08-15 07:19:30 +0000  copying file ./Base.lproj/LaunchScreen.storyboardc/UIViewController-01J-lp-oVM.nib ... 
+2026-08-15 07:19:30 +0000  924 bytes for ./Base.lproj/LaunchScreen.storyboardc/UIViewController-01J-lp-oVM.nib
+2026-08-15 07:19:30 +0000  copying file ./Base.lproj/LaunchScreen.storyboardc/Info.plist ... 
+2026-08-15 07:19:30 +0000  258 bytes for ./Base.lproj/LaunchScreen.storyboardc/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./config.xml ... 
+2026-08-15 07:19:30 +0000  185 bytes for ./config.xml
+2026-08-15 07:19:30 +0000  copying file ./public/gold-record-framed.jpg ... 
+2026-08-15 07:19:30 +0000  650093 bytes for ./public/gold-record-framed.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/AppIcon-1024.jpg ... 
+2026-08-15 07:19:30 +0000  300564 bytes for ./public/AppIcon-1024.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/file.svg ... 
+2026-08-15 07:19:30 +0000  391 bytes for ./public/file.svg
+2026-08-15 07:19:30 +0000  copying file ./public/cordova.js ... 
+2026-08-15 07:19:30 +0000  0 bytes for ./public/cordova.js
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-pearl.jpg ... 
+2026-08-15 07:19:30 +0000  239876 bytes for ./public/banners/color-pearl.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-midnight.jpg ... 
+2026-08-15 07:19:30 +0000  292784 bytes for ./public/banners/color-midnight.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-gold.jpg ... 
+2026-08-15 07:19:30 +0000  372390 bytes for ./public/banners/color-gold.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/music-gold-mix.jpg ... 
+2026-08-15 07:19:30 +0000  328735 bytes for ./public/banners/music-gold-mix.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-emerald.jpg ... 
+2026-08-15 07:19:30 +0000  341099 bytes for ./public/banners/color-emerald.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-obsidian.jpg ... 
+2026-08-15 07:19:30 +0000  19234 bytes for ./public/banners/color-obsidian.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-ocean.jpg ... 
+2026-08-15 07:19:30 +0000  54647 bytes for ./public/banners/color-ocean.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/music-navy-studio.jpg ... 
+2026-08-15 07:19:30 +0000  204914 bytes for ./public/banners/music-navy-studio.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/music-champagne-mix.jpg ... 
+2026-08-15 07:19:30 +0000  359114 bytes for ./public/banners/music-champagne-mix.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-amethyst.jpg ... 
+2026-08-15 07:19:30 +0000  48983 bytes for ./public/banners/color-amethyst.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/music-black-gold-rock.jpg ... 
+2026-08-15 07:19:30 +0000  335439 bytes for ./public/banners/music-black-gold-rock.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-rainbow.jpg ... 
+2026-08-15 07:19:30 +0000  264215 bytes for ./public/banners/color-rainbow.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/usa-fabric.jpg ... 
+2026-08-15 07:19:30 +0000  162193 bytes for ./public/banners/usa-fabric.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-sunset.jpg ... 
+2026-08-15 07:19:30 +0000  77192 bytes for ./public/banners/color-sunset.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/music-rosewood-strings.jpg ... 
+2026-08-15 07:19:30 +0000  469344 bytes for ./public/banners/music-rosewood-strings.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-copper.jpg ... 
+2026-08-15 07:19:30 +0000  65726 bytes for ./public/banners/color-copper.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/music-emerald-brass.jpg ... 
+2026-08-15 07:19:30 +0000  318946 bytes for ./public/banners/music-emerald-brass.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/music-pearl-orchestra.jpg ... 
+2026-08-15 07:19:30 +0000  240599 bytes for ./public/banners/music-pearl-orchestra.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-frost.jpg ... 
+2026-08-15 07:19:30 +0000  79332 bytes for ./public/banners/color-frost.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-silver.jpg ... 
+2026-08-15 07:19:30 +0000  375159 bytes for ./public/banners/color-silver.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-champagne.jpg ... 
+2026-08-15 07:19:30 +0000  267784 bytes for ./public/banners/color-champagne.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-rose.jpg ... 
+2026-08-15 07:19:30 +0000  324372 bytes for ./public/banners/color-rose.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/banners/color-lavender.jpg ... 
+2026-08-15 07:19:30 +0000  275343 bytes for ./public/banners/color-lavender.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/logo-official.png ... 
+2026-08-15 07:19:30 +0000  895049 bytes for ./public/logo-official.png
+2026-08-15 07:19:30 +0000  copying file ./public/logo-official.jpg ... 
+2026-08-15 07:19:30 +0000  300564 bytes for ./public/logo-official.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/logo.jpg ... 
+2026-08-15 07:19:30 +0000  300564 bytes for ./public/logo.jpg
+2026-08-15 07:19:30 +0000  copying file ./public/logo.png ... 
+2026-08-15 07:19:30 +0000  895049 bytes for ./public/logo.png
+2026-08-15 07:19:30 +0000  copying file ./public/vercel.svg ... 
+2026-08-15 07:19:30 +0000  128 bytes for ./public/vercel.svg
+2026-08-15 07:19:30 +0000  copying file ./public/next.svg ... 
+2026-08-15 07:19:30 +0000  1375 bytes for ./public/next.svg
+2026-08-15 07:19:30 +0000  copying file ./public/cordova_plugins.js ... 
+2026-08-15 07:19:30 +0000  0 bytes for ./public/cordova_plugins.js
+2026-08-15 07:19:30 +0000  copying file ./public/LOGO-OFFICIAL.txt ... 
+2026-08-15 07:19:30 +0000  112 bytes for ./public/LOGO-OFFICIAL.txt
+2026-08-15 07:19:30 +0000  copying file ./public/globe.svg ... 
+2026-08-15 07:19:30 +0000  1035 bytes for ./public/globe.svg
+2026-08-15 07:19:30 +0000  copying file ./public/window.svg ... 
+2026-08-15 07:19:30 +0000  385 bytes for ./public/window.svg
+2026-08-15 07:19:30 +0000  copying file ./public/kendall-banner.jpg ... 
+2026-08-15 07:19:30 +0000  242821 bytes for ./public/kendall-banner.jpg
+2026-08-15 07:19:30 +0000  copying file ./Assets.car ... 
+2026-08-15 07:19:30 +0000  2057640 bytes for ./Assets.car
+2026-08-15 07:19:30 +0000  copying file ./AppIcon76x76@2x~ipad.png ... 
+2026-08-15 07:19:30 +0000  30818 bytes for ./AppIcon76x76@2x~ipad.png
+2026-08-15 07:19:30 +0000  copying file ./AppIcon.png ... 
+2026-08-15 07:19:30 +0000  1105740 bytes for ./AppIcon.png
+2026-08-15 07:19:30 +0000  copying file ./capacitor.config.json ... 
+2026-08-15 07:19:30 +0000  317 bytes for ./capacitor.config.json
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Capacitor.framework/_CodeSignature/CodeResources ... 
+2026-08-15 07:19:30 +0000  2252 bytes for ./Frameworks/Capacitor.framework/_CodeSignature/CodeResources
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Capacitor.framework/native-bridge.js ... 
+2026-08-15 07:19:30 +0000  53467 bytes for ./Frameworks/Capacitor.framework/native-bridge.js
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Capacitor.framework/Capacitor ... 
+2026-08-15 07:19:30 +0000  868096 bytes for ./Frameworks/Capacitor.framework/Capacitor
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Capacitor.framework/PrivacyInfo.xcprivacy ... 
+2026-08-15 07:19:30 +0000  373 bytes for ./Frameworks/Capacitor.framework/PrivacyInfo.xcprivacy
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Capacitor.framework/Info.plist ... 
+2026-08-15 07:19:30 +0000  762 bytes for ./Frameworks/Capacitor.framework/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Cordova.framework/_CodeSignature/CodeResources ... 
+2026-08-15 07:19:30 +0000  2034 bytes for ./Frameworks/Cordova.framework/_CodeSignature/CodeResources
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Cordova.framework/Cordova ... 
+2026-08-15 07:19:30 +0000  129504 bytes for ./Frameworks/Cordova.framework/Cordova
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Cordova.framework/PrivacyInfo.xcprivacy ... 
+2026-08-15 07:19:30 +0000  373 bytes for ./Frameworks/Cordova.framework/PrivacyInfo.xcprivacy
+2026-08-15 07:19:30 +0000  copying file ./Frameworks/Cordova.framework/Info.plist ... 
+2026-08-15 07:19:30 +0000  794 bytes for ./Frameworks/Cordova.framework/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./embedded.mobileprovision ... 
+2026-08-15 07:19:30 +0000  12336 bytes for ./embedded.mobileprovision
+2026-08-15 07:19:30 +0000  copying file ./Info.plist ... 
+2026-08-15 07:19:30 +0000  1714 bytes for ./Info.plist
+2026-08-15 07:19:30 +0000  copying file ./PkgInfo ... 
+2026-08-15 07:19:30 +0000  8 bytes for ./PkgInfo
+2026-08-15 07:19:30 +0000  /usr/bin/ditto exited with 0
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionEmbedProfileStep
+2026-08-15 07:19:30 +0000  Skipping profile for item: <IDEDistributionItem: 0xcc5be1380; bundleID='com.capacitorjs.ios.Capacitor', path='<DVTFilePath:0xc972e8700:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be15c0; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0976040; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='(null)', teamID='29VV27HDN5', identifier='com.capacitorjs.ios.Capacitor', executablePath='<DVTFilePath:0xcaefcc2a0:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework/Capacitor'>', hardenedRuntime='0'>'>
+2026-08-15 07:19:30 +0000  Skipping profile for item: <IDEDistributionItem: 0xcc5be3d20; bundleID='com.getcapacitor.ios.CapacitorCordova', path='<DVTFilePath:0xc972ea300:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be2ee0; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0976040; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='(null)', teamID='29VV27HDN5', identifier='com.getcapacitor.ios.CapacitorCordova', executablePath='<DVTFilePath:0xcaeee3420:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework/Cordova'>', hardenedRuntime='0'>'>
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionInfoPlistStep
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionInfoPlistStep because it said so
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionInfoPlistStep because it said so
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionInfoPlistStep because it said so
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionAppThinningPlistStep
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionAppThinningPlistStep because it said so
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionSymbolsStep
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionSymbolsStep because it said so
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionAppThinningStep
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionAppThinningStep because it said so
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionArchThinningStep
+2026-08-15 07:19:30 +0000  Archs to thin for item /Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework are []
+2026-08-15 07:19:30 +0000  Archs to thin for item /Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework are []
+2026-08-15 07:19:30 +0000  Archs to thin for item /Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app are []
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionODRStep
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionStripXattrsStep
+2026-08-15 07:19:30 +0000  Skipping stripping extended attributes because the codesign step will strip them.
+2026-08-15 07:19:30 +0000  Skipping stripping extended attributes because the codesign step will strip them.
+2026-08-15 07:19:30 +0000  Skipping stripping extended attributes because the codesign step will strip them.
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionCodesignStep
+2026-08-15 07:19:30 +0000  Entitlements for <IDEDistributionItem: 0xcc5be1380; bundleID='com.capacitorjs.ios.Capacitor', path='<DVTFilePath:0xc972e8700:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be15c0; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0976040; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='(null)', teamID='29VV27HDN5', identifier='com.capacitorjs.ios.Capacitor', executablePath='<DVTFilePath:0xcaefcc2a0:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework/Capacitor'>', hardenedRuntime='0'>'>: {
+}
+2026-08-15 07:19:30 +0000  Associated App Clip Identifiers Filter: Skipping because "com.apple.developer.associated-appclip-app-identifiers" is not present
+2026-08-15 07:19:30 +0000  Entitlements for <IDEDistributionItem: 0xcc5be1380; bundleID='com.capacitorjs.ios.Capacitor', path='<DVTFilePath:0xc972e8700:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be15c0; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0977840; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='(null)', teamID='29VV27HDN5', identifier='com.capacitorjs.ios.Capacitor', executablePath='<DVTFilePath:0xcaefcc2a0:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework/Capacitor'>', hardenedRuntime='0'>'> are: {
+}
+2026-08-15 07:19:30 +0000  Writing entitlements for <IDEDistributionItem: 0xcc5be1380; bundleID='com.capacitorjs.ios.Capacitor', path='<DVTFilePath:0xc972e8700:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be15c0; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0977840; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='(null)', teamID='29VV27HDN5', identifier='com.capacitorjs.ios.Capacitor', executablePath='<DVTFilePath:0xcaefcc2a0:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Capacitor.framework/Capacitor'>', hardenedRuntime='0'>'> to: /var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/entitlements~~~lcYGsw
+2026-08-15 07:19:30 +0000  invoking codesign: <NSConcreteTask: 0xc8762a620; launchPath='/usr/bin/codesign', arguments='(
+    "-f",
+    "-s",
+    8EDECFD46AA2840BD5CB7E066F33390B0D6C1777,
+    "--entitlements",
+    "/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/entitlements~~~lcYGsw",
+    "--preserve-metadata=identifier,flags,runtime,launch-constraints,library-constraints",
+    "--generate-entitlement-der",
+    "--strip-disallowed-xattrs",
+    "-vvv",
+    "/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app/Frameworks/Capacitor.framework"
+)'>
+2026-08-15 07:19:30 +0000  codesign output: /var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app/Frameworks/Capacitor.framework: replacing existing signature
+/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app/Frameworks/Capacitor.framework: signed bundle with Mach-O thin (arm64) [com.capacitorjs.ios.Capacitor]
+2026-08-15 07:19:30 +0000  Entitlements for <IDEDistributionItem: 0xcc5be3d20; bundleID='com.getcapacitor.ios.CapacitorCordova', path='<DVTFilePath:0xc972ea300:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be2ee0; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0976040; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='(null)', teamID='29VV27HDN5', identifier='com.getcapacitor.ios.CapacitorCordova', executablePath='<DVTFilePath:0xcaeee3420:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework/Cordova'>', hardenedRuntime='0'>'>: {
+}
+2026-08-15 07:19:30 +0000  Associated App Clip Identifiers Filter: Skipping because "com.apple.developer.associated-appclip-app-identifiers" is not present
+2026-08-15 07:19:30 +0000  Entitlements for <IDEDistributionItem: 0xcc5be3d20; bundleID='com.getcapacitor.ios.CapacitorCordova', path='<DVTFilePath:0xc972ea300:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be2ee0; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0977840; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='(null)', teamID='29VV27HDN5', identifier='com.getcapacitor.ios.CapacitorCordova', executablePath='<DVTFilePath:0xcaeee3420:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework/Cordova'>', hardenedRuntime='0'>'> are: {
+}
+2026-08-15 07:19:30 +0000  Writing entitlements for <IDEDistributionItem: 0xcc5be3d20; bundleID='com.getcapacitor.ios.CapacitorCordova', path='<DVTFilePath:0xc972ea300:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be2ee0; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0977840; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='(null)', teamID='29VV27HDN5', identifier='com.getcapacitor.ios.CapacitorCordova', executablePath='<DVTFilePath:0xcaeee3420:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/Frameworks/Cordova.framework/Cordova'>', hardenedRuntime='0'>'> to: /var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/entitlements~~~ZjJngz
+2026-08-15 07:19:30 +0000  invoking codesign: <NSConcreteTask: 0xc87628ff0; launchPath='/usr/bin/codesign', arguments='(
+    "-f",
+    "-s",
+    8EDECFD46AA2840BD5CB7E066F33390B0D6C1777,
+    "--entitlements",
+    "/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/entitlements~~~ZjJngz",
+    "--preserve-metadata=identifier,flags,runtime,launch-constraints,library-constraints",
+    "--generate-entitlement-der",
+    "--strip-disallowed-xattrs",
+    "-vvv",
+    "/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app/Frameworks/Cordova.framework"
+)'>
+2026-08-15 07:19:30 +0000  codesign output: /var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app/Frameworks/Cordova.framework: replacing existing signature
+/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app/Frameworks/Cordova.framework: signed bundle with Mach-O thin (arm64) [com.getcapacitor.ios.CapacitorCordova]
+2026-08-15 07:19:30 +0000  Entitlements for <IDEDistributionItem: 0xcc5be33c0; bundleID='com.lumensocialite.app', path='<DVTFilePath:0xcb2967420:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be1e60; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0976040; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='{
+    "application-identifier" = "29VV27HDN5.com.lumensocialite.app";
+    "com.apple.developer.team-identifier" = 29VV27HDN5;
+    "get-task-allow" = 1;
+}', teamID='29VV27HDN5', identifier='com.lumensocialite.app', executablePath='<DVTFilePath:0xcb2967480:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/App'>', hardenedRuntime='0'>'>: {
+    "application-identifier" = "29VV27HDN5.com.lumensocialite.app";
+    "com.apple.developer.team-identifier" = 29VV27HDN5;
+    "get-task-allow" = 1;
+}
+2026-08-15 07:19:30 +0000  Associated App Clip Identifiers Filter: Skipping because "com.apple.developer.associated-appclip-app-identifiers" is not present
+2026-08-15 07:19:30 +0000  Entitlements for <IDEDistributionItem: 0xcc5be33c0; bundleID='com.lumensocialite.app', path='<DVTFilePath:0xcb2967420:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be1e60; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0977840; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='{
+    "application-identifier" = "29VV27HDN5.com.lumensocialite.app";
+    "com.apple.developer.team-identifier" = 29VV27HDN5;
+    "get-task-allow" = 1;
+}', teamID='29VV27HDN5', identifier='com.lumensocialite.app', executablePath='<DVTFilePath:0xcb2967480:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/App'>', hardenedRuntime='0'>'> are: {
+    "application-identifier" = "29VV27HDN5.com.lumensocialite.app";
+    "com.apple.developer.team-identifier" = 29VV27HDN5;
+    "get-task-allow" = 1;
+}
+2026-08-15 07:19:30 +0000  Writing entitlements for <IDEDistributionItem: 0xcc5be33c0; bundleID='com.lumensocialite.app', path='<DVTFilePath:0xcb2967420:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app'>', codeSigningInfo='<_DVTCodeSigningInformation_Path: 0xcc5be1e60; isSigned='1', isAdHocSigned='0', signingCertificate='<DVTSigningCertificate: 0xcc0977840; name='Apple Development: Nikolay Sapoundjiev (DC6AS9Q2Y4)', hash='8EDECFD46AA2840BD5CB7E066F33390B0D6C1777', serialNumber='6F0C3B30CBDDA5D3E96BCD744A8F9675', certificateKinds='(
+    "1.2.840.113635.100.6.1.12",
+    "1.2.840.113635.100.6.1.2"
+), issueDate='2026-08-10 23:10:09 +0000''>', entitlements='{
+    "application-identifier" = "29VV27HDN5.com.lumensocialite.app";
+    "com.apple.developer.team-identifier" = 29VV27HDN5;
+    "get-task-allow" = 1;
+}', teamID='29VV27HDN5', identifier='com.lumensocialite.app', executablePath='<DVTFilePath:0xcb2967480:'/Users/nikolaysapoundjiev/Library/Developer/Xcode/Archives/2026-08-14/App 8-14-26, 4.00 AM.xcarchive/Products/Applications/App.app/App'>', hardenedRuntime='0'>'> to: /var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/entitlements~~~OT6qfz
+2026-08-15 07:19:30 +0000  invoking codesign: <NSConcreteTask: 0xc87628ff0; launchPath='/usr/bin/codesign', arguments='(
+    "-f",
+    "-s",
+    8EDECFD46AA2840BD5CB7E066F33390B0D6C1777,
+    "--entitlements",
+    "/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/entitlements~~~OT6qfz",
+    "--preserve-metadata=identifier,flags,runtime,launch-constraints,library-constraints",
+    "--generate-entitlement-der",
+    "--strip-disallowed-xattrs",
+    "-vvv",
+    "/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app"
+)'>
+2026-08-15 07:19:30 +0000  codesign output: /var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app: replacing existing signature
+/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app: signed app bundle with Mach-O thin (arm64) [com.lumensocialite.app]
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionZipODRItemStep
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionZipODRItemStep because it said so
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionZipODRItemStep because it said so
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionZipODRItemStep because it said so
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionCreateIPAStep
+2026-08-15 07:19:30 +0000  Running /usr/bin/ditto '-V' '-c' '-k' '--norsrc' '/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root' '/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Packages/App.ipa'
+2026-08-15 07:19:30 +0000  >>> Copying /var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root 
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/_CodeSignature/CodeResources ... 
+2026-08-15 07:19:30 +0000  16617 bytes for ./Payload/App.app/_CodeSignature/CodeResources
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/App ... 
+2026-08-15 07:19:30 +0000  107408 bytes for ./Payload/App.app/App
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/AppIcon60x60@2x.png ... 
+2026-08-15 07:19:30 +0000  20106 bytes for ./Payload/App.app/AppIcon60x60@2x.png
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib ... 
+2026-08-15 07:19:30 +0000  858 bytes for ./Payload/App.app/Base.lproj/Main.storyboardc/UIViewController-BYZ-38-t0r.nib
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Base.lproj/Main.storyboardc/Info.plist ... 
+2026-08-15 07:19:30 +0000  258 bytes for ./Payload/App.app/Base.lproj/Main.storyboardc/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-snD-IY-ifK.nib ... 
+2026-08-15 07:19:30 +0000  1278 bytes for ./Payload/App.app/Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-snD-IY-ifK.nib
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Base.lproj/LaunchScreen.storyboardc/UIViewController-01J-lp-oVM.nib ... 
+2026-08-15 07:19:30 +0000  924 bytes for ./Payload/App.app/Base.lproj/LaunchScreen.storyboardc/UIViewController-01J-lp-oVM.nib
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Base.lproj/LaunchScreen.storyboardc/Info.plist ... 
+2026-08-15 07:19:30 +0000  258 bytes for ./Payload/App.app/Base.lproj/LaunchScreen.storyboardc/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/config.xml ... 
+2026-08-15 07:19:30 +0000  185 bytes for ./Payload/App.app/config.xml
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/gold-record-framed.jpg ... 
+2026-08-15 07:19:30 +0000  650093 bytes for ./Payload/App.app/public/gold-record-framed.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/AppIcon-1024.jpg ... 
+2026-08-15 07:19:30 +0000  300564 bytes for ./Payload/App.app/public/AppIcon-1024.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/file.svg ... 
+2026-08-15 07:19:30 +0000  391 bytes for ./Payload/App.app/public/file.svg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/cordova.js ... 
+2026-08-15 07:19:30 +0000  0 bytes for ./Payload/App.app/public/cordova.js
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-pearl.jpg ... 
+2026-08-15 07:19:30 +0000  239876 bytes for ./Payload/App.app/public/banners/color-pearl.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-midnight.jpg ... 
+2026-08-15 07:19:30 +0000  292784 bytes for ./Payload/App.app/public/banners/color-midnight.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-gold.jpg ... 
+2026-08-15 07:19:30 +0000  372390 bytes for ./Payload/App.app/public/banners/color-gold.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/music-gold-mix.jpg ... 
+2026-08-15 07:19:30 +0000  328735 bytes for ./Payload/App.app/public/banners/music-gold-mix.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-emerald.jpg ... 
+2026-08-15 07:19:30 +0000  341099 bytes for ./Payload/App.app/public/banners/color-emerald.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-obsidian.jpg ... 
+2026-08-15 07:19:30 +0000  19234 bytes for ./Payload/App.app/public/banners/color-obsidian.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-ocean.jpg ... 
+2026-08-15 07:19:30 +0000  54647 bytes for ./Payload/App.app/public/banners/color-ocean.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/music-navy-studio.jpg ... 
+2026-08-15 07:19:30 +0000  204914 bytes for ./Payload/App.app/public/banners/music-navy-studio.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/music-champagne-mix.jpg ... 
+2026-08-15 07:19:30 +0000  359114 bytes for ./Payload/App.app/public/banners/music-champagne-mix.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-amethyst.jpg ... 
+2026-08-15 07:19:30 +0000  48983 bytes for ./Payload/App.app/public/banners/color-amethyst.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/music-black-gold-rock.jpg ... 
+2026-08-15 07:19:30 +0000  335439 bytes for ./Payload/App.app/public/banners/music-black-gold-rock.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-rainbow.jpg ... 
+2026-08-15 07:19:30 +0000  264215 bytes for ./Payload/App.app/public/banners/color-rainbow.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/usa-fabric.jpg ... 
+2026-08-15 07:19:30 +0000  162193 bytes for ./Payload/App.app/public/banners/usa-fabric.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-sunset.jpg ... 
+2026-08-15 07:19:30 +0000  77192 bytes for ./Payload/App.app/public/banners/color-sunset.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/music-rosewood-strings.jpg ... 
+2026-08-15 07:19:30 +0000  469344 bytes for ./Payload/App.app/public/banners/music-rosewood-strings.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-copper.jpg ... 
+2026-08-15 07:19:30 +0000  65726 bytes for ./Payload/App.app/public/banners/color-copper.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/music-emerald-brass.jpg ... 
+2026-08-15 07:19:30 +0000  318946 bytes for ./Payload/App.app/public/banners/music-emerald-brass.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/music-pearl-orchestra.jpg ... 
+2026-08-15 07:19:30 +0000  240599 bytes for ./Payload/App.app/public/banners/music-pearl-orchestra.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-frost.jpg ... 
+2026-08-15 07:19:30 +0000  79332 bytes for ./Payload/App.app/public/banners/color-frost.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-silver.jpg ... 
+2026-08-15 07:19:30 +0000  375159 bytes for ./Payload/App.app/public/banners/color-silver.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-champagne.jpg ... 
+2026-08-15 07:19:30 +0000  267784 bytes for ./Payload/App.app/public/banners/color-champagne.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-rose.jpg ... 
+2026-08-15 07:19:30 +0000  324372 bytes for ./Payload/App.app/public/banners/color-rose.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/banners/color-lavender.jpg ... 
+2026-08-15 07:19:30 +0000  275343 bytes for ./Payload/App.app/public/banners/color-lavender.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/logo-official.png ... 
+2026-08-15 07:19:30 +0000  895049 bytes for ./Payload/App.app/public/logo-official.png
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/logo-official.jpg ... 
+2026-08-15 07:19:30 +0000  300564 bytes for ./Payload/App.app/public/logo-official.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/logo.jpg ... 
+2026-08-15 07:19:30 +0000  300564 bytes for ./Payload/App.app/public/logo.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/logo.png ... 
+2026-08-15 07:19:30 +0000  895049 bytes for ./Payload/App.app/public/logo.png
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/vercel.svg ... 
+2026-08-15 07:19:30 +0000  128 bytes for ./Payload/App.app/public/vercel.svg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/next.svg ... 
+2026-08-15 07:19:30 +0000  1375 bytes for ./Payload/App.app/public/next.svg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/cordova_plugins.js ... 
+2026-08-15 07:19:30 +0000  0 bytes for ./Payload/App.app/public/cordova_plugins.js
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/LOGO-OFFICIAL.txt ... 
+112 bytes for ./Payload/App.app/public/LOGO-OFFICIAL.txt
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/globe.svg ... 
+2026-08-15 07:19:30 +0000  1035 bytes for ./Payload/App.app/public/globe.svg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/window.svg ... 
+2026-08-15 07:19:30 +0000  385 bytes for ./Payload/App.app/public/window.svg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/public/kendall-banner.jpg ... 
+2026-08-15 07:19:30 +0000  242821 bytes for ./Payload/App.app/public/kendall-banner.jpg
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Assets.car ... 
+2026-08-15 07:19:30 +0000  2057640 bytes for ./Payload/App.app/Assets.car
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/AppIcon76x76@2x~ipad.png ... 
+2026-08-15 07:19:30 +0000  30818 bytes for ./Payload/App.app/AppIcon76x76@2x~ipad.png
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/AppIcon.png ... 
+2026-08-15 07:19:30 +0000  1105740 bytes for ./Payload/App.app/AppIcon.png
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/capacitor.config.json ... 
+2026-08-15 07:19:30 +0000  317 bytes for ./Payload/App.app/capacitor.config.json
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Capacitor.framework/_CodeSignature/CodeResources ... 
+2026-08-15 07:19:30 +0000  2252 bytes for ./Payload/App.app/Frameworks/Capacitor.framework/_CodeSignature/CodeResources
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Capacitor.framework/native-bridge.js ... 
+2026-08-15 07:19:30 +0000  53467 bytes for ./Payload/App.app/Frameworks/Capacitor.framework/native-bridge.js
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Capacitor.framework/Capacitor ... 
+2026-08-15 07:19:30 +0000  868096 bytes for ./Payload/App.app/Frameworks/Capacitor.framework/Capacitor
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Capacitor.framework/PrivacyInfo.xcprivacy ... 
+2026-08-15 07:19:30 +0000  373 bytes for ./Payload/App.app/Frameworks/Capacitor.framework/PrivacyInfo.xcprivacy
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Capacitor.framework/Info.plist ... 
+2026-08-15 07:19:30 +0000  762 bytes for ./Payload/App.app/Frameworks/Capacitor.framework/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Cordova.framework/_CodeSignature/CodeResources ... 
+2026-08-15 07:19:30 +0000  2034 bytes for ./Payload/App.app/Frameworks/Cordova.framework/_CodeSignature/CodeResources
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Cordova.framework/Cordova ... 
+2026-08-15 07:19:30 +0000  129504 bytes for ./Payload/App.app/Frameworks/Cordova.framework/Cordova
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Cordova.framework/PrivacyInfo.xcprivacy ... 
+2026-08-15 07:19:30 +0000  373 bytes for ./Payload/App.app/Frameworks/Cordova.framework/PrivacyInfo.xcprivacy
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Frameworks/Cordova.framework/Info.plist ... 
+2026-08-15 07:19:30 +0000  794 bytes for ./Payload/App.app/Frameworks/Cordova.framework/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/embedded.mobileprovision ... 
+2026-08-15 07:19:30 +0000  12336 bytes for ./Payload/App.app/embedded.mobileprovision
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/Info.plist ... 
+2026-08-15 07:19:30 +0000  1714 bytes for ./Payload/App.app/Info.plist
+2026-08-15 07:19:30 +0000  copying file ./Payload/App.app/PkgInfo ... 
+2026-08-15 07:19:30 +0000  8 bytes for ./Payload/App.app/PkgInfo
+2026-08-15 07:19:30 +0000  /usr/bin/ditto exited with 0
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionAppStoreInformationStep
+2026-08-15 07:19:30 +0000  Skipping step: IDEDistributionAppStoreInformationStep because it said so
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionGenerateProcessedDistributionItems
+2026-08-15 07:19:30 +0000  IDEDistributionItem init <DVTFilePath:0xc8a0e8bd0:'/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app/Frameworks/Cordova.framework'>
+2026-08-15 07:19:30 +0000  IDEDistributionItem init <DVTFilePath:0xc8a0e8d90:'/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app/Frameworks/Capacitor.framework'>
+2026-08-15 07:19:30 +0000  IDEDistributionItem init <DVTFilePath:0xcc7929380:'/var/folders/t5/lwg9s33d59v5c84n78pz7qyw0000gn/T/XcodeDistPipeline.~~~Ihb77i/Root/Payload/App.app'>
+2026-08-15 07:19:30 +0000  Processing step: IDEDistributionCreateManifestStep
