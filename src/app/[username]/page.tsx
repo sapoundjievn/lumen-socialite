@@ -635,11 +635,9 @@ export default function ProfilePage() {
     "kennick",
     "kennicktechnologiesllc",
   ].includes((profile?.username || "").toLowerCase());
-  // Personal + business only: action buttons sit under stats (not founders, not musicians)
-  const actionsBelowStats =
-    !isMusician &&
-    unameLower !== "thevip" &&
-    unameLower !== "kendall.vip";
+  // Action row under stats for personal, business, and founders @thevip / @kendall.vip
+  // (musicians keep top-side controls)
+  const actionsBelowStats = !isMusician;
 
   async function openPeopleList(kind: "followers" | "following" | "friends") {
     if (!profile) return;
