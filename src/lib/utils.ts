@@ -47,6 +47,7 @@ export function isForcedVerifiedUsername(username?: string | null): boolean {
     "jaytowers69",
     "tireur",
     "berdychowski",
+    "mskaceequinn",
   ];
   return list.includes(u);
 }

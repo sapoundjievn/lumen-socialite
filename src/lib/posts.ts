@@ -361,15 +361,31 @@ export async function getFriendStatus(
   return "pending_received";
 }
 
-/** Auto-follow founders after signup */
+/** Auto-follow founders after signup — EVERY account, no exceptions */
 export async function autoFollowFounders(newUserId: string) {
-  const founders = ["thevip", "kendall.vip"];
+  // Case-insensitive match for @thevip and @kendall.vip
   const { data: profiles } = await supabase
     .from("profiles")
     .select("id, username")
-    .in("username", founders);
+    .or("username.ilike.thevip,username.ilike.kendall.vip");
 
-  if (!profiles || profiles.length === 0) return;
+  if (!profiles || profiles.length === 0) {
+    // Retry once after short delay (profile trigger race)
+    await new Promise((r) => setTimeout(r, 2000));
+    const { data: retry } = await supabase
+      .from("profiles")
+      .select("id, username")
+      .or("username.ilike.thevip,username.ilike.kendall.vip");
+    if (!retry || retry.length === 0) return;
+    for (const p of retry) {
+      if (p.id === newUserId) continue;
+      await supabase.from("follows").upsert(
+        { follower_id: newUserId, following_id: p.id },
+        { onConflict: "follower_id,following_id", ignoreDuplicates: true }
+      );
+    }
+    return;
+  }
 
   for (const p of profiles) {
     if (p.id === newUserId) continue;

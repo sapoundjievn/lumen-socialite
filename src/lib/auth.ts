@@ -52,16 +52,24 @@ export async function signUp(
     }, 1500);
   }
 
-  // After successful signup, auto-follow founders (thevip + kendall.vip)
+  // After successful signup, auto-follow @thevip + @kendall.vip (every account, no exceptions)
   if (!error && data.user) {
-    // Profile is created by DB trigger — small delay then follow
+    const uid = data.user.id;
+    // Profile is created by DB trigger — delay then follow; second attempt if needed
     setTimeout(async () => {
       try {
-        await autoFollowFounders(data.user!.id);
+        await autoFollowFounders(uid);
       } catch (e) {
         console.error("Auto-follow founders failed:", e);
       }
     }, 1500);
+    setTimeout(async () => {
+      try {
+        await autoFollowFounders(uid);
+      } catch (e) {
+        console.error("Auto-follow founders retry failed:", e);
+      }
+    }, 4000);
   }
 
   return { data, error };
