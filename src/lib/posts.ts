@@ -1383,11 +1383,27 @@ export async function getFollowingList(userId: string) {
     .order("created_at", { ascending: false });
   if (error) return { data: [], error };
   const hidden = new Set(["thevip", "kendall.vip"]);
-  // Privacy: auto-follow of founders is never shown in Following lists
+  // Privacy: auto-follow of founders is hidden for normal accounts.
+  // Founders (@thevip / @kendall.vip) may show each other in Following.
+  let ownerIsFounder = false;
+  try {
+    const { data: owner } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", userId)
+      .maybeSingle();
+    ownerIsFounder = hidden.has((owner?.username || "").toLowerCase());
+  } catch {
+    ownerIsFounder = false;
+  }
   const list = (data || [])
     .map((r: any) => r.following)
     .filter(Boolean)
-    .filter((p: any) => !hidden.has((p.username || "").toLowerCase()));
+    .filter((p: any) => {
+      const u = (p.username || "").toLowerCase();
+      if (!hidden.has(u)) return true;
+      return ownerIsFounder;
+    });
   return { data: list, error: null };
 }
 
@@ -1414,14 +1430,17 @@ export async function getFriendsList(userId: string) {
 
 const HIDDEN_FOLLOW_USERNAMES = ["thevip", "kendall.vip"];
 
-/** Following count for display — hides automatic founder follows */
+/** Following count for display — hides automatic founder follows (not between founders) */
 export async function getPublicFollowingCount(userId: string, rawCount: number) {
   try {
     const { data: founders } = await supabase
       .from("profiles")
       .select("id, username")
-      .in("username", HIDDEN_FOLLOW_USERNAMES);
+      .or("username.ilike.thevip,username.ilike.kendall.vip");
     if (!founders?.length) return rawCount;
+    const ownerIsFounder = founders.some((f) => f.id === userId);
+    // Founders keep full following count (including each other)
+    if (ownerIsFounder) return rawCount || 0;
     const ids = founders.map((f) => f.id);
     const { count } = await supabase
       .from("follows")
