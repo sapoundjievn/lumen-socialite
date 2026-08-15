@@ -785,27 +785,49 @@ export default function ProfilePage() {
             </>
           )}
 
-          {/* Own profile: Banner left, Edit + Share right */}
+          {/* Own profile controls */}
           {isOwnProfile && (
             <>
-              <div className="absolute bottom-3 left-3 z-30">
-                <button
-                  type="button"
-                  onClick={() => setBannerPickerOpen(true)}
-                  disabled={uploading}
-                  className="rounded-full border border-border bg-pearl px-3.5 py-1.5 text-[12px] font-bold text-charcoal shadow-md transition hover:bg-champagne sm:px-4 sm:py-2 sm:text-[13px]"
-                  title={isBusiness ? "Upload storefront photo" : "Upload banner"}
-                >
-                  {uploading ? "Uploading…" : isBusiness ? "Storefront banner" : "Banner"}
-                </button>
-                <input
-                  ref={bannerInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleBannerChange}
-                />
-              </div>
+              {/* Personal (incl. @thevip / @kendall.vip): Banner top-right — clear of avatar photo upload */}
+              {!isBusiness && !isMusician ? (
+                <div className="absolute right-3 top-3 z-30">
+                  <button
+                    type="button"
+                    onClick={() => setBannerPickerOpen(true)}
+                    disabled={uploading}
+                    className="rounded-full border border-white/40 bg-black/35 px-3.5 py-1.5 text-[12px] font-bold text-white shadow-md backdrop-blur-sm transition hover:bg-black/50 sm:px-4 sm:py-2 sm:text-[13px]"
+                    title="Upload banner"
+                  >
+                    {uploading ? "Uploading…" : "Banner"}
+                  </button>
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleBannerChange}
+                  />
+                </div>
+              ) : (
+                <div className="absolute bottom-3 left-3 z-30">
+                  <button
+                    type="button"
+                    onClick={() => setBannerPickerOpen(true)}
+                    disabled={uploading}
+                    className="rounded-full border border-border bg-pearl px-3.5 py-1.5 text-[12px] font-bold text-charcoal shadow-md transition hover:bg-champagne sm:px-4 sm:py-2 sm:text-[13px]"
+                    title={isBusiness ? "Upload storefront photo" : "Upload banner"}
+                  >
+                    {uploading ? "Uploading…" : isBusiness ? "Storefront banner" : "Banner"}
+                  </button>
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleBannerChange}
+                  />
+                </div>
+              )}
               <div className="absolute bottom-3 right-3 z-30 flex items-center gap-2">
                 <button
                   type="button"
