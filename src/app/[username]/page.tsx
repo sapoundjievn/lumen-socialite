@@ -858,7 +858,11 @@ export default function ProfilePage() {
                   className={`min-w-0 font-bold leading-tight tracking-tight text-charcoal ${
                     isBusiness
                       ? "text-[14px] sm:text-[15px] whitespace-normal break-words"
-                      : "truncate text-[17px] sm:text-xl"
+                      : (profile.display_name || "").length > 22
+                        ? "truncate text-[13px] sm:text-[15px]"
+                        : (profile.display_name || "").length > 16
+                          ? "truncate text-[15px] sm:text-[17px]"
+                          : "truncate text-[17px] sm:text-xl"
                   }`}
                 >
                   {profile.display_name}
@@ -900,7 +904,15 @@ export default function ProfilePage() {
             {isMusician && (
               <div className="mb-2 flex w-full flex-col items-center text-center">
                 <div className="flex max-w-full items-center justify-center gap-1.5">
-                  <h2 className="truncate text-[17px] font-bold leading-tight text-charcoal sm:text-xl">
+                  <h2
+                    className={`truncate font-bold leading-tight text-charcoal ${
+                      (profile.display_name || "").length > 22
+                        ? "text-[13px] sm:text-[15px]"
+                        : (profile.display_name || "").length > 16
+                          ? "text-[15px] sm:text-[17px]"
+                          : "text-[17px] sm:text-xl"
+                    }`}
+                  >
                     {profile.display_name}
                   </h2>
                   {(profile.verified || isForcedVerifiedUsername(profile.username)) && (

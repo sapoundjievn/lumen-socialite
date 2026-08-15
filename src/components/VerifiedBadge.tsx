@@ -12,6 +12,7 @@ import { BadgeCheck } from "lucide-react";
  *   @igorpiven           → blue
  *   @JayTowers69 (Jay Jay Torres) → blue (permanent)
  *   @Tireur (James Desermeaux) → blue (permanent)
+ *   @berdychowski        → blue (permanent)
  *   @mikeavramov         → red
  *   @mr.samsnuggles      → Champagne Frost Pearl
  *   @kennicktechnologies → Champagne Frost Pearl (same simple design as founders)
@@ -52,6 +53,10 @@ export default function VerifiedBadge({
   }
   // James Desermeaux @Tireur — permanent blue EVERYWHERE
   if (u === "tireur") {
+    return <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />;
+  }
+  // @berdychowski — permanent blue EVERYWHERE
+  if (u === "berdychowski") {
     return <BadgeCheck className={`${dim} fill-[#1D9BF0] text-white`} />;
   }
   if (u === "mikeavramov") {

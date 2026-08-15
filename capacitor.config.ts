@@ -3,8 +3,8 @@
  * Capacitor config (no @capacitor/cli import — keeps Next build clean)
  */
 const config = {
-  appId: "com.kennicktechnologies.lumen",
-  appName: "LUMS",
+  appId: "com.lumensocialite.app",
+  appName: "LUMR",
   webDir: "public",
   server: {
     url: "https://lumen-socialite.vercel.app",
@@ -18,5 +18,4 @@ const config = {
     allowMixedContent: false,
   },
 };
-
 export default config;
