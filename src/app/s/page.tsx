@@ -672,7 +672,17 @@ export default function ProfilePage() {
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
         {/* Banner + Avatar — back on gold */}
         <div className="relative">
-          {(profile as any).banner_url ? (
+          {unameLower === "kendall.vip" ? (
+            /* Exact flower banner + cascade composition for @kendall.vip */
+            <div className="relative w-full overflow-hidden h-44 sm:h-52">
+              <img
+                src="/kendall-profile-header.jpg"
+                alt=""
+                className="h-full w-full object-cover object-[center_20%]"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-pearl/40 via-transparent to-black/10" />
+            </div>
+          ) : (profile as any).banner_url ? (
             <div className={`relative w-full overflow-hidden ${
               isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-36 sm:h-44"
             }`}>
@@ -875,13 +885,19 @@ export default function ProfilePage() {
 
         {/* Profile info — business has no avatar overhang, less top padding */}
         <div className={`relative px-4 pb-3 ${isMusician ? (isSamSnuggles ? "pt-3 sm:pt-4" : "pt-12 sm:pt-14") : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-3"}`}>
-          {/* @kendall.vip only: cascading flowers fill empty right side */}
+          {/* @kendall.vip: continuous cascade from banner into empty right side — matches preview */}
           {unameLower === "kendall.vip" && (
             <img
               src="/kendall-cascade.png"
               alt=""
               aria-hidden
-              className="pointer-events-none absolute -right-1 top-0 z-[1] h-[min(52vw,280px)] w-auto max-w-[46%] select-none object-contain object-right-top opacity-95 sm:h-[300px] sm:max-w-[220px]"
+              className="pointer-events-none absolute -right-2 z-[1] select-none object-contain object-right-top"
+              style={{
+                top: "-4.5rem",
+                height: "min(72vw, 340px)",
+                width: "auto",
+                maxWidth: "52%",
+              }}
             />
           )}
           <div className={`relative z-[2] flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
