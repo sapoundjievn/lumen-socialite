@@ -76,9 +76,9 @@ export default function Sidebar() {
           <img
             src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="h-36 w-36 flex-shrink-0 border-0 bg-transparent object-contain shadow-none outline-none ring-0"
-            width={144}
-            height={144}
+            className="h-40 w-40 flex-shrink-0 border-0 bg-transparent object-contain shadow-none outline-none ring-0"
+            width={160}
+            height={160}
             style={{ background: "transparent" }}
           />
         </div>

@@ -5,6 +5,8 @@ import StoriesBar from "@/components/StoriesBar";
 /* feed-interaction-v2 */
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import { Post } from "@/types";
 import { getFeed, createPost, likePost, unlikePost, reverseFounderLike, repostPost, unrepostPost, reverseFounderRepost, bookmarkPost, unbookmarkPost, syncFounderLikeJobs } from "@/lib/posts";
 import { supabase } from "@/lib/supabase";
@@ -14,11 +16,13 @@ import PostCard from "./PostCard";
 
 export default function Feed() {
   const { t } = useI18n();
+  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [tab, setTab] = useState<"for-you" | "following">("for-you");
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
+  const [searchQ, setSearchQ] = useState("");
 
   useEffect(() => {
     getCurrentProfile().then((p) => {
@@ -287,14 +291,29 @@ export default function Feed() {
   return (
     <main className="min-h-screen w-full border-x-0 sm:border-x border-border">
       <div className="sticky top-0 z-10 border-b border-border bg-pearl/85 backdrop-blur-md">
-        <div className="flex items-center px-4 py-3">
-          <h1 className="text-xl font-bold leading-none text-charcoal">{t("home")}</h1>
+        <div className="flex items-center gap-3 px-3 py-2.5">
+          <h1 className="shrink-0 text-xl font-bold leading-none text-charcoal">{t("home")}</h1>
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <input
+              type="text"
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchQ.trim()) {
+                  router.push(`/explore?q=${encodeURIComponent(searchQ.trim())}`);
+                }
+              }}
+              placeholder="Search Lumen"
+              className="w-full rounded-full border border-transparent bg-frost py-2 pl-9 pr-3 text-[14px] text-charcoal placeholder:text-muted focus:border-gold-soft focus:bg-white focus:outline-none focus:ring-1 focus:ring-gold-soft"
+            />
+          </div>
         </div>
 
         <div className="flex">
           <button
             onClick={() => setTab("for-you")}
-            className="relative flex-1 py-4 text-center text-[15px] font-medium transition hover:bg-champagne/30"
+            className="relative flex-1 py-3 text-center text-[15px] font-medium transition hover:bg-champagne/30"
           >
             <span className={tab === "for-you" ? "font-bold text-charcoal" : "text-muted"}>
               {t("forYou")}
@@ -305,7 +324,7 @@ export default function Feed() {
           </button>
           <button
             onClick={() => setTab("following")}
-            className="relative flex-1 py-4 text-center text-[15px] font-medium transition hover:bg-champagne/30"
+            className="relative flex-1 py-3 text-center text-[15px] font-medium transition hover:bg-champagne/30"
           >
             <span className={tab === "following" ? "font-bold text-charcoal" : "text-muted"}>
               {t("followingTab")}

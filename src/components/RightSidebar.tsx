@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import {
   getWhoToFollow,
   getTrends,
@@ -28,7 +28,6 @@ type Suggest = {
 
 export default function RightSidebar() {
   const router = useRouter();
-  const [q, setQ] = useState("");
   const [trends, setTrends] = useState<Trend[]>([]);
   const [people, setPeople] = useState<Suggest[]>([]);
   const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
@@ -40,8 +39,8 @@ export default function RightSidebar() {
       const me = await getCurrentProfile();
       setMeId(me?.id || null);
       const [{ data: t }, { data: w }] = await Promise.all([
-        getTrends(5),
-        getWhoToFollow(me?.id, 3),
+        getTrends(6),
+        getWhoToFollow(me?.id, 8),
       ]);
       setTrends(t || []);
       setPeople((w as Suggest[]) || []);
@@ -71,28 +70,11 @@ export default function RightSidebar() {
       style={{ maxHeight: "100dvh" }}
     >
       <div
-        className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto overscroll-y-contain px-5 py-3 pb-16"
+        className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto overscroll-y-contain px-4 pb-16 pt-0"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />
-        <input
-          type="text"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && q.trim()) {
-              router.push(`/explore?q=${encodeURIComponent(q.trim())}`);
-            }
-          }}
-          placeholder="Search Lumen"
-          className="w-full rounded-full border border-transparent bg-frost py-3 pl-12 pr-4 text-[15px] text-charcoal placeholder:text-muted focus:border-gold-soft focus:bg-white focus:outline-none focus:ring-1 focus:ring-gold-soft"
-        />
-      </div>
-
-      {/* Trends for you */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-pearl-soft">
+      {/* Trends for you — flush to top border */}
+      <div className="overflow-hidden rounded-b-2xl rounded-t-none border border-t-0 border-border bg-pearl-soft">
         <h2 className="px-3 py-2.5 text-lg font-extrabold text-charcoal">
           Trends for you
         </h2>
@@ -123,8 +105,8 @@ export default function RightSidebar() {
         </button>
       </div>
 
-      {/* Who to follow */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-pearl-soft">
+      {/* Who to follow — more space */}
+      <div className="min-h-[280px] flex-1 overflow-hidden rounded-2xl border border-border bg-pearl-soft">
         <h2 className="px-3 py-2.5 text-lg font-extrabold text-charcoal">
           Who to follow
         </h2>
