@@ -169,24 +169,29 @@ export default function RightSidebar() {
         </button>
       </div>
 
-      {/* Ken Coin — compact */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-[#F5E8D3] via-[#E8D5A3] to-[#C9A86C] px-3 py-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/80 text-lg shadow-sm">
+      {/* Ken Coin — full banner visible */}
+      <div className="shrink-0 overflow-visible rounded-2xl border border-border bg-gradient-to-br from-[#F5E8D3] via-[#E8D5A3] to-[#C9A86C] px-4 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white/90 text-2xl shadow-sm">
             ✨
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[14px] font-extrabold leading-tight text-charcoal">Ken Coin</div>
-            <div className="text-[11px] font-medium text-[#6B5B3E]">Lumen · Socialite · Base</div>
+            <div className="text-[16px] font-extrabold leading-tight text-charcoal">Ken Coin</div>
+            <div className="mt-0.5 text-[12px] font-medium text-[#6B5B3E]">
+              Lumen · Socialite · Base
+            </div>
+            <div className="mt-1 text-[11px] text-[#6B5B3E]/90">
+              Token for the Lumen ecosystem
+            </div>
           </div>
-          <span className="flex-shrink-0 rounded-full bg-charcoal/90 px-2.5 py-1 text-[11px] font-bold text-pearl">
+          <span className="flex-shrink-0 rounded-full bg-charcoal/90 px-3 py-1.5 text-[12px] font-bold text-pearl">
             Soon
           </span>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="px-4 text-[13px] leading-4 text-muted">
+      {/* Footer — pushed down so Ken Coin stays fully visible */}
+      <div className="mt-8 shrink-0 px-4 pb-6 pt-2 text-[13px] leading-4 text-muted">
         <div className="flex flex-wrap gap-x-3 gap-y-1">
           <a href="#" className="hover:underline">
             Terms of Service
@@ -201,7 +206,7 @@ export default function RightSidebar() {
             Accessibility
           </a>
         </div>
-        <div className="mt-2 text-[12px] text-muted-light">
+        <div className="mt-3 text-[12px] text-muted-light">
           © 2026 @Lumen · Socialite media platform. All rights reserved.
         </div>
       </div>
