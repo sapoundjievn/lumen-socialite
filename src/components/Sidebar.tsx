@@ -71,15 +71,15 @@ export default function Sidebar() {
   return (
     <aside className="sticky top-0 flex h-screen w-[210px] shrink-0 flex-col justify-between self-start overflow-y-auto px-1.5 py-2 xl:w-[220px]">
       <div>
-        {/* Logo flush on pearl page — no black, no shade */}
-        <div className="mb-0.5 flex items-center px-1 pt-0.5">
+        {/* Full square plaque, transparent — sits on page pearl only */}
+        <div className="mb-1 flex items-start justify-start px-1 pt-0.5">
           <img
             src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="h-28 w-28 flex-shrink-0 border-0 object-contain object-left bg-transparent shadow-none outline-none ring-0"
-            width={112}
-            height={112}
-            style={{ backgroundColor: "transparent" }}
+            className="h-36 w-36 flex-shrink-0 border-0 bg-transparent object-contain shadow-none outline-none ring-0"
+            width={144}
+            height={144}
+            style={{ background: "transparent" }}
           />
         </div>
 
