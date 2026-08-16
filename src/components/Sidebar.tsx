@@ -69,20 +69,21 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[275px] shrink-0 flex-col justify-between self-start overflow-y-auto px-3 py-3 xl:w-[275px]">
+    <aside className="sticky top-0 flex h-screen w-[210px] shrink-0 flex-col justify-between self-start overflow-y-auto px-1.5 py-2 xl:w-[220px]">
       <div>
-        {/* Square plaque logo ~2×2 inch, no border, matches page pearl */}
-        <div className="mb-1 flex items-center px-3 pt-1">
+        {/* Logo flush on pearl page — no black, no shade */}
+        <div className="mb-0.5 flex items-center px-1 pt-0.5">
           <img
-            src="/logo-official.jpg"
+            src="/logo-official.png"
             alt="Lumen · Socialite"
-            className="h-48 w-48 flex-shrink-0 border-0 object-contain object-left bg-pearl shadow-none outline-none ring-0"
-            width={192}
-            height={192}
+            className="h-28 w-28 flex-shrink-0 border-0 object-contain object-left bg-transparent shadow-none outline-none ring-0"
+            width={112}
+            height={112}
+            style={{ backgroundColor: "transparent" }}
           />
         </div>
 
-        <nav className="mt-0.5 space-y-0.5">
+        <nav className="mt-0.5 space-y-0">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -90,7 +91,7 @@ export default function Sidebar() {
                 key={item.label}
                 href={item.href}
                 className={cn(
-                  "group flex w-full items-center gap-4 rounded-full px-3 py-3 text-xl transition-colors",
+                  "group flex w-full items-center gap-2.5 rounded-full px-2.5 py-2 text-[15px] transition-colors",
                   item.active
                     ? "font-bold text-charcoal"
                     : "font-normal text-charcoal-soft hover:bg-champagne/40"
@@ -99,19 +100,19 @@ export default function Sidebar() {
                 <span className="relative">
                   <Icon
                     className={cn(
-                      "h-[26px] w-[26px]",
+                      "h-5 w-5",
                       item.active ? "stroke-[2.5]" : "stroke-[1.8]"
                     )}
                   />
                   {item.href === "/notifications" && secretCount > 0 && (
-                    <span className="absolute -right-2 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">
+                    <span className="absolute -right-1.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-0.5 text-[9px] font-bold text-white">
                       {secretCount}
                     </span>
                   )}
                 </span>
                 <span className="hidden xl:inline">{item.label}</span>
                 {item.href === "/notifications" && secretCount > 0 && (
-                  <span className="ml-auto hidden rounded-full bg-rose-600 px-2 py-0.5 text-[11px] font-bold text-white xl:inline">
+                  <span className="ml-auto hidden rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold text-white xl:inline">
                     {secretCount}
                   </span>
                 )}
@@ -123,9 +124,9 @@ export default function Sidebar() {
             <button
               type="button"
               onClick={handleSignOut}
-              className="group flex w-full items-center gap-4 rounded-full px-3 py-3 text-xl font-normal text-charcoal-soft transition-colors hover:bg-rose-50 hover:text-rose-600"
+              className="group flex w-full items-center gap-2.5 rounded-full px-2.5 py-2 text-[15px] font-normal text-charcoal-soft transition-colors hover:bg-rose-50 hover:text-rose-600"
             >
-              <LogOut className="h-[26px] w-[26px] stroke-[1.8]" />
+              <LogOut className="h-5 w-5 stroke-[1.8]" />
               <span className="hidden xl:inline">Sign out</span>
             </button>
           )}
@@ -133,29 +134,29 @@ export default function Sidebar() {
 
         <Link
           href="/"
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gold px-3 py-2.5 text-[13px] font-bold text-white shadow-md transition hover:bg-gold-deep active:scale-[0.98]"
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full bg-gold px-2.5 py-2 text-[12px] font-bold text-white shadow-sm transition hover:bg-gold-deep active:scale-[0.98]"
         >
-          <Feather className="h-5 w-5 xl:hidden" />
-          <span className="hidden text-[13px] xl:inline">Enlighten every one</span>
+          <Feather className="h-4 w-4 xl:hidden" />
+          <span className="hidden text-[12px] xl:inline">Enlighten every one</span>
         </Link>
       </div>
 
-      <div className="mb-3">
+      <div className="mb-2">
         {loading ? (
-          <div className="h-14 animate-pulse rounded-full bg-champagne/30" />
+          <div className="h-11 animate-pulse rounded-full bg-champagne/30" />
         ) : profile ? (
-          <div className="flex items-center gap-3 rounded-full p-3 transition hover:bg-champagne/40">
+          <div className="flex items-center gap-2 rounded-full p-2 transition hover:bg-champagne/40">
             <img
               src={
                 profile.avatar_url ||
                 `https://api.dicebear.com/9.x/avataaars/svg?seed=${profile.id}`
               }
               alt={profile.display_name}
-              className="h-10 w-10 rounded-full border border-border bg-champagne object-cover"
+              className="h-9 w-9 rounded-full border border-border bg-champagne object-cover"
             />
             <div className="hidden min-w-0 flex-1 text-left xl:block">
               <div className="flex min-w-0 items-center gap-1">
-                <span className="truncate text-[15px] font-bold leading-5">
+                <span className="truncate text-[13px] font-bold leading-4">
                   {profile.display_name}
                 </span>
                 {profile.verified && (
