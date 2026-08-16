@@ -188,9 +188,13 @@ export default function RightSidebar() {
       <div className="shrink-0 px-4 pb-3 pt-2">
         <div className="overflow-visible rounded-2xl border border-border bg-gradient-to-br from-[#F5E8D3] via-[#E8D5A3] to-[#C9A86C] px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white/90 text-2xl shadow-sm">
-              ✨
-            </div>
+            <img
+              src="/logo-official.png"
+              alt="LUMR · Lumen · Socialite"
+              className="h-12 w-12 flex-shrink-0 rounded-lg bg-transparent object-contain shadow-sm"
+              width={48}
+              height={48}
+            />
             <div className="min-w-0 flex-1">
               <div className="text-[16px] font-extrabold leading-tight text-charcoal">
                 Ken Coin
