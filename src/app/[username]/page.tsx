@@ -1,4 +1,6 @@
 "use client";
+/* JUSTIN_HENRY_ONLY_V3 */
+/* KENDALL_CASCADE_V3_2026_08_16 */
 /* interaction-v2 */
 
 import { useEffect, useState, useRef } from "react";
@@ -100,11 +102,17 @@ export default function ProfilePage() {
       return;
     }
     setProfile(p);
-        if (p) {
-          getPublicFollowingCount(p.id, p.following_count || 0).then((n) =>
-            setDisplayFollowing(n)
-          );
-        }
+    if (p) {
+      // Own profile: show real following count (includes @thevip / @kendall.vip)
+      // Others: hide automatic founder follows from the public number
+      if (me && me.id === p.id) {
+        setDisplayFollowing(p.following_count || 0);
+      } else {
+        getPublicFollowingCount(p.id, p.following_count || 0).then((n) =>
+          setDisplayFollowing(n)
+        );
+      }
+    }
 
     const { data: userPosts } = await getPostsByUserId(p.id, 50, me?.id);
     const { data: userReposts } = await getRepostedPosts(p.id);
@@ -649,13 +657,20 @@ export default function ProfilePage() {
     setListLoading(true);
     setListUsers([]);
     try {
-      const fn =
-        kind === "followers"
-          ? getFollowersList
-          : kind === "following"
-          ? getFollowingList
-          : getFriendsList;
-      const { data } = await fn(profile.id);
+      let data: any[] = [];
+      if (kind === "followers") {
+        const res = await getFollowersList(profile.id);
+        data = res.data || [];
+      } else if (kind === "following") {
+        // Own Following list: include @thevip / @kendall.vip if you follow them
+        const res = await getFollowingList(profile.id, {
+          forOwner: isOwnProfile,
+        });
+        data = res.data || [];
+      } else {
+        const res = await getFriendsList(profile.id);
+        data = res.data || [];
+      }
       setListUsers(data || []);
     } finally {
       setListLoading(false);
@@ -874,8 +889,18 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        <div className={`px-4 pb-3 ${isMusician ? (isSamSnuggles ? "pt-3 sm:pt-4" : "pt-12 sm:pt-14") : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-3"}`}>
-          <div className={`flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
+        <div className={`relative overflow-hidden px-4 pb-3 ${isMusician ? (isSamSnuggles ? "pt-3 sm:pt-4" : "pt-12 sm:pt-14") : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-3"}`}>
+          {/* @kendall.vip only — cascade flowers into empty right (does not block clicks) */}
+          {unameLower === "kendall.vip" && (
+            <img
+              src="/kendall-cascade.png"
+              alt=""
+              aria-hidden
+              className="pointer-events-none absolute -right-1 z-0 select-none object-contain object-right-top"
+              style={{ top: "-3.25rem", height: "min(68vw, 320px)", maxWidth: "48%" }}
+            />
+          )}
+          <div className={`relative z-10 flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div className="min-w-0 flex-1 pr-2">
               <div className="flex min-w-0 items-center gap-1.5">
@@ -902,6 +927,15 @@ export default function ProfilePage() {
               <div className="mt-0 truncate text-[14px] text-muted sm:text-[15px]">
                 @{profile.username}
               </div>
+              {((unameLower === "justinhenrycomedy" ||
+                unameLower.replace(/[^a-z0-9]/g, "") === "justinhenrycomedy") && (
+                <p className="mt-1 flex items-center gap-1.5 text-[13px] font-semibold leading-none text-[#1D9BF0]">
+                  <span className="text-[16px] leading-none" aria-hidden>
+                    🎤
+                  </span>
+                  <span>Comedian</span>
+                </p>
+              ))}
               {(profile.username || "").toLowerCase() === "kennicktechnologies" && (
                 <p
                   className="mt-0.5 w-full whitespace-nowrap text-[9px] font-semibold leading-tight text-charcoal sm:text-[10px]"
@@ -951,6 +985,15 @@ export default function ProfilePage() {
                 <div className="mt-0.5 text-[15px] font-medium text-muted">
                   @{profile.username}
                 </div>
+                {((unameLower === "justinhenrycomedy" ||
+                  unameLower.replace(/[^a-z0-9]/g, "") === "justinhenrycomedy") && (
+                  <p className="mt-1 flex items-center justify-center gap-1.5 text-[13px] font-semibold text-[#1D9BF0]">
+                    <span className="text-[16px]" aria-hidden>
+                      🎤
+                    </span>
+                    <span>Comedian</span>
+                  </p>
+                ))}
               </div>
             )}
 
