@@ -1,5 +1,5 @@
 "use client";
-/* KENDALL_BANNER_EXACT_V5 */
+/* KENDALL_BANNER_EXACT_V6 */
 /* JUSTIN_HENRY_ONLY_V3 */
 /* KENDALL_CASCADE_V3_2026_08_16 */
 /* interaction-v2 */
@@ -685,27 +685,57 @@ export default function ProfilePage() {
         <Sidebar />
       </div>
 
-      <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
+      <main
+        className={`w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0 ${
+          unameLower === "kendall.vip" ? "overflow-visible" : ""
+        }`}
+      >
         {/* Banner + Avatar — back on gold */}
-        <div className="relative">
+        <div className={`relative ${unameLower === "kendall.vip" ? "overflow-visible" : ""}`}>
           {(profile as any).banner_url || unameLower === "kendall.vip" ? (
-            <div className={`relative w-full overflow-hidden ${
-              isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : unameLower === "kendall.vip" ? "h-40 sm:h-48" : "h-36 sm:h-44"
-            }`}>
+            <div
+              className={`relative w-full ${
+                unameLower === "kendall.vip" ? "overflow-visible" : "overflow-hidden"
+              } ${
+                isBusiness
+                  ? "h-40 sm:h-48"
+                  : isMusician
+                    ? "h-32 sm:h-36"
+                    : unameLower === "kendall.vip"
+                      ? "h-[11.5rem] sm:h-[13.5rem]"
+                      : "h-36 sm:h-44"
+              }`}
+            >
               <img
                 src={
                   unameLower === "kendall.vip"
-                    ? ((profile as any).banner_url || "/kendall-banner.jpg")
+                    ? "/kendall-banner.jpg"
                     : (profile as any).banner_url
                 }
                 alt=""
                 className={`h-full w-full object-cover ${
-                  unameLower === "kendall.vip" ? "object-[center_35%]" : "object-center"
+                  unameLower === "kendall.vip" ? "object-[center_40%]" : "object-center"
                 }`}
               />
               {/* no dark gradient on Kendall — keeps flower colors exact */}
               {unameLower !== "kendall.vip" && (
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
+              )}
+              {/* Cascade anchored to banner so it flushes pixel-tight with flower edge */}
+              {unameLower === "kendall.vip" && (
+                <img
+                  src="/kendall-cascade.png"
+                  alt=""
+                  aria-hidden
+                  className="pointer-events-none absolute z-[3] select-none object-contain object-right-top"
+                  style={{
+                    top: "42%",
+                    right: 0,
+                    height: "min(95vw, 420px)",
+                    width: "auto",
+                    maxWidth: "50%",
+                  }}
+                />
               )}
             </div>
           ) : (
@@ -899,11 +929,8 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        {/* overflow-visible for @kendall.vip so cascade flowers are not clipped */}
         <div
-          className={`relative px-4 pb-3 ${
-            unameLower === "kendall.vip" ? "overflow-visible" : "overflow-hidden"
-          } ${
+          className={`relative px-4 pb-3 overflow-hidden ${
             isMusician
               ? isSamSnuggles
                 ? "pt-3 sm:pt-4"
@@ -913,25 +940,13 @@ export default function ProfilePage() {
                 : "pt-3"
           }`}
         >
-          {/* @kendall.vip only — exact cascade from approved screenshot (does not block clicks) */}
-          {unameLower === "kendall.vip" && (
-            <img
-              src="/kendall-cascade.png"
-              alt=""
-              aria-hidden
-              className="pointer-events-none absolute z-0 select-none object-contain object-right-top"
-              style={{
-                top: "-4.5rem",
-                right: "-0.25rem",
-                height: "min(82vw, 400px)",
-                width: "auto",
-                maxWidth: "54%",
-              }}
-            />
-          )}
           <div className={`relative z-10 flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
-            <div className="min-w-0 flex-1 pr-2">
+            <div
+              className={`min-w-0 flex-1 pr-2 ${
+                unameLower === "kendall.vip" ? "max-w-[58%] sm:max-w-[60%]" : ""
+              }`}
+            >
               <div className="flex min-w-0 items-center gap-1.5">
                 <h2
                   className={`min-w-0 font-bold leading-tight tracking-tight text-charcoal ${
