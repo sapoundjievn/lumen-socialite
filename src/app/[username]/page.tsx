@@ -1,5 +1,4 @@
 "use client";
-/* KENDALL_FLOWERS_ONLY_V9 */
 /* JUSTIN_HENRY_ONLY_V3 */
 /* interaction-v2 */
 
@@ -684,39 +683,25 @@ export default function ProfilePage() {
         <Sidebar />
       </div>
 
-      <main
-        className={`w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0 ${
-          unameLower === "kendall.vip" ? "overflow-visible" : ""
-        }`}
-      >
+      <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
         {/* Banner + Avatar */}
-        <div className={`relative ${unameLower === "kendall.vip" ? "overflow-visible" : ""}`}>
-          {(profile as any).banner_url || unameLower === "kendall.vip" ? (
+        <div className="relative">
+          {(profile as any).banner_url ? (
             <div
               className={`relative w-full overflow-hidden ${
                 isBusiness
                   ? "h-40 sm:h-48"
                   : isMusician
                     ? "h-32 sm:h-36"
-                    : unameLower === "kendall.vip"
-                      ? "h-44 sm:h-52"
-                      : "h-36 sm:h-44"
+                    : "h-36 sm:h-44"
               }`}
             >
               <img
-                src={
-                  unameLower === "kendall.vip"
-                    ? ((profile as any).banner_url || "/kendall-banner.jpg")
-                    : (profile as any).banner_url
-                }
+                src={(profile as any).banner_url}
                 alt=""
-                className={`h-full w-full object-cover ${
-                  unameLower === "kendall.vip" ? "object-[center_40%]" : "object-center"
-                }`}
+                className="h-full w-full object-cover object-center"
               />
-              {unameLower !== "kendall.vip" && (
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
-              )}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
             </div>
           ) : (
             <div
@@ -726,22 +711,7 @@ export default function ProfilePage() {
             />
           )}
 
-          {/* @kendall.vip cascade — dense flowers from banner into profile (matches approved reference) */}
-          {unameLower === "kendall.vip" && (
-            <img
-              src="/kendall-cascade.png?v=9"
-              alt=""
-              aria-hidden
-              className="pointer-events-none absolute z-[4] select-none object-contain object-right-top"
-              style={{
-                top: "2.75rem",
-                right: 0,
-                height: "min(100vw, 460px)",
-                width: "auto",
-                maxWidth: "52%",
-              }}
-            />
-          )}
+          
           <Link
             href="/"
             className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
@@ -942,9 +912,7 @@ export default function ProfilePage() {
           <div className={`relative z-10 flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
             <div
-              className={`min-w-0 flex-1 pr-2 ${
-                unameLower === "kendall.vip" ? "max-w-[58%]" : ""
-              }`}
+              className="min-w-0 flex-1 pr-2"
             >
               <div className="flex min-w-0 items-center gap-1.5">
                 <h2
