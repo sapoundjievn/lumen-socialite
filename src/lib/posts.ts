@@ -1373,7 +1373,16 @@ export async function getFollowersList(userId: string) {
   return { data: list, error: null };
 }
 
-export async function getFollowingList(userId: string) {
+/**
+ * Following list.
+ * - Owner viewing own list (forOwner: true): always show @thevip / @kendall.vip if followed
+ * - Others viewing: hide founder auto-follows (privacy)
+ * - Founders viewing anyone: can see founders
+ */
+export async function getFollowingList(
+  userId: string,
+  opts?: { forOwner?: boolean }
+) {
   const { data, error } = await supabase
     .from("follows")
     .select(
@@ -1383,8 +1392,6 @@ export async function getFollowingList(userId: string) {
     .order("created_at", { ascending: false });
   if (error) return { data: [], error };
   const hidden = new Set(["thevip", "kendall.vip"]);
-  // Privacy: auto-follow of founders is hidden for normal accounts.
-  // Founders (@thevip / @kendall.vip) may show each other in Following.
   let ownerIsFounder = false;
   try {
     const { data: owner } = await supabase
@@ -1402,7 +1409,12 @@ export async function getFollowingList(userId: string) {
     .filter((p: any) => {
       const u = (p.username || "").toLowerCase();
       if (!hidden.has(u)) return true;
-      return ownerIsFounder;
+      // You can always see that YOU follow the founders
+      if (opts?.forOwner) return true;
+      // Founders can see each other
+      if (ownerIsFounder) return true;
+      // Everyone else: keep auto-follow private
+      return false;
     });
   return { data: list, error: null };
 }
