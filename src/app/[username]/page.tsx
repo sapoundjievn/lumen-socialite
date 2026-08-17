@@ -1,5 +1,5 @@
 "use client";
-/* KENDALL_BANNER_EXACT_V6 */
+/* KENDALL_CASCADE_CODED_V7 */
 /* JUSTIN_HENRY_ONLY_V3 */
 /* KENDALL_CASCADE_V3_2026_08_16 */
 /* interaction-v2 */
@@ -690,19 +690,17 @@ export default function ProfilePage() {
           unameLower === "kendall.vip" ? "overflow-visible" : ""
         }`}
       >
-        {/* Banner + Avatar — back on gold */}
-        <div className={`relative ${unameLower === "kendall.vip" ? "overflow-visible" : ""}`}>
+        {/* Banner + Avatar */}
+        <div className={`relative ${unameLower === "kendall.vip" ? "overflow-visible z-[1]" : ""}`}>
           {(profile as any).banner_url || unameLower === "kendall.vip" ? (
             <div
-              className={`relative w-full ${
-                unameLower === "kendall.vip" ? "overflow-visible" : "overflow-hidden"
-              } ${
+              className={`relative w-full overflow-hidden ${
                 isBusiness
                   ? "h-40 sm:h-48"
                   : isMusician
                     ? "h-32 sm:h-36"
                     : unameLower === "kendall.vip"
-                      ? "h-[11.5rem] sm:h-[13.5rem]"
+                      ? "h-48 sm:h-56"
                       : "h-36 sm:h-44"
               }`}
             >
@@ -714,34 +712,37 @@ export default function ProfilePage() {
                 }
                 alt=""
                 className={`h-full w-full object-cover ${
-                  unameLower === "kendall.vip" ? "object-[center_40%]" : "object-center"
+                  unameLower === "kendall.vip" ? "object-[center_45%]" : "object-center"
                 }`}
               />
-              {/* no dark gradient on Kendall — keeps flower colors exact */}
               {unameLower !== "kendall.vip" && (
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
-              )}
-              {/* Cascade anchored to banner so it flushes pixel-tight with flower edge */}
-              {unameLower === "kendall.vip" && (
-                <img
-                  src="/kendall-cascade.png"
-                  alt=""
-                  aria-hidden
-                  className="pointer-events-none absolute z-[3] select-none object-contain object-right-top"
-                  style={{
-                    top: "42%",
-                    right: 0,
-                    height: "min(95vw, 420px)",
-                    width: "auto",
-                    maxWidth: "50%",
-                  }}
-                />
               )}
             </div>
           ) : (
             <div className={`${
               isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-28"
             } bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]`} />
+          )}
+
+          {/* @kendall.vip — coded cascade: hangs from banner right edge into profile */}
+          {unameLower === "kendall.vip" && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute right-0 top-0 z-[4] h-full w-[48%] sm:w-[46%]"
+            >
+              <img
+                src="/kendall-cascade.png?v=7"
+                alt=""
+                className="absolute right-0 select-none object-contain object-right-top"
+                style={{
+                  top: "38%",
+                  height: "min(110vw, 480px)",
+                  width: "auto",
+                  maxWidth: "100%",
+                }}
+              />
+            </div>
           )}
           <Link
             href="/"
