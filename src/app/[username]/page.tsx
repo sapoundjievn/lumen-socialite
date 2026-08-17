@@ -1,5 +1,5 @@
 "use client";
-/* KENDALL_CASCADE_GOOD_V8 */
+/* KENDALL_FLOWERS_ONLY_V9 */
 /* JUSTIN_HENRY_ONLY_V3 */
 /* interaction-v2 */
 
@@ -729,7 +729,7 @@ export default function ProfilePage() {
           {/* @kendall.vip cascade — dense flowers from banner into profile (matches approved reference) */}
           {unameLower === "kendall.vip" && (
             <img
-              src="/kendall-cascade.png?v=8"
+              src="/kendall-cascade.png?v=9"
               alt=""
               aria-hidden
               className="pointer-events-none absolute z-[4] select-none object-contain object-right-top"
