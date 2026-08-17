@@ -1,4 +1,5 @@
 "use client";
+/* KENDALL_BANNER_EXACT_V5 */
 /* JUSTIN_HENRY_ONLY_V3 */
 /* KENDALL_CASCADE_V3_2026_08_16 */
 /* interaction-v2 */
@@ -687,16 +688,25 @@ export default function ProfilePage() {
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
         {/* Banner + Avatar — back on gold */}
         <div className="relative">
-          {(profile as any).banner_url ? (
+          {(profile as any).banner_url || unameLower === "kendall.vip" ? (
             <div className={`relative w-full overflow-hidden ${
-              isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-36 sm:h-44"
+              isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : unameLower === "kendall.vip" ? "h-40 sm:h-48" : "h-36 sm:h-44"
             }`}>
               <img
-                src={(profile as any).banner_url}
+                src={
+                  unameLower === "kendall.vip"
+                    ? ((profile as any).banner_url || "/kendall-banner.jpg")
+                    : (profile as any).banner_url
+                }
                 alt=""
-                className="h-full w-full object-cover object-center"
+                className={`h-full w-full object-cover ${
+                  unameLower === "kendall.vip" ? "object-[center_35%]" : "object-center"
+                }`}
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
+              {/* no dark gradient on Kendall — keeps flower colors exact */}
+              {unameLower !== "kendall.vip" && (
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
+              )}
             </div>
           ) : (
             <div className={`${
@@ -889,15 +899,34 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        <div className={`relative overflow-hidden px-4 pb-3 ${isMusician ? (isSamSnuggles ? "pt-3 sm:pt-4" : "pt-12 sm:pt-14") : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-3"}`}>
-          {/* @kendall.vip only — cascade flowers into empty right (does not block clicks) */}
+        {/* overflow-visible for @kendall.vip so cascade flowers are not clipped */}
+        <div
+          className={`relative px-4 pb-3 ${
+            unameLower === "kendall.vip" ? "overflow-visible" : "overflow-hidden"
+          } ${
+            isMusician
+              ? isSamSnuggles
+                ? "pt-3 sm:pt-4"
+                : "pt-12 sm:pt-14"
+              : isBusiness
+                ? "pt-[calc(0.75rem-2mm)]"
+                : "pt-3"
+          }`}
+        >
+          {/* @kendall.vip only — exact cascade from approved screenshot (does not block clicks) */}
           {unameLower === "kendall.vip" && (
             <img
               src="/kendall-cascade.png"
               alt=""
               aria-hidden
-              className="pointer-events-none absolute -right-1 z-0 select-none object-contain object-right-top"
-              style={{ top: "-3.25rem", height: "min(68vw, 320px)", maxWidth: "48%" }}
+              className="pointer-events-none absolute z-0 select-none object-contain object-right-top"
+              style={{
+                top: "-4.5rem",
+                right: "-0.25rem",
+                height: "min(82vw, 400px)",
+                width: "auto",
+                maxWidth: "54%",
+              }}
             />
           )}
           <div className={`relative z-10 flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
