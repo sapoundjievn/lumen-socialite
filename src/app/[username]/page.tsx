@@ -34,6 +34,7 @@ import {
   getPublicFollowingCount,
   getOrCreateConversation,
   createPost,
+  getTotalAccountsCount,
   type FriendStatus,
 } from "@/lib/posts";
 import { getCurrentProfile, signOut, updateUserEmail, updateUserPassword } from "@/lib/auth";
@@ -68,6 +69,7 @@ export default function ProfilePage() {
   const [listUsers, setListUsers] = useState<any[]>([]);
   const [listLoading, setListLoading] = useState(false);
   const [displayFollowing, setDisplayFollowing] = useState(0);
+  const [totalAccounts, setTotalAccounts] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editBusinessAddress, setEditBusinessAddress] = useState("");
   const [editBusinessType, setEditBusinessType] = useState("");
@@ -110,6 +112,12 @@ export default function ProfilePage() {
         getPublicFollowingCount(p.id, p.following_count || 0).then((n) =>
           setDisplayFollowing(n)
         );
+      }
+      // Founder @thevip: show total platform sign-ups next to join date
+      if ((p.username || "").toLowerCase() === "thevip") {
+        getTotalAccountsCount().then((n) => setTotalAccounts(n));
+      } else {
+        setTotalAccounts(null);
       }
     }
 
@@ -1147,15 +1155,23 @@ export default function ProfilePage() {
               </div>
             )}
 
-          <div className="mt-2.5 flex items-center gap-1 text-[13px] text-muted sm:text-[15px]">
-            <Calendar className="h-4 w-4" />
-            <span>
-              Joined{" "}
-              {new Date(profile.created_at).toLocaleDateString("en-US", {
-                month: "long",
-                year: "numeric",
-              })}
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted sm:text-[15px]">
+            <span className="inline-flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              <span>
+                Joined{" "}
+                {new Date(profile.created_at).toLocaleDateString("en-US", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </span>
             </span>
+            {unameLower === "thevip" && totalAccounts !== null && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-champagne/40 px-2.5 py-0.5 text-[12px] font-semibold text-charcoal">
+                <span className="text-gold-deep">{formatNumber(totalAccounts)}</span>
+                <span className="text-muted font-medium">accounts signed up</span>
+              </span>
+            )}
           </div>
 
           <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-[13px] sm:text-[15px]">

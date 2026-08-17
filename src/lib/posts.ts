@@ -6,11 +6,57 @@ import { getBlockedIds } from "./safety";
 // Founder account that can like unlimited times
 const FOUNDER_USERNAME = "thevip";
 
+/** Normalize interest tags for matching (main category or "Category · Sub") */
+function interestTokens(list: string[] | null | undefined): Set<string> {
+  const out = new Set<string>();
+  for (const raw of list || []) {
+    const s = String(raw || "").trim().toLowerCase();
+    if (!s) continue;
+    out.add(s);
+    const main = s.split("·")[0].trim();
+    if (main) out.add(main);
+  }
+  return out;
+}
+
+function postInterestScore(
+  post: any,
+  viewerTokens: Set<string>
+): number {
+  if (!viewerTokens.size) return 0;
+  let score = 0;
+  const authorInts = interestTokens(post.profiles?.interests);
+  for (const t of authorInts) {
+    if (viewerTokens.has(t)) score += 3;
+  }
+  const content = String(post.content || "").toLowerCase();
+  for (const t of viewerTokens) {
+    if (t.length < 3) continue;
+    if (content.includes(t) || content.includes("#" + t.replace(/\s+/g, ""))) {
+      score += 2;
+    }
+  }
+  return score;
+}
+
 export async function getFeed(limit = 20, currentUserId?: string | null): Promise<Post[]> {
   // Progress any founder like jobs (works even if founder closed the browser)
   try {
     await supabase.rpc("sync_founder_like_jobs");
   } catch (_) {}
+
+  // Viewer interests → rank enlightenments by matching categories
+  let viewerTokens = new Set<string>();
+  if (currentUserId) {
+    try {
+      const { data: me } = await supabase
+        .from("profiles")
+        .select("interests")
+        .eq("id", currentUserId)
+        .maybeSingle();
+      viewerTokens = interestTokens((me as any)?.interests);
+    } catch (_) {}
+  }
 
   // Global feed includes @thevip & @kendall.vip enlightenments for everyone
   // who auto-follows them (delivery to all followers).
@@ -26,11 +72,12 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
         verified,
         gender,
         followers_count,
-        following_count
+        following_count,
+        interests
       )
     `)
     .order("created_at", { ascending: false })
-    .limit(Math.max(limit, 40));
+    .limit(Math.max(limit * 3, 60));
 
   if (error) {
     console.error("Error fetching feed:", error);
@@ -78,19 +125,36 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
       liked_by_user: likedSet.has(p.id),
       reposted_by_user: repostedSet.has(p.id),
       bookmarked_by_user: bookmarkedSet.has(p.id),
+      _interestScore: postInterestScore(p, viewerTokens),
     }));
-    // Soft-boost founder enlightenments so followers always see them
+    // Soft-boost founder enlightenments; then interest match; then recency
     const founders = new Set(["thevip", "kendall.vip"]);
     mapped = mapped.sort((a: any, b: any) => {
       const af = founders.has((a.profiles?.username || "").toLowerCase()) ? 1 : 0;
       const bf = founders.has((b.profiles?.username || "").toLowerCase()) ? 1 : 0;
       if (af !== bf) return bf - af;
+      const ai = a._interestScore || 0;
+      const bi = b._interestScore || 0;
+      if (ai !== bi) return bi - ai;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
     return mapped.slice(0, limit);
   }
 
   return (rows || []).slice(0, limit);
+}
+
+/** Total registered accounts (profiles) — for founder dashboard */
+export async function getTotalAccountsCount(): Promise<number> {
+  try {
+    const { count, error } = await supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true });
+    if (error) return 0;
+    return count || 0;
+  } catch {
+    return 0;
+  }
 }
 
 export async function createPost(content: string, userId: string, mediaUrls: string[] = []) {

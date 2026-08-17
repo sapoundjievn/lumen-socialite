@@ -27,22 +27,254 @@ import SpecialStars from "@/components/SpecialStars";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
-const INTEREST_OPTIONS = [
-  "Music",
-  "Sports",
-  "Business",
-  "Technology",
-  "Fashion",
-  "Food",
-  "Travel",
-  "Art",
-  "Fitness",
-  "Gaming",
-  "Real estate",
-  "Crypto",
-  "Film",
-  "Education",
-  "Health",
+/** Main categories + most popular subcategories (Comedy first) */
+const INTEREST_CATEGORIES: { name: string; subs: string[] }[] = [
+  {
+    name: "Comedy",
+    subs: [
+      "Stand-up",
+      "Improv",
+      "Sketch",
+      "Sitcoms",
+      "Dark comedy",
+      "Roasts",
+      "Specials",
+      "Memes",
+      "Satire",
+      "Pranks",
+    ],
+  },
+  {
+    name: "Music",
+    subs: [
+      "Pop",
+      "Hip-Hop / Rap",
+      "R&B",
+      "Rock",
+      "Country",
+      "EDM",
+      "Latin",
+      "Jazz",
+      "K-Pop",
+      "Classical",
+      "Indie",
+    ],
+  },
+  {
+    name: "Sports",
+    subs: [
+      "NFL",
+      "NBA",
+      "Soccer",
+      "MLB",
+      "UFC / MMA",
+      "Tennis",
+      "Golf",
+      "F1",
+      "Boxing",
+      "Olympics",
+      "College sports",
+    ],
+  },
+  {
+    name: "Business",
+    subs: [
+      "Startups",
+      "Marketing",
+      "Finance",
+      "Entrepreneurship",
+      "Investing",
+      "E-commerce",
+      "Sales",
+      "Leadership",
+      "Small business",
+    ],
+  },
+  {
+    name: "Technology",
+    subs: [
+      "AI",
+      "Software",
+      "Gadgets",
+      "Coding",
+      "Cybersecurity",
+      "Apps",
+      "Cloud",
+      "Robotics",
+      "Space tech",
+    ],
+  },
+  {
+    name: "Fashion",
+    subs: [
+      "Streetwear",
+      "Luxury",
+      "Beauty",
+      "Sneakers",
+      "Runway",
+      "Accessories",
+      "Makeup",
+      "Skincare",
+      "Jewelry",
+    ],
+  },
+  {
+    name: "Food",
+    subs: [
+      "Restaurants",
+      "Cooking",
+      "Baking",
+      "Wine",
+      "Coffee",
+      "Vegan",
+      "BBQ",
+      "Street food",
+      "Desserts",
+      "Cocktails",
+    ],
+  },
+  {
+    name: "Travel",
+    subs: [
+      "Beach",
+      "Adventure",
+      "Luxury travel",
+      "Road trips",
+      "City breaks",
+      "Hotels",
+      "Europe",
+      "Asia",
+      "USA",
+      "Cruises",
+    ],
+  },
+  {
+    name: "Art",
+    subs: [
+      "Painting",
+      "Photography",
+      "Design",
+      "Sculpture",
+      "Digital art",
+      "Galleries",
+      "Illustration",
+      "Street art",
+    ],
+  },
+  {
+    name: "Fitness",
+    subs: [
+      "Gym",
+      "Yoga",
+      "Running",
+      "CrossFit",
+      "Nutrition",
+      "Wellness",
+      "Weightlifting",
+      "Pilates",
+      "Cycling",
+    ],
+  },
+  {
+    name: "Gaming",
+    subs: [
+      "Console",
+      "PC",
+      "Esports",
+      "Mobile",
+      "Streaming",
+      "Indie games",
+      "PlayStation",
+      "Xbox",
+      "Nintendo",
+    ],
+  },
+  {
+    name: "Real estate",
+    subs: [
+      "Investing",
+      "Luxury homes",
+      "Commercial",
+      "Flipping",
+      "Rentals",
+      "Mortgages",
+      "Development",
+    ],
+  },
+  {
+    name: "Crypto",
+    subs: [
+      "Bitcoin",
+      "Ethereum",
+      "NFTs",
+      "DeFi",
+      "Trading",
+      "Web3",
+      "Altcoins",
+      "Blockchain",
+    ],
+  },
+  {
+    name: "Film",
+    subs: [
+      "Movies",
+      "TV series",
+      "Documentaries",
+      "Indie",
+      "Hollywood",
+      "Animation",
+      "Netflix",
+      "Awards",
+    ],
+  },
+  {
+    name: "Education",
+    subs: [
+      "Online learning",
+      "Languages",
+      "Science",
+      "History",
+      "Books",
+      "University",
+      "Tutoring",
+      "STEM",
+    ],
+  },
+  {
+    name: "Health",
+    subs: [
+      "Mental health",
+      "Wellness",
+      "Medicine",
+      "Sleep",
+      "Nutrition",
+      "Therapy",
+      "Longevity",
+    ],
+  },
+  {
+    name: "Lifestyle",
+    subs: [
+      "Home",
+      "Parenting",
+      "Pets",
+      "Relationships",
+      "Self-care",
+      "Minimalism",
+      "Luxury lifestyle",
+    ],
+  },
+  {
+    name: "News",
+    subs: [
+      "Politics",
+      "World news",
+      "Local",
+      "Economy",
+      "Science news",
+      "Celebrity",
+    ],
+  },
 ];
 
 export default function MorePage() {
@@ -206,28 +438,66 @@ export default function MorePage() {
               <div className="mb-6 rounded-2xl border border-border bg-white p-4">
                 <h2 className="text-[15px] font-bold text-charcoal">{t("interests")}</h2>
                 <p className="mt-1 text-[12px] text-muted">
-                  Pick topics you care about. We match you with people who share them.
+                  Pick main categories and popular subcategories (Comedy, Music, Sports, and more).
+                  Your home feed prioritizes enlightenments that match what you select.
                 </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {INTEREST_OPTIONS.map((opt) => {
-                    const on = interests.includes(opt);
+                <div className="mt-3 space-y-4">
+                  {INTEREST_CATEGORIES.map((cat) => {
+                    const catOn = interests.includes(cat.name);
                     return (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() =>
-                          setInterests((prev) =>
-                            on ? prev.filter((x) => x !== opt) : [...prev, opt]
-                          )
-                        }
-                        className={`rounded-full px-3 py-1 text-[12px] font-semibold transition ${
-                          on
-                            ? "bg-gold text-white"
-                            : "border border-border bg-pearl text-charcoal hover:bg-champagne/40"
-                        }`}
-                      >
-                        {opt}
-                      </button>
+                      <div key={cat.name}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setInterests((prev) => {
+                              if (catOn) {
+                                // remove category + all its subs
+                                const subSet = new Set(cat.subs.map((s) => `${cat.name} · ${s}`));
+                                return prev.filter(
+                                  (x) => x !== cat.name && !subSet.has(x)
+                                );
+                              }
+                              return [...prev, cat.name];
+                            })
+                          }
+                          className={`rounded-full px-3 py-1.5 text-[13px] font-bold transition ${
+                            catOn
+                              ? "bg-gold text-white"
+                              : "border border-border bg-pearl text-charcoal hover:bg-champagne/40"
+                          }`}
+                        >
+                          {cat.name}
+                        </button>
+                        <div className="mt-2 flex flex-wrap gap-1.5 pl-1">
+                          {cat.subs.map((sub) => {
+                            const key = `${cat.name} · ${sub}`;
+                            const on = interests.includes(key);
+                            return (
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() =>
+                                  setInterests((prev) => {
+                                    if (on) return prev.filter((x) => x !== key);
+                                    // also ensure parent category is selected
+                                    const next = prev.includes(cat.name)
+                                      ? prev
+                                      : [...prev, cat.name];
+                                    return [...next, key];
+                                  })
+                                }
+                                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+                                  on
+                                    ? "bg-gold/90 text-white"
+                                    : "border border-border/80 bg-pearl/80 text-charcoal/80 hover:bg-champagne/40"
+                                }`}
+                              >
+                                {sub}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
