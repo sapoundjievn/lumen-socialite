@@ -96,7 +96,7 @@ export default function ProfilePage() {
     const me = await getCurrentProfile();
     if (me) setCurrentUserId(me.id);
 
-    const { data: p } = await getProfileByUsername(username);
+    const { data: p } = await getProfileByUsername(username, me?.username);
     if (!p) {
       setNotFound(true);
       setLoading(false);

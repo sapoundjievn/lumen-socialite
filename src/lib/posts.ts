@@ -2,6 +2,7 @@ import { supabase } from "./supabase";
 import type { Post } from "@/types";
 import { moderateContentLocal, moderateContentFull } from "./moderation";
 import { getBlockedIds } from "./safety";
+import { canSeeHiddenAccount, isPubliclyHiddenUsername } from "./utils";
 
 // Founder account that can like unlimited times
 const FOUNDER_USERNAME = "thevip";
@@ -47,14 +48,16 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
 
   // Viewer interests → rank enlightenments by matching categories
   let viewerTokens = new Set<string>();
+  let viewerUsername = "";
   if (currentUserId) {
     try {
       const { data: me } = await supabase
         .from("profiles")
-        .select("interests")
+        .select("interests, username")
         .eq("id", currentUserId)
         .maybeSingle();
       viewerTokens = interestTokens((me as any)?.interests);
+      viewerUsername = ((me as any)?.username || "").toLowerCase();
     } catch (_) {}
   }
 
@@ -87,6 +90,9 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
   if (!data) return [];
 
   let rows = data;
+  rows = rows.filter((p: any) =>
+    canSeeHiddenAccount(viewerUsername, p.profiles?.username)
+  );
   if (currentUserId) {
     try {
       const blocked = new Set(await getBlockedIds(currentUserId));
@@ -281,12 +287,18 @@ export async function unlikePost(postId: string, userId: string, username?: stri
   return { error };
 }
 
-export async function getProfileByUsername(username: string) {
+export async function getProfileByUsername(
+  username: string,
+  viewerUsername?: string | null
+) {
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .ilike("username", username)
     .maybeSingle();
+  if (data && !canSeeHiddenAccount(viewerUsername, (data as any).username)) {
+    return { data: null, error: null };
+  }
   return { data, error };
 }
 
@@ -938,7 +950,10 @@ export async function sendMessage(
   return { data, error };
 }
 
-export async function searchProfiles(query: string) {
+export async function searchProfiles(
+  query: string,
+  viewerUsername?: string | null
+) {
   // Support "@thevip" and "thevip"
   let q = query.trim();
   if (q.startsWith("@")) q = q.slice(1);
@@ -961,8 +976,12 @@ export async function searchProfiles(query: string) {
   for (const row of byUser.data || []) map.set(row.id, row);
   for (const row of byName.data || []) map.set(row.id, row);
 
+  const data = Array.from(map.values()).filter((row) =>
+    canSeeHiddenAccount(viewerUsername, row.username)
+  );
+
   return {
-    data: Array.from(map.values()),
+    data,
     error: exact.error || byUser.error || byName.error,
   };
 }
@@ -1150,7 +1169,17 @@ export async function getWhoToFollow(currentUserId?: string | null, limit = 3) {
   const { data, error } = await query;
   if (error || !data) return { data: [], error };
 
-  let list = data;
+  let viewerUsername = "";
+  if (currentUserId) {
+    const { data: me } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", currentUserId)
+      .maybeSingle();
+    viewerUsername = (me as any)?.username || "";
+  }
+
+  let list = data.filter((p) => canSeeHiddenAccount(viewerUsername, p.username));
   if (currentUserId) {
     list = list.filter((p) => p.id !== currentUserId);
     const { data: follows } = await supabase
@@ -1540,7 +1569,11 @@ export async function updateUserInterests(userId: string, interests: string[]) {
   return { data, error };
 }
 
-export async function getProfilesByInterests(interests: string[], limit = 20) {
+export async function getProfilesByInterests(
+  interests: string[],
+  limit = 20,
+  viewerUsername?: string | null
+) {
   if (!interests.length) return { data: [], error: null };
   const { data, error } = await supabase
     .from("profiles")
@@ -1556,6 +1589,7 @@ export async function getProfilesByInterests(interests: string[], limit = 20) {
       return { p, overlap };
     })
     .filter((x) => x.overlap > 0)
+    .filter((x) => canSeeHiddenAccount(viewerUsername, x.p.username))
     .sort((a, b) => b.overlap - a.overlap)
     .slice(0, limit)
     .map((x) => x.p);

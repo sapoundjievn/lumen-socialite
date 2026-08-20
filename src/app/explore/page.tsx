@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Search } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
-import { isForcedVerifiedUsername } from "@/lib/utils";
+import { isForcedVerifiedUsername, canSeeHiddenAccount } from "@/lib/utils";
 import { searchProfiles } from "@/lib/posts";
+import { getCurrentProfile } from "@/lib/auth";
 import type { Profile } from "@/types";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
@@ -19,6 +20,11 @@ function ExploreInner() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [viewerUsername, setViewerUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    getCurrentProfile().then((p) => setViewerUsername(p?.username || null));
+  }, []);
 
   async function runSearch(q: string) {
     const term = q.trim();
@@ -27,7 +33,7 @@ function ExploreInner() {
     setSearched(true);
     setErrorMsg("");
     setQuery(term);
-    const { data, error } = await searchProfiles(term);
+    const { data, error } = await searchProfiles(term, viewerUsername);
     if (error) {
       console.error(error);
       setErrorMsg(error.message || "Search failed");
@@ -102,13 +108,15 @@ function ExploreInner() {
             >
               @thevip
             </button>
-            <button
-              type="button"
-              onClick={() => runSearch("kendall.vip")}
-              className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal hover:bg-champagne/40"
-            >
-              @kendall.vip
-            </button>
+            {canSeeHiddenAccount(viewerUsername, "kendall.vip") && (
+              <button
+                type="button"
+                onClick={() => runSearch("kendall.vip")}
+                className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal hover:bg-champagne/40"
+              >
+                @kendall.vip
+              </button>
+            )}
           </div>
         </div>
       ) : loading ? (

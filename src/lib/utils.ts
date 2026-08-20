@@ -31,6 +31,24 @@ export function formatNumber(num: number): string {
 }
 
 
+/** Hidden from the public platform. Only @thevip (and the account itself) can see it. */
+export const HIDDEN_PUBLIC_USERNAMES = ["kendall.vip"];
+
+export function isPubliclyHiddenUsername(username?: string | null): boolean {
+  const u = (username || "").toLowerCase().trim();
+  return HIDDEN_PUBLIC_USERNAMES.includes(u);
+}
+
+export function canSeeHiddenAccount(
+  viewerUsername?: string | null,
+  targetUsername?: string | null
+): boolean {
+  const target = (targetUsername || "").toLowerCase().trim();
+  if (!isPubliclyHiddenUsername(target)) return true;
+  const viewer = (viewerUsername || "").toLowerCase().trim();
+  return viewer === "thevip" || viewer === target;
+}
+
 /** Accounts that always show a verification badge (permanent). */
 export function isForcedVerifiedUsername(username?: string | null): boolean {
   const u = (username || "").toLowerCase().trim();
