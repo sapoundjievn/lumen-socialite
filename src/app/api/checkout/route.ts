@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       trackId,
+      trackIds,
       title,
       priceCents,
       buyerId,
@@ -29,7 +30,13 @@ export async function POST(req: NextRequest) {
       artistStripeConnectId,
     } = body || {};
 
-    if (!trackId || !buyerId || !artistId || !priceCents) {
+    const ids: string[] = Array.isArray(trackIds)
+      ? trackIds.filter(Boolean)
+      : trackId
+        ? [String(trackId)]
+        : [];
+
+    if (!ids.length || !buyerId || !artistId || !priceCents) {
       return NextResponse.json({ error: "Missing payment fields" }, { status: 400 });
     }
 
@@ -41,6 +48,7 @@ export async function POST(req: NextRequest) {
     const platformFeeRate = 0.1;
     const amount = Math.max(50, Number(priceCents));
     const fee = Math.round(amount * platformFeeRate);
+    const isBundle = ids.length > 1;
 
     const params = new URLSearchParams();
     params.append("mode", "payment");
@@ -64,15 +72,21 @@ export async function POST(req: NextRequest) {
     params.append("line_items[0][price_data][currency]", "usd");
     params.append(
       "line_items[0][price_data][product_data][name]",
-      `LumenTunes · ${title || "Track"}`
+      isBundle
+        ? `LumenTunes · All songs (${ids.length})`
+        : `LumenTunes · ${title || "Track"}`
     );
     params.append(
       "line_items[0][price_data][product_data][description]",
-      `Full track download · Lumen · Socialite platform fee ${Math.round(platformFeeRate * 100)}%`
+      isBundle
+        ? `Buy all ${ids.length} songs · LumenTunes`
+        : `Full track download · Lumen · Socialite platform fee ${Math.round(platformFeeRate * 100)}%`
     );
     params.append("line_items[0][price_data][unit_amount]", String(amount));
     params.append("line_items[0][quantity]", "1");
-    params.append("metadata[track_id]", String(trackId));
+    params.append("metadata[track_id]", String(ids[0]));
+    params.append("metadata[track_ids]", ids.join(","));
+    params.append("metadata[bundle]", isBundle ? "1" : "0");
     params.append("metadata[buyer_id]", String(buyerId));
     params.append("metadata[artist_id]", String(artistId));
     params.append("metadata[artist_username]", String(artistUsername || ""));

@@ -289,6 +289,52 @@ function MusicInner() {
     if (fileRef.current) fileRef.current.value = "";
   }
 
+  const listedTracks = tracks.filter(Boolean) as MusicTrack[];
+  const unownedTracks = listedTracks.filter((t) => !owned.has(t.id));
+  const allTotalCents = listedTracks.reduce(
+    (sum, t) => sum + (Number(t.price_cents) || 0),
+    0
+  );
+  const buyAllCents = unownedTracks.reduce(
+    (sum, t) => sum + (Number(t.price_cents) || 0),
+    0
+  );
+
+  async function handleBuyAll() {
+    if (!me) {
+      alert("Sign in to buy and download");
+      return;
+    }
+    if (!artist || me.id === artist.id) return;
+    if (!unownedTracks.length) {
+      alert("You already own these songs");
+      return;
+    }
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trackIds: unownedTracks.map((t) => t.id),
+          title: `All songs (${unownedTracks.length})`,
+          priceCents: buyAllCents,
+          buyerId: me.id,
+          artistId: artist.id,
+          artistUsername: artist.username,
+          artistStripeConnectId: (artist as any).stripe_connect_id || null,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.url) {
+        alert(json.error || "Could not start payment");
+        return;
+      }
+      window.location.href = json.url;
+    } catch (e: any) {
+      alert(e?.message || "Payment error");
+    }
+  }
+
   async function handleBuy(track: MusicTrack) {
     if (!me) {
       alert("Sign in to buy and download");
@@ -538,6 +584,44 @@ function MusicInner() {
                   ? "LumenTunes Store catalog (how buyers see it)"
                   : "LumenTunes Store — buy & download"}
               </p>
+              {listedTracks.length > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gold-soft/40 bg-champagne/30 px-4 py-3">
+                  <div>
+                    <p className="text-[14px] font-bold text-charcoal">
+                      {listedTracks.length} song{listedTracks.length === 1 ? "" : "s"}
+                      {" · "}
+                      ${((viewingOwn ? allTotalCents : buyAllCents) / 100).toFixed(2)}
+                    </p>
+                    <p className="text-[11px] text-muted">
+                      {viewingOwn
+                        ? "Catalog total if a buyer purchases every song"
+                        : unownedTracks.length === 0
+                          ? "You own every song in this store"
+                          : unownedTracks.length === listedTracks.length
+                            ? `Buy all ${unownedTracks.length} songs in one payment`
+                            : `${unownedTracks.length} left to buy · already owned not included`}
+                    </p>
+                  </div>
+                  {!viewingOwn && me && unownedTracks.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleBuyAll}
+                      className="rounded-full bg-gold px-4 py-2 text-[13px] font-bold text-white hover:bg-gold-deep"
+                    >
+                      Buy all songs · ${(buyAllCents / 100).toFixed(2)}
+                    </button>
+                  )}
+                  {!viewingOwn && !me && listedTracks.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => alert("Sign in to pay and download")}
+                      className="rounded-full bg-charcoal px-4 py-2 text-[13px] font-bold text-pearl"
+                    >
+                      Sign in to buy all
+                    </button>
+                  )}
+                </div>
+              )}
               {loading ? (
                 <p className="text-muted text-[13px]">Loading…</p>
               ) : (

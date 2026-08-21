@@ -46,12 +46,16 @@ export async function POST(req: NextRequest) {
 
     const meta = session.metadata || {};
     const trackId = meta.track_id;
+    const trackIds = String(meta.track_ids || trackId || "")
+      .split(",")
+      .map((s: string) => s.trim())
+      .filter(Boolean);
     const buyerId = meta.buyer_id;
     const artistId = meta.artist_id;
     const priceCents = Number(meta.price_cents || session.amount_total || 0);
     const fee = Number(meta.platform_fee_cents || Math.round(priceCents * 0.1));
 
-    if (!trackId || !buyerId || !artistId) {
+    if (!trackIds.length || !buyerId || !artistId) {
       return NextResponse.json(
         { error: "Missing track/buyer/artist in session metadata", meta },
         { status: 400 }
@@ -62,40 +66,30 @@ export async function POST(req: NextRequest) {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    // Upsert ownership
-    const { error } = await supabase.from("music_purchases").upsert(
-      {
-        track_id: trackId,
-        buyer_id: buyerId,
-        artist_id: artistId,
-        price_cents: priceCents,
-        platform_fee_cents: fee,
-        stripe_session_id: session.id,
-      } as any,
-      { onConflict: "buyer_id,track_id" }
-    );
+    const per = Math.round(priceCents / trackIds.length);
+    const perFee = Math.round(fee / trackIds.length);
 
-    if (error) {
-      // Fallback insert
-      const { error: e2 } = await supabase.from("music_purchases").insert({
-        track_id: trackId,
+    for (const id of trackIds) {
+      const row = {
+        track_id: id,
         buyer_id: buyerId,
         artist_id: artistId,
-        price_cents: priceCents,
-        platform_fee_cents: fee,
+        price_cents: per,
+        platform_fee_cents: perFee,
         stripe_session_id: session.id,
-      } as any);
-      if (e2) {
-        return NextResponse.json(
-          { error: e2.message || error.message },
-          { status: 400 }
-        );
+      } as any;
+      const { error } = await supabase
+        .from("music_purchases")
+        .upsert(row, { onConflict: "buyer_id,track_id" });
+      if (error) {
+        await supabase.from("music_purchases").insert(row);
       }
     }
 
     return NextResponse.json({
       ok: true,
-      trackId,
+      trackId: trackIds[0],
+      trackIds,
       artistId,
       artistUsername: meta.artist_username || null,
     });
