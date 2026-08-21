@@ -84,8 +84,13 @@ export async function POST(req: NextRequest) {
     );
     params.append("line_items[0][price_data][unit_amount]", String(amount));
     params.append("line_items[0][quantity]", "1");
+    const compact = (id: string) => String(id).replace(/-/g, "");
+    const packed = ids.map(compact);
+    const chunkA = packed.slice(0, 8).join(",");
+    const chunkB = packed.slice(8).join(",");
     params.append("metadata[track_id]", String(ids[0]));
-    params.append("metadata[track_ids]", ids.join(","));
+    params.append("metadata[track_ids]", chunkA);
+    if (chunkB) params.append("metadata[track_ids_2]", chunkB);
     params.append("metadata[bundle]", isBundle ? "1" : "0");
     params.append("metadata[buyer_id]", String(buyerId));
     params.append("metadata[artist_id]", String(artistId));

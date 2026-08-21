@@ -46,10 +46,17 @@ export async function POST(req: NextRequest) {
 
     const meta = session.metadata || {};
     const trackId = meta.track_id;
-    const trackIds = String(meta.track_ids || trackId || "")
+    const expandId = (raw: string) => {
+      const s = String(raw).replace(/-/g, "");
+      if (s.length !== 32) return raw;
+      return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20, 32)}`;
+    };
+    const trackIds = `${meta.track_ids || ""},${meta.track_ids_2 || ""},${trackId || ""}`
       .split(",")
       .map((s: string) => s.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .map(expandId)
+      .filter((id: string, i: number, arr: string[]) => arr.indexOf(id) === i);
     const buyerId = meta.buyer_id;
     const artistId = meta.artist_id;
     const priceCents = Number(meta.price_cents || session.amount_total || 0);
