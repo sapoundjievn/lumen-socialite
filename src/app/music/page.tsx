@@ -579,49 +579,40 @@ function MusicInner() {
           {/* CUSTOMER / CATALOG: lines 1–14 — store only */}
           {artist && (
             <div className="space-y-2">
-              <p className="text-[13px] font-bold text-charcoal">
-                {viewingOwn
-                  ? "LumenTunes Store catalog (how buyers see it)"
-                  : "LumenTunes Store — buy & download"}
-              </p>
-              {listedTracks.length > 0 && (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gold-soft/40 bg-champagne/30 px-4 py-3">
-                  <div>
-                    <p className="text-[14px] font-bold text-charcoal">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[13px] font-bold text-charcoal">
+                  {viewingOwn
+                    ? "LumenTunes Store catalog (how buyers see it)"
+                    : "LumenTunes Store — buy & download"}
+                </p>
+                {listedTracks.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[12px] font-semibold text-charcoal">
                       {listedTracks.length} song{listedTracks.length === 1 ? "" : "s"}
                       {" · "}
                       ${((viewingOwn ? allTotalCents : buyAllCents) / 100).toFixed(2)}
-                    </p>
-                    <p className="text-[11px] text-muted">
-                      {viewingOwn
-                        ? "Catalog total if a buyer purchases every song"
-                        : unownedTracks.length === 0
-                          ? "You own every song in this store"
-                          : unownedTracks.length === listedTracks.length
-                            ? `Buy all ${unownedTracks.length} songs in one payment`
-                            : `${unownedTracks.length} left to buy · already owned not included`}
-                    </p>
+                    </span>
+                    {!viewingOwn && me && unownedTracks.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleBuyAll}
+                        className="rounded-full bg-gold px-3 py-1.5 text-[12px] font-bold text-white hover:bg-gold-deep"
+                      >
+                        Buy all
+                      </button>
+                    )}
+                    {!viewingOwn && !me && (
+                      <button
+                        type="button"
+                        onClick={() => alert("Sign in to pay and download")}
+                        className="rounded-full bg-charcoal px-3 py-1.5 text-[12px] font-bold text-pearl"
+                      >
+                        Sign in to buy all
+                      </button>
+                    )}
                   </div>
-                  {!viewingOwn && me && unownedTracks.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleBuyAll}
-                      className="rounded-full bg-gold px-4 py-2 text-[13px] font-bold text-white hover:bg-gold-deep"
-                    >
-                      Buy all songs · ${(buyAllCents / 100).toFixed(2)}
-                    </button>
-                  )}
-                  {!viewingOwn && !me && listedTracks.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => alert("Sign in to pay and download")}
-                      className="rounded-full bg-charcoal px-4 py-2 text-[13px] font-bold text-pearl"
-                    >
-                      Sign in to buy all
-                    </button>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
               {loading ? (
                 <p className="text-muted text-[13px]">Loading…</p>
               ) : (
