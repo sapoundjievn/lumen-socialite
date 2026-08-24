@@ -8,29 +8,17 @@ export default function BlockedList() {
   const [busy, setBusy] = useState<string | null>(null);
 
   async function load() {
-    try {
-      const data = await listMyBlocks();
-      setRows(data);
-    } catch {
-      try {
-        const { listMyBlocks: list2 } = await import("@/lib/posts");
-        setRows(await list2());
-      } catch {
-        setRows([]);
-      }
-    }
+    const data = await listMyBlocks();
+    setRows(data || []);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function unblock(id: string) {
     setBusy(id);
-    try {
-      await toggleBlock(id);
-    } catch {
-      const { toggleBlock: t2 } = await import("@/lib/posts");
-      await t2(id);
-    }
+    await toggleBlock(id);
     await load();
     setBusy(null);
   }
@@ -43,12 +31,12 @@ export default function BlockedList() {
       ) : (
         <ul className="space-y-2">
           {rows.map((r) => {
-            const p = r.profiles || {};
-            const un = (p.username || r.blocked_id || "").replace(/^@/, "");
+            const prof = r.profiles || {};
+            const un = String(prof.username || r.blocked_id || "").replace(/^@/, "");
             return (
               <li key={r.blocked_id} className="flex items-center justify-between gap-3">
                 <Link href={"/" + un} className="min-w-0">
-                  <div className="truncate text-[14px] font-medium">{p.display_name || un}</div>
+                  <div className="truncate text-[14px] font-medium">{prof.display_name || un}</div>
                   <div className="truncate text-[12px] text-muted">@{un}</div>
                 </Link>
                 <button
