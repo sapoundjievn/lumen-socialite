@@ -42,7 +42,7 @@ import { supabase } from "@/lib/supabase";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import Composer from "@/components/Composer";
-import { blockUser, reportContent } from "@/lib/safety";
+import { blockUser, reportContent } , toggleBlock } from "@/lib/safety";
 import SpecialStars from "@/components/SpecialStars";
 import { formatNumber } from "@/lib/utils";
 import Sidebar from "@/components/Sidebar";
@@ -57,6 +57,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [blocked, setBlocked] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [following, setFollowing] = useState(false);
