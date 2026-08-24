@@ -1085,7 +1085,7 @@ export default function ProfilePage() {
                     </button>
                     <button
                       type="button"
-                      title={blocked ? "Unblock" : "Block"}
+                  title={blocked ? "Unblock" : "Block"}
                       onClick={async () => {
                         if (!currentUserId || !profile) {
                           alert("Please sign in");
