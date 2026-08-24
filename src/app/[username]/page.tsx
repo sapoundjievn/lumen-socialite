@@ -42,7 +42,7 @@ import { supabase } from "@/lib/supabase";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import Composer from "@/components/Composer";
-import { blockUser, reportContent } , toggleBlock } from "@/lib/safety";
+import { blockUser, reportContent, toggleBlock } from "@/lib/safety";
 import SpecialStars from "@/components/SpecialStars";
 import { formatNumber } from "@/lib/utils";
 import Sidebar from "@/components/Sidebar";
