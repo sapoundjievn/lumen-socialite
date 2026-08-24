@@ -54,3 +54,43 @@ export async function getBlockedIds(userId: string): Promise<string[]> {
     .eq("blocker_id", userId);
   return (data || []).map((r) => r.blocked_id);
 }
+
+
+export async function toggleBlock(blockedId: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in", blocked: false };
+  if (user.id === blockedId) return { error: "Cannot block yourself", blocked: false };
+
+  const { data: existing } = await supabase
+    .from("blocks")
+    .select("id")
+    .eq("blocker_id", user.id)
+    .eq("blocked_id", blockedId)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabase
+      .from("blocks")
+      .delete()
+      .eq("blocker_id", user.id)
+      .eq("blocked_id", blockedId);
+    return { error, blocked: false };
+  }
+
+  const { error } = await supabase.from("blocks").insert({
+    blocker_id: user.id,
+    blocked_id: blockedId,
+  });
+  return { error, blocked: true };
+}
+
+export async function listMyBlocks() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  const { data } = await supabase
+    .from("blocks")
+    .select("blocked_id, created_at, profiles:blocked_id (username, display_name, avatar_url)")
+    .eq("blocker_id", user.id)
+    .order("created_at", { ascending: false });
+  return data || [];
+}

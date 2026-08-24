@@ -1,4 +1,5 @@
 "use client";
+import BlockedList from "@/components/BlockedList";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -600,6 +601,7 @@ export default function MorePage() {
       </main>
 
       <MobileBottomNav />
-    </div>
+            <BlockedList />
+      </div>
   );
 }
