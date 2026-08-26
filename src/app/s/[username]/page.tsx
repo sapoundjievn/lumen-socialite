@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
+import VerifiedBadge from "@/components/VerifiedBadge";
+import { isForcedVerifiedUsername } from "@/lib/utils";
 
 const SITE = "https://lumen-socialite.vercel.app";
 /** Same official mark as home / sidebar — one only on share cards */
@@ -18,7 +20,7 @@ type Props = {
 async function loadProfile(username: string) {
   const { data } = await supabase
     .from("profiles")
-    .select("display_name, bio, avatar_url, username, verified")
+    .select("display_name, bio, avatar_url, username, verified, gender")
     .ilike("username", username)
     .maybeSingle();
   return data;
@@ -74,6 +76,10 @@ export default async function ShareProfilePage({ params }: Props) {
     !rawAvatar.includes("logo.png") &&
     !rawAvatar.includes("LUMR");
   const profilePath = `/${username}`;
+  const showBadge = !!(
+    (data as any)?.verified || isForcedVerifiedUsername(username)
+  );
+  const gender = (data as any)?.gender || null;
 
   return (
     <main
@@ -135,9 +141,17 @@ export default async function ShareProfilePage({ params }: Props) {
             fontSize: 22,
             fontWeight: 700,
             color: "#2C2416",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            flexWrap: "wrap",
           }}
         >
-          {displayName}
+          <span>{displayName}</span>
+          {showBadge ? (
+            <VerifiedBadge username={username} gender={gender} size="md" />
+          ) : null}
         </h1>
         <p style={{ margin: "0 0 12px", color: "#8A7F6E", fontSize: 15 }}>
           @{username}
