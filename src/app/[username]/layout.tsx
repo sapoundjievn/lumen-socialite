@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 
 const SITE = "https://lumen-socialite.vercel.app";
-const LOGO = `${SITE}/logo-official.jpg`;
+const LOGO = `${SITE}/logo-official.png`;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://iswajdlwvxyichfbglyf.supabase.co",

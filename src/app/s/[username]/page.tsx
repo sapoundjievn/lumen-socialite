@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 
 const SITE = "https://lumen-socialite.vercel.app";
-const LOGO = `${SITE}/logo-official.jpg`;
+/** Same official mark as home / sidebar — one only on share cards */
+const LOGO = `${SITE}/logo-official.png`;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://iswajdlwvxyichfbglyf.supabase.co",
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description: bio,
       siteName: "Lumen · Socialite",
-      images: [{ url: image, width: 512, height: 512, alt: displayName }],
+      images: [{ url: image, width: 512, height: 512, alt: "Lumen · Socialite" }],
     },
     twitter: {
       card: "summary",
@@ -65,10 +66,13 @@ export default async function ShareProfilePage({ params }: Props) {
   const data = await loadProfile(username);
   const displayName = data?.display_name || username;
   const bio = (data?.bio && String(data.bio).trim()) || "";
-  const avatar =
-    data?.avatar_url && String(data.avatar_url).startsWith("http")
-      ? data.avatar_url
-      : LOGO;
+  const rawAvatar = data?.avatar_url ? String(data.avatar_url) : "";
+  const hasRealAvatar =
+    rawAvatar.startsWith("http") &&
+    !rawAvatar.includes("logo-official") &&
+    !rawAvatar.includes("logo.jpg") &&
+    !rawAvatar.includes("logo.png") &&
+    !rawAvatar.includes("LUMR");
   const profilePath = `/${username}`;
 
   return (
@@ -96,26 +100,35 @@ export default async function ShareProfilePage({ params }: Props) {
           boxShadow: "0 8px 30px rgba(0,0,0,0.06)",
         }}
       >
+        {/* One official home-page logo only */}
         <img
           src={LOGO}
           alt="Lumen · Socialite"
-          width={64}
-          height={64}
-          style={{ borderRadius: 12, margin: "0 auto 16px" }}
-        />
-        <img
-          src={avatar}
-          alt={displayName}
-          width={96}
-          height={96}
+          width={88}
+          height={88}
           style={{
-            borderRadius: "50%",
-            objectFit: "cover",
-            border: "3px solid #F5E8D3",
-            margin: "0 auto 12px",
+            borderRadius: 16,
+            margin: "0 auto 16px",
             display: "block",
+            objectFit: "contain",
+            background: "#FAF8F5",
           }}
         />
+        {hasRealAvatar ? (
+          <img
+            src={rawAvatar}
+            alt={displayName}
+            width={96}
+            height={96}
+            style={{
+              borderRadius: "50%",
+              objectFit: "cover",
+              border: "3px solid #F5E8D3",
+              margin: "0 auto 12px",
+              display: "block",
+            }}
+          />
+        ) : null}
         <h1
           style={{
             margin: "0 0 4px",
