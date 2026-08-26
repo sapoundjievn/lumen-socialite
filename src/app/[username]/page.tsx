@@ -692,29 +692,28 @@ export default function ProfilePage() {
       </div>
 
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
-        {/* Banner + Avatar — full width of column, object-left so left text is not cropped */}
+        {/* Banner + Avatar — full width; object-contain so text AND face both stay visible */}
         <div className="relative w-full">
           {(profile as any).banner_url ? (
             <div
-              className={`relative w-full overflow-hidden ${
+              className={`relative w-full overflow-hidden bg-[#0B1B33] ${
                 isBusiness
-                  ? "h-40 sm:h-48"
+                  ? "h-44 sm:h-52"
                   : isMusician
                     ? "h-32 sm:h-36"
-                    : "h-36 sm:h-44"
+                    : "h-40 sm:h-48"
               }`}
             >
               <img
                 src={(profile as any).banner_url}
                 alt=""
-                className="absolute inset-0 h-full w-full object-cover object-left"
+                className="absolute inset-0 h-full w-full object-contain object-center"
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
             </div>
           ) : (
             <div
               className={`w-full ${
-                isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-28"
+                isBusiness ? "h-44 sm:h-52" : isMusician ? "h-32 sm:h-36" : "h-28"
               } bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]`}
             />
           )}
