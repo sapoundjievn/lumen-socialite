@@ -696,18 +696,24 @@ export default function ProfilePage() {
         <div className="relative w-full">
           {(profile as any).banner_url ? (
             <div
-              className={`relative w-full overflow-hidden bg-[#0B1B33] ${
-                isBusiness
-                  ? "h-44 sm:h-52"
-                  : isMusician
-                    ? "h-32 sm:h-36"
-                    : "h-40 sm:h-48"
+              className={`relative w-full overflow-hidden ${
+                unameLower === "backpainreliefclinic"
+                  ? "h-44 sm:h-52 bg-[#0B1B33]"
+                  : isBusiness
+                    ? "h-40 sm:h-48"
+                    : isMusician
+                      ? "h-32 sm:h-36"
+                      : "h-36 sm:h-44"
               }`}
             >
               <img
                 src={(profile as any).banner_url}
                 alt=""
-                className="absolute inset-0 h-full w-full object-contain object-center"
+                className={
+                  unameLower === "backpainreliefclinic"
+                    ? "absolute inset-0 h-full w-full object-contain object-center"
+                    : "h-full w-full object-cover object-center"
+                }
               />
             </div>
           ) : (
