@@ -42,7 +42,7 @@ import { supabase } from "@/lib/supabase";
 import type { Profile, Post } from "@/types";
 import PostCard from "@/components/PostCard";
 import Composer from "@/components/Composer";
-import { blockUser, reportContent, toggleBlock } from "@/lib/safety";
+import { blockUser, reportContent } from "@/lib/safety";
 import SpecialStars from "@/components/SpecialStars";
 import { formatNumber } from "@/lib/utils";
 import Sidebar from "@/components/Sidebar";
@@ -57,7 +57,6 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [blocked, setBlocked] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [following, setFollowing] = useState(false);
@@ -693,8 +692,8 @@ export default function ProfilePage() {
       </div>
 
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
-        {/* Banner + Avatar */}
-        <div className="relative">
+        {/* Banner + Avatar — full width of column, object-left so left text is not cropped */}
+        <div className="relative w-full">
           {(profile as any).banner_url ? (
             <div
               className={`relative w-full overflow-hidden ${
@@ -708,26 +707,18 @@ export default function ProfilePage() {
               <img
                 src={(profile as any).banner_url}
                 alt=""
-                className="h-full w-full object-cover object-center"
+                className="absolute inset-0 h-full w-full object-cover object-left"
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
             </div>
           ) : (
             <div
-              className={`${
+              className={`w-full ${
                 isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-28"
               } bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]`}
             />
           )}
 
-          
-          <Link
-            href="/"
-            className={`${isBusiness ? "relative mb-2" : "absolute left-3 top-3"} z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40`}
-            aria-label="Back to Home"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
           {/* Personal only: avatar bottom-left. Business: never show profile photo. Musician: centered on banner */}
           {!isMusician && !isBusiness && (
             /* Personal accounts: 17mm diameter, bottom of image flush with bottom of banner */
@@ -906,23 +897,29 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Profile info — business has no avatar overhang, less top padding */}
+        {/* Profile info — name/tag at bottom of banner, right of back button; content pulled up */}
         <div
-          className={`relative px-4 pb-3 overflow-hidden ${
+          className={`relative px-3 pb-2 overflow-hidden ${
             isMusician
               ? isSamSnuggles
-                ? "pt-3 sm:pt-4"
-                : "pt-12 sm:pt-14"
+                ? "pt-2 sm:pt-3"
+                : "pt-10 sm:pt-12"
               : isBusiness
-                ? "pt-[calc(0.75rem-2mm)]"
-                : "pt-3"
+                ? "pt-1"
+                : "pt-1"
           }`}
         >
           <div className={`relative z-10 flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
-            <div
-              className="min-w-0 flex-1 pr-2"
-            >
+            <div className="flex min-w-0 flex-1 items-start gap-2 pr-1">
+              <Link
+                href="/"
+                className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-pearl text-charcoal transition hover:bg-champagne"
+                aria-label="Back to Home"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+              <div className="min-w-0 flex-1">
               <div className="flex min-w-0 items-center gap-1.5">
                 <h2
                   className={`min-w-0 font-bold leading-tight tracking-tight text-charcoal ${
@@ -978,10 +975,18 @@ export default function ProfilePage() {
                   ) : null}
                 </div>
               )}
+              </div>
             </div>
             )}
             {isMusician && (
-              <div className="mb-2 flex w-full flex-col items-center text-center">
+              <div className="relative mb-2 flex w-full flex-col items-center text-center">
+                <Link
+                  href="/"
+                  className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-pearl text-charcoal transition hover:bg-champagne"
+                  aria-label="Back to Home"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Link>
                 <div className="flex max-w-full items-center justify-center gap-1.5">
                   <h2
                     className={`truncate font-bold leading-tight text-charcoal ${
@@ -1086,7 +1091,7 @@ export default function ProfilePage() {
                     </button>
                     <button
                       type="button"
-                  title={blocked ? "Unblock" : "Block"}
+                      title="Block"
                       onClick={async () => {
                         if (!currentUserId || !profile) {
                           alert("Please sign in");
@@ -1156,7 +1161,7 @@ export default function ProfilePage() {
               </div>
             )}
 
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted sm:text-[15px]">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted sm:text-[15px]">
             <span className="inline-flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               <span>
@@ -1175,7 +1180,7 @@ export default function ProfilePage() {
             )}
           </div>
 
-          <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-[13px] sm:text-[15px]">
+          <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[13px] sm:text-[15px]">
             <div>
               <span className="font-bold text-charcoal">
                 {formatNumber(posts.filter((p: any) => !p._isRepost).length)}
@@ -1265,7 +1270,7 @@ export default function ProfilePage() {
                 <>
                   <button
                     type="button"
-                    title={blocked ? "Unblock" : "Block"}
+                    title="Block"
                     onClick={async () => {
                       if (!currentUserId || !profile) {
                         alert("Please sign in");
