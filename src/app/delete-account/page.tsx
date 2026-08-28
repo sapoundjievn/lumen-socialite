@@ -4,38 +4,52 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { getCurrentProfile, deleteOwnAccount } from "@/lib/auth";
+import { getCurrentProfile, getCurrentUser, signIn, deleteOwnAccount } from "@/lib/auth";
 
 export default function DeleteAccountPage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [username, setUsername] = useState("");
-  const [typed, setTyped] = useState("");
+  const [email, setEmail] = useState("");
+  const [tagInput, setTagInput] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    getCurrentProfile().then((p) => {
-      if (!p) {
+    Promise.all([getCurrentProfile(), getCurrentUser()]).then(([p, u]) => {
+      if (!p || !u) {
         router.replace("/login");
         return;
       }
-      setUsername((p.username || "").toLowerCase());
+      setUsername((p.username || "").replace(/^@/, "").toLowerCase());
+      setEmail(u.email || "");
       setReady(true);
     });
   }, [router]);
 
   async function confirmDelete() {
     setErr("");
-    if (typed.trim().toLowerCase() !== "delete") {
-      setErr('Type DELETE to confirm.');
+    const typed = tagInput.trim().replace(/^@/, "").toLowerCase();
+    if (!typed || typed !== username) {
+      setErr("Enter the exact @tag for this account.");
+      return;
+    }
+    if (!password) {
+      setErr("Enter the account password.");
       return;
     }
     setBusy(true);
+    const { error: authErr } = await signIn(email, password);
+    if (authErr) {
+      setBusy(false);
+      setErr("Password is not correct.");
+      return;
+    }
     const { error } = await deleteOwnAccount();
     setBusy(false);
     if (error) {
-      setErr(error.message || "Could not delete account. Run the SQL in Supabase first.");
+      setErr(error.message || "Could not delete account.");
       return;
     }
     router.replace("/login?deleted=1");
@@ -59,18 +73,29 @@ export default function DeleteAccountPage() {
       </div>
       <div className="space-y-4 px-4 py-6">
         <p className="text-[15px] text-charcoal">
-          This permanently deletes @{username} and the data tied to it on Lumen · Socialite
-          (profile, enlightenments, likes, follows, messages). This cannot be undone.
+          This permanently deletes this account and its data on Lumen · Socialite.
+          Confirm with the account @tag and password. This cannot be undone.
         </p>
-        <p className="text-[13px] text-muted">
-          Type <span className="font-bold text-charcoal">DELETE</span> then confirm.
-        </p>
-        <input
-          value={typed}
-          onChange={(e) => setTyped(e.target.value)}
-          placeholder="DELETE"
-          className="w-full rounded-xl border border-border bg-white px-4 py-3 text-[15px] outline-none"
-        />
+        <label className="block text-[13px] font-medium text-charcoal">
+          Account tag
+          <input
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            placeholder={`@${username}`}
+            autoCapitalize="none"
+            className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-[15px] outline-none"
+          />
+        </label>
+        <label className="block text-[13px] font-medium text-charcoal">
+          Password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password for this account"
+            className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-[15px] outline-none"
+          />
+        </label>
         {err ? <p className="text-[13px] text-rose-600">{err}</p> : null}
         <button
           type="button"
