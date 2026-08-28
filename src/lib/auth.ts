@@ -135,3 +135,11 @@ export async function resetPasswordForEmail(email: string) {
   });
   return { data, error };
 }
+
+/** Permanently delete the signed-in account (App Store 5.1.1(v)). */
+export async function deleteOwnAccount() {
+  const { error } = await supabase.rpc("delete_own_account");
+  if (error) return { error };
+  await supabase.auth.signOut();
+  return { error: null };
+}

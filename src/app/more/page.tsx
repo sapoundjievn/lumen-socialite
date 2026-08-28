@@ -1,5 +1,4 @@
 "use client";
-import BlockedList from "@/components/BlockedList";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -18,6 +17,7 @@ import {
   FileText,
   LifeBuoy,
   Scale,
+  Trash2,
 } from "lucide-react";
 import { getCurrentProfile, signOut } from "@/lib/auth";
 import { updateUserInterests, getProfilesByInterests } from "@/lib/posts";
@@ -343,6 +343,7 @@ export default function MorePage() {
     { icon: FileText, label: "Privacy Policy", href: "/privacy" },
     { icon: Scale, label: "Terms of Service", href: "/terms" },
     { icon: LifeBuoy, label: "Support", href: "/support" },
+    { icon: Trash2, label: "Delete account", href: "/delete-account" },
   ];
   // de-dupe verify if business double
   const seen = new Set<string>();
@@ -601,7 +602,6 @@ export default function MorePage() {
       </main>
 
       <MobileBottomNav />
-            <BlockedList />
-      </div>
+    </div>
   );
 }

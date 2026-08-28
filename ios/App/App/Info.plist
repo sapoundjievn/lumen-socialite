@@ -65,6 +65,15 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
+	<true/>	<key>NSCameraUsageDescription</key>
+	<string>Lumen · Socialite uses the camera so you can take photos and videos for Enlightenments, live stories, profile photos, and verification.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Lumen · Socialite uses the microphone for videos, live stories, and calls.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Lumen · Socialite accesses your photo library so you can attach photos and videos to Enlightenments and your profile.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Lumen · Socialite saves photos and videos you choose to keep on this device.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Lumen · Socialite uses your location only when you add a place to an Enlightenment.</string>
 </dict>
 </plist>
