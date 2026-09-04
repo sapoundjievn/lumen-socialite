@@ -287,7 +287,6 @@ export default function PostCard({
               </div>
             </div>
           ) : (
-            <div>
             <div className="mt-0.5 whitespace-pre-wrap text-[15px] leading-5 text-charcoal">
               {renderContentWithMentions(post.content)}
             </div>
@@ -322,9 +321,8 @@ export default function PostCard({
               className="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-gold-deep hover:underline"
             >
               <Languages className="h-3.5 w-3.5" />
-              {translating ? "Translating..." : translated ? "Hide translation" : "Translate"}
+              {translating ? "Translating…" : translated ? "Hide translation" : "Translate"}
             </button>
-            </div>
           )}
 
           {post.media_urls && post.media_urls.length > 0 && (
