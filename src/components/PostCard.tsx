@@ -11,6 +11,7 @@ import {
   Share,
   Bookmark,
   MoreHorizontal,
+  Languages,
   Pencil,
   Trash2,
 } from "lucide-react";
@@ -82,7 +83,9 @@ export default function PostCard({
   const isOwner = !!currentUserId && currentUserId === post.user_id;
   const isProtectedFounder = [
     "thevip",
+    "thevip.nikolay",
     "kendall.vip",
+    "thevip.kendall",
     "kennicktechnologies",
     "kennick",
     "kennicktechnologiesllc",
@@ -96,6 +99,8 @@ export default function PostCard({
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(post.content);
   const [saving, setSaving] = useState(false);
+  const [translated, setTranslated] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
     setViews(post.views_count || 0);
@@ -285,6 +290,39 @@ export default function PostCard({
             <div className="mt-0.5 whitespace-pre-wrap text-[15px] leading-5 text-charcoal">
               {renderContentWithMentions(post.content)}
             </div>
+            {translated && (
+              <div className="mt-2 rounded-xl border border-border bg-champagne/30 px-3 py-2 text-[14px] leading-5 text-charcoal">
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gold-deep">Translation</div>
+                {translated}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (translated) {
+                  setTranslated(null);
+                  return;
+                }
+                setTranslating(true);
+                try {
+                  const res = await fetch("/api/translate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: post.content, mode: "translate", target: "en" }),
+                  });
+                  const json = await res.json();
+                  if (json?.text) setTranslated(json.text);
+                  else alert(json?.error || "Translation failed");
+                } finally {
+                  setTranslating(false);
+                }
+              }}
+              className="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-gold-deep hover:underline"
+            >
+              <Languages className="h-3.5 w-3.5" />
+              {translating ? "Translating…" : translated ? "Hide translation" : "Translate"}
+            </button>
           )}
 
           {post.media_urls && post.media_urls.length > 0 && (

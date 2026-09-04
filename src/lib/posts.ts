@@ -2,10 +2,13 @@ import { supabase } from "./supabase";
 import type { Post } from "@/types";
 import { moderateContentLocal, moderateContentFull } from "./moderation";
 import { getBlockedIds } from "./safety";
-import { canSeeHiddenAccount, isPubliclyHiddenUsername } from "./utils";
+import { canSeeHiddenAccount, isPubliclyHiddenUsername, isTheVipUsername, isKendallUsername, isFounderUsername, usernameAliases } from "./utils";
 
-// Founder account that can like unlimited times
+// Founder account that can like unlimited times (@TheVIP.Nikolay and legacy @thevip)
 const FOUNDER_USERNAME = "thevip";
+function isBoostFounder(username?: string | null) {
+  return isTheVipUsername(username);
+}
 
 /** Normalize interest tags for matching (main category or "Category · Sub") */
 function interestTokens(list: string[] | null | undefined): Set<string> {
@@ -134,10 +137,9 @@ export async function getFeed(limit = 20, currentUserId?: string | null): Promis
       _interestScore: postInterestScore(p, viewerTokens),
     }));
     // Soft-boost founder enlightenments; then interest match; then recency
-    const founders = new Set(["thevip", "kendall.vip"]);
     mapped = mapped.sort((a: any, b: any) => {
-      const af = founders.has((a.profiles?.username || "").toLowerCase()) ? 1 : 0;
-      const bf = founders.has((b.profiles?.username || "").toLowerCase()) ? 1 : 0;
+      const af = isFounderUsername(a.profiles?.username) ? 1 : 0;
+      const bf = isFounderUsername(b.profiles?.username) ? 1 : 0;
       if (af !== bf) return bf - af;
       const ai = a._interestScore || 0;
       const bi = b._interestScore || 0;
@@ -200,7 +202,7 @@ export async function createPost(content: string, userId: string, mediaUrls: str
 }
 
 export async function likePost(postId: string, userId: string, username?: string) {
-  const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
+  const isFounder = isBoostFounder(username);
 
   if (isFounder) {
     // @thevip: each click = +550,340 likes and +550,340 views (stacks every click)
@@ -239,7 +241,7 @@ export async function likePost(postId: string, userId: string, username?: string
 
 /** @thevip right-click: undo one like/view boost of 550,340 */
 export async function reverseFounderLike(postId: string, username?: string) {
-  if (username?.toLowerCase() !== FOUNDER_USERNAME) {
+  if (!isBoostFounder(username)) {
     return { error: { message: "Only @thevip can reverse boosts" } as any };
   }
   const BOOST = 550_340;
@@ -259,7 +261,7 @@ export async function reverseFounderLike(postId: string, username?: string) {
 }
 
 export async function unlikePost(postId: string, userId: string, username?: string) {
-  const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
+  const isFounder = isBoostFounder(username);
 
   if (isFounder) {
     // Founder doesn't really "unlike" in the unlimited mode — they just keep adding
@@ -291,12 +293,22 @@ export async function getProfileByUsername(
   username: string,
   viewerUsername?: string | null
 ) {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .ilike("username", username)
-    .maybeSingle();
-  if (data && !canSeeHiddenAccount(viewerUsername, (data as any).username)) {
+  const aliases = usernameAliases(username);
+  let data: any = null;
+  let error: any = null;
+  for (const alias of aliases) {
+    const res = await supabase
+      .from("profiles")
+      .select("*")
+      .ilike("username", alias)
+      .maybeSingle();
+    error = res.error;
+    if (res.data) {
+      data = res.data;
+      break;
+    }
+  }
+  if (data && !canSeeHiddenAccount(viewerUsername, data.username)) {
     return { data: null, error: null };
   }
   return { data, error };
@@ -443,7 +455,7 @@ export async function autoFollowFounders(newUserId: string) {
   const { data: profiles } = await supabase
     .from("profiles")
     .select("id, username")
-    .or("username.ilike.thevip,username.ilike.kendall.vip");
+    .or("username.ilike.thevip,username.ilike.thevip.nikolay,username.ilike.kendall.vip,username.ilike.thevip.kendall");
 
   if (!profiles || profiles.length === 0) {
     // Retry once after short delay (profile trigger race)
@@ -451,7 +463,7 @@ export async function autoFollowFounders(newUserId: string) {
     const { data: retry } = await supabase
       .from("profiles")
       .select("id, username")
-      .or("username.ilike.thevip,username.ilike.kendall.vip");
+      .or("username.ilike.thevip,username.ilike.thevip.nikolay,username.ilike.kendall.vip,username.ilike.thevip.kendall");
     if (!retry || retry.length === 0) return;
     for (const p of retry) {
       if (p.id === newUserId) continue;
@@ -558,14 +570,11 @@ export async function updateProfile(
   return { data, error };
 }
 
-const FOUNDER_USERNAMES = ["thevip", "kendall.vip"];
-
 export function canEditPost(
   postCreatedAt: string,
   postUsername?: string | null
 ): boolean {
-  const u = (postUsername || "").toLowerCase();
-  if (FOUNDER_USERNAMES.includes(u)) return true;
+  if (isFounderUsername(postUsername)) return true;
   const ageMs = Date.now() - new Date(postCreatedAt).getTime();
   return ageMs <= 15 * 60 * 1000; // 15 minutes
 }
@@ -988,7 +997,7 @@ export async function searchProfiles(
 
 // ===== REPOSTS (clean) =====
 export async function repostPost(postId: string, userId: string, username?: string) {
-  const isFounder = username?.toLowerCase() === FOUNDER_USERNAME;
+  const isFounder = isBoostFounder(username);
   // Insert repost row (ignore if already exists)
   const { data, error } = await supabase
     .from("reposts")
@@ -1019,7 +1028,7 @@ export async function reverseFounderRepost(
   username?: string,
   userId?: string
 ) {
-  if (username?.toLowerCase() !== FOUNDER_USERNAME) {
+  if (!isBoostFounder(username)) {
     return { error: { message: "Only @thevip can reverse boosts" } as any };
   }
   const BOOST = 154;
@@ -1484,7 +1493,7 @@ export async function getFollowingList(
     .eq("follower_id", userId)
     .order("created_at", { ascending: false });
   if (error) return { data: [], error };
-  const hidden = new Set(["thevip", "kendall.vip"]);
+  const hiddenCheck = (u?: string | null) => isFounderUsername(u);
   let ownerIsFounder = false;
   try {
     const { data: owner } = await supabase
@@ -1492,7 +1501,7 @@ export async function getFollowingList(
       .select("username")
       .eq("id", userId)
       .maybeSingle();
-    ownerIsFounder = hidden.has((owner?.username || "").toLowerCase());
+    ownerIsFounder = isFounderUsername(owner?.username);
   } catch {
     ownerIsFounder = false;
   }
@@ -1501,7 +1510,7 @@ export async function getFollowingList(
     .filter(Boolean)
     .filter((p: any) => {
       const u = (p.username || "").toLowerCase();
-      if (!hidden.has(u)) return true;
+      if (!isFounderUsername(u)) return true;
       // You can always see that YOU follow the founders
       if (opts?.forOwner) return true;
       // Founders can see each other
@@ -1533,15 +1542,13 @@ export async function getFriendsList(userId: string) {
 }
 
 
-const HIDDEN_FOLLOW_USERNAMES = ["thevip", "kendall.vip"];
-
 /** Following count for display — hides automatic founder follows (not between founders) */
 export async function getPublicFollowingCount(userId: string, rawCount: number) {
   try {
     const { data: founders } = await supabase
       .from("profiles")
       .select("id, username")
-      .or("username.ilike.thevip,username.ilike.kendall.vip");
+      .or("username.ilike.thevip,username.ilike.thevip.nikolay,username.ilike.kendall.vip,username.ilike.thevip.kendall");
     if (!founders?.length) return rawCount;
     const ownerIsFounder = founders.some((f) => f.id === userId);
     // Founders keep full following count (including each other)

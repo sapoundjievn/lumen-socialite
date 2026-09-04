@@ -4,7 +4,7 @@ import { useI18n } from "@/lib/i18n";
 import { moderateContentFull } from "@/lib/moderation";
 
 import { useState, useRef, useEffect } from "react";
-import { Image, Smile, Calendar, MapPin, BarChart2, X } from "lucide-react";
+import { Image, Smile, Calendar, MapPin, BarChart2, X, Languages, Sparkles } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/types";
@@ -28,6 +28,8 @@ export default function Composer({ onPost }: ComposerProps) {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [targetLang, setTargetLang] = useState("en");
   const textRef = useRef<HTMLTextAreaElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -111,6 +113,28 @@ export default function Composer({ onPost }: ComposerProps) {
     setPreview(URL.createObjectURL(f));
     setFocused(true);
   };
+
+
+  async function runAi(mode: "fix" | "translate") {
+    if (!content.trim()) return;
+    setAiBusy(true);
+    try {
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: content, mode, target: targetLang }),
+      });
+      const json = await res.json();
+      if (json?.text) {
+        setContent(json.text);
+        setFocused(true);
+      } else {
+        alert(json?.error || "AI could not rewrite that.");
+      }
+    } finally {
+      setAiBusy(false);
+    }
+  }
 
   const canPost = (content.trim().length > 0 || !!file) && !isOver && !uploading;
 
@@ -241,7 +265,52 @@ export default function Composer({ onPost }: ComposerProps) {
               />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {content.trim() && (
+                <>
+                  <select
+                    value={targetLang}
+                    onChange={(e) => setTargetLang(e.target.value)}
+                    className="h-7 rounded-full border border-border bg-pearl px-2 text-[11px] text-charcoal"
+                    title="Translate to"
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="bg">Bulgarian</option>
+                    <option value="ru">Russian</option>
+                    <option value="uk">Ukrainian</option>
+                    <option value="pl">Polish</option>
+                    <option value="tr">Turkish</option>
+                    <option value="ar">Arabic</option>
+                    <option value="zh">Chinese</option>
+                    <option value="ja">Japanese</option>
+                    <option value="ko">Korean</option>
+                    <option value="hi">Hindi</option>
+                  </select>
+                  <button
+                    type="button"
+                    disabled={aiBusy}
+                    onClick={() => runAi("translate")}
+                    className="inline-flex items-center gap-1 rounded-full border border-gold-soft/50 px-2 py-1 text-[11px] font-semibold text-gold-deep hover:bg-champagne/40 disabled:opacity-50"
+                  >
+                    <Languages className="h-3.5 w-3.5" />
+                    {aiBusy ? "…" : "Translate"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={aiBusy}
+                    onClick={() => runAi("fix")}
+                    className="inline-flex items-center gap-1 rounded-full border border-gold-soft/50 px-2 py-1 text-[11px] font-semibold text-gold-deep hover:bg-champagne/40 disabled:opacity-50"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    {aiBusy ? "…" : "Write it correctly"}
+                  </button>
+                </>
+              )}
               {content.length > 0 && (
                 <div className="flex items-center gap-2">
                   <div className={cn("relative h-6 w-6", isOver && "text-like")}>

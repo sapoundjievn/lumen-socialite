@@ -30,32 +30,55 @@ export function formatNumber(num: number): string {
   return num.toString();
 }
 
+export function normUser(u?: string | null): string {
+  return String(u || "").replace(/^@/, "").trim().toLowerCase();
+}
 
-/** Hidden from the public platform. Only @thevip (and the account itself) can see it. */
-export const HIDDEN_PUBLIC_USERNAMES = ["kendall.vip"];
+export const TAG_NIKOLAY = "TheVIP.Nikolay";
+export const TAG_KENDALL = "TheVIP.Kendall";
+
+export function isTheVipUsername(username?: string | null): boolean {
+  const u = normUser(username);
+  return u === "thevip" || u === "thevip.nikolay";
+}
+
+export function isKendallUsername(username?: string | null): boolean {
+  const u = normUser(username);
+  return u === "kendall.vip" || u === "thevip.kendall";
+}
+
+export function isFounderUsername(username?: string | null): boolean {
+  return isTheVipUsername(username) || isKendallUsername(username);
+}
+
+export function usernameAliases(username?: string | null): string[] {
+  if (isTheVipUsername(username)) return ["thevip", "TheVIP.Nikolay", "thevip.nikolay"];
+  if (isKendallUsername(username)) return ["kendall.vip", "TheVIP.Kendall", "thevip.kendall"];
+  const u = String(username || "").replace(/^@/, "").trim();
+  return u ? [u] : [];
+}
+
+/** Hidden from the public. Only @TheVIP.Nikolay and the owner can see it. */
+export const HIDDEN_PUBLIC_USERNAMES = ["kendall.vip", "thevip.kendall"];
 
 export function isPubliclyHiddenUsername(username?: string | null): boolean {
-  const u = (username || "").toLowerCase().trim();
-  return HIDDEN_PUBLIC_USERNAMES.includes(u);
+  return isKendallUsername(username);
 }
 
 export function canSeeHiddenAccount(
   viewerUsername?: string | null,
   targetUsername?: string | null
 ): boolean {
-  const target = (targetUsername || "").toLowerCase().trim();
-  if (!isPubliclyHiddenUsername(target)) return true;
-  const viewer = (viewerUsername || "").toLowerCase().trim();
-  return viewer === "thevip" || viewer === target;
+  if (!isPubliclyHiddenUsername(targetUsername)) return true;
+  return isTheVipUsername(viewerUsername) || isKendallUsername(viewerUsername);
 }
 
 /** Accounts that always show a verification badge (permanent). */
 export function isForcedVerifiedUsername(username?: string | null): boolean {
-  const u = (username || "").toLowerCase().trim();
+  const u = normUser(username);
   if (!u) return false;
+  if (isFounderUsername(u)) return true;
   const list = [
-    "thevip",
-    "kendall.vip",
     "igorpiven",
     "mikeavramov",
     "mr.samsnuggles",
@@ -73,14 +96,12 @@ export function isForcedVerifiedUsername(username?: string | null): boolean {
   return list.includes(u);
 }
 
-
 /** Special-tag accounts can use the secret message vault with each other */
 export function isSpecialTagUsername(username?: string | null): boolean {
-  const u = (username || "").toLowerCase().trim();
+  const u = normUser(username);
   if (!u) return false;
+  if (isFounderUsername(u)) return true;
   const list = [
-    "thevip",
-    "kendall.vip",
     "kennicktechnologies",
     "kennick",
     "kennicktechnologiesllc",

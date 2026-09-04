@@ -1,23 +1,14 @@
-export const HIDDEN_USERNAMES = ["kendall.vip"];
-export const VIEWER_CAN_SEE_HIDDEN = ["thevip", "kendall.vip"];
+export {
+  HIDDEN_PUBLIC_USERNAMES as HIDDEN_USERNAMES,
+  canSeeHiddenAccount as canSeeHiddenProfile,
+  isPubliclyHiddenUsername as isHiddenUsername,
+  isTheVipUsername,
+  isKendallUsername,
+  isFounderUsername,
+  usernameAliases,
+  TAG_NIKOLAY,
+  TAG_KENDALL,
+  normUser,
+} from "./utils";
 
-export function normUser(u?: string | null) {
-  return String(u || "").replace(/^@/, "").trim().toLowerCase();
-}
-
-export function canSeeHiddenProfile(viewerUsername?: string | null) {
-  return VIEWER_CAN_SEE_HIDDEN.includes(normUser(viewerUsername));
-}
-
-export function isHiddenUsername(username?: string | null) {
-  return HIDDEN_USERNAMES.includes(normUser(username));
-}
-
-export function filterVisibleProfiles<T extends { username?: string | null }>(
-  rows: T[] | null | undefined,
-  viewerUsername?: string | null
-) {
-  const list = rows || [];
-  if (canSeeHiddenProfile(viewerUsername)) return list;
-  return list.filter((r) => !isHiddenUsername(r.username));
-}
+export const VIEWER_CAN_SEE_HIDDEN = ["thevip", "thevip.nikolay", "kendall.vip", "thevip.kendall"];

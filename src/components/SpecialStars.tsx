@@ -4,7 +4,7 @@
 export default function SpecialStars({ username }: { username: string }) {
   const u = username.toLowerCase();
 
-  if (u === "thevip") {
+  if (u === "thevip" || u === "thevip.nikolay") {
     return (
       <div className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1.5">
         <span
@@ -43,7 +43,7 @@ export default function SpecialStars({ username }: { username: string }) {
     );
   }
 
-  if (u === "kendall.vip") {
+  if (u === "kendall.vip" || u === "thevip.kendall") {
     return (
       <div className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1.5">
         <span
