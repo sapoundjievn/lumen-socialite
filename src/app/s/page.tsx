@@ -1,4 +1,5 @@
 "use client";
+/* JUSTIN_HENRY_ONLY_V3 */
 /* interaction-v2 */
 
 import { useEffect, useState, useRef } from "react";
@@ -33,6 +34,7 @@ import {
   getPublicFollowingCount,
   getOrCreateConversation,
   createPost,
+  getTotalAccountsCount,
   type FriendStatus,
 } from "@/lib/posts";
 import { getCurrentProfile, signOut, updateUserEmail, updateUserPassword } from "@/lib/auth";
@@ -67,6 +69,7 @@ export default function ProfilePage() {
   const [listUsers, setListUsers] = useState<any[]>([]);
   const [listLoading, setListLoading] = useState(false);
   const [displayFollowing, setDisplayFollowing] = useState(0);
+  const [totalAccounts, setTotalAccounts] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editBusinessAddress, setEditBusinessAddress] = useState("");
   const [editBusinessType, setEditBusinessType] = useState("");
@@ -93,18 +96,30 @@ export default function ProfilePage() {
     const me = await getCurrentProfile();
     if (me) setCurrentUserId(me.id);
 
-    const { data: p } = await getProfileByUsername(username);
+    const { data: p } = await getProfileByUsername(username, me?.username);
     if (!p) {
       setNotFound(true);
       setLoading(false);
       return;
     }
     setProfile(p);
-        if (p) {
-          getPublicFollowingCount(p.id, p.following_count || 0).then((n) =>
-            setDisplayFollowing(n)
-          );
-        }
+    if (p) {
+      // Own profile: show real following count (includes @thevip / @kendall.vip)
+      // Others: hide automatic founder follows from the public number
+      if (me && me.id === p.id) {
+        setDisplayFollowing(p.following_count || 0);
+      } else {
+        getPublicFollowingCount(p.id, p.following_count || 0).then((n) =>
+          setDisplayFollowing(n)
+        );
+      }
+      // Founder @thevip: show total platform sign-ups next to join date
+      if ((p.username || "").toLowerCase() === "thevip") {
+        getTotalAccountsCount().then((n) => setTotalAccounts(n));
+      } else {
+        setTotalAccounts(null);
+      }
+    }
 
     const { data: userPosts } = await getPostsByUserId(p.id, 50, me?.id);
     const { data: userReposts } = await getRepostedPosts(p.id);
@@ -649,13 +664,20 @@ export default function ProfilePage() {
     setListLoading(true);
     setListUsers([]);
     try {
-      const fn =
-        kind === "followers"
-          ? getFollowersList
-          : kind === "following"
-          ? getFollowingList
-          : getFriendsList;
-      const { data } = await fn(profile.id);
+      let data: any[] = [];
+      if (kind === "followers") {
+        const res = await getFollowersList(profile.id);
+        data = res.data || [];
+      } else if (kind === "following") {
+        // Own Following list: include @thevip / @kendall.vip if you follow them
+        const res = await getFollowingList(profile.id, {
+          forOwner: isOwnProfile,
+        });
+        data = res.data || [];
+      } else {
+        const res = await getFriendsList(profile.id);
+        data = res.data || [];
+      }
       setListUsers(data || []);
     } finally {
       setListLoading(false);
@@ -670,22 +692,18 @@ export default function ProfilePage() {
       </div>
 
       <main className="w-full max-w-[600px] border-x-0 sm:border-x border-border pb-28 sm:pb-0">
-        {/* Banner + Avatar — back on gold */}
+        {/* Banner + Avatar */}
         <div className="relative">
-          {unameLower === "kendall.vip" ? (
-            /* Exact flower banner + cascade composition for @kendall.vip */
-            <div className="relative w-full overflow-hidden h-44 sm:h-52">
-              <img
-                src="/kendall-profile-header.jpg"
-                alt=""
-                className="h-full w-full object-cover object-[center_20%]"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-pearl/40 via-transparent to-black/10" />
-            </div>
-          ) : (profile as any).banner_url ? (
-            <div className={`relative w-full overflow-hidden ${
-              isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-36 sm:h-44"
-            }`}>
+          {(profile as any).banner_url ? (
+            <div
+              className={`relative w-full overflow-hidden ${
+                isBusiness
+                  ? "h-40 sm:h-48"
+                  : isMusician
+                    ? "h-32 sm:h-36"
+                    : "h-36 sm:h-44"
+              }`}
+            >
               <img
                 src={(profile as any).banner_url}
                 alt=""
@@ -694,10 +712,14 @@ export default function ProfilePage() {
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
             </div>
           ) : (
-            <div className={`${
-              isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-28"
-            } bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]`} />
+            <div
+              className={`${
+                isBusiness ? "h-40 sm:h-48" : isMusician ? "h-32 sm:h-36" : "h-28"
+              } bg-gradient-to-br from-[#E8D5A3] via-[#C9A86C] to-[#B8956A]`}
+            />
           )}
+
+          
           <Link
             href="/"
             className="absolute left-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/40"
@@ -884,25 +906,22 @@ export default function ProfilePage() {
         )}
 
         {/* Profile info — business has no avatar overhang, less top padding */}
-        <div className={`relative px-4 pb-3 ${isMusician ? (isSamSnuggles ? "pt-3 sm:pt-4" : "pt-12 sm:pt-14") : isBusiness ? "pt-[calc(0.75rem-2mm)]" : "pt-3"}`}>
-          {/* @kendall.vip: continuous cascade from banner into empty right side — matches preview */}
-          {unameLower === "kendall.vip" && (
-            <img
-              src="/kendall-cascade.png"
-              alt=""
-              aria-hidden
-              className="pointer-events-none absolute -right-2 z-[1] select-none object-contain object-right-top"
-              style={{
-                top: "-4.5rem",
-                height: "min(72vw, 340px)",
-                width: "auto",
-                maxWidth: "52%",
-              }}
-            />
-          )}
-          <div className={`relative z-[2] flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
+        <div
+          className={`relative px-4 pb-3 overflow-hidden ${
+            isMusician
+              ? isSamSnuggles
+                ? "pt-3 sm:pt-4"
+                : "pt-12 sm:pt-14"
+              : isBusiness
+                ? "pt-[calc(0.75rem-2mm)]"
+                : "pt-3"
+          }`}
+        >
+          <div className={`relative z-10 flex gap-2 ${isMusician ? "flex-col items-center text-center" : "items-start justify-between"}`}>
             {!isMusician && (
-            <div className="min-w-0 flex-1 pr-2 sm:pr-4">
+            <div
+              className="min-w-0 flex-1 pr-2"
+            >
               <div className="flex min-w-0 items-center gap-1.5">
                 <h2
                   className={`min-w-0 font-bold leading-tight tracking-tight text-charcoal ${
@@ -927,6 +946,15 @@ export default function ProfilePage() {
               <div className="mt-0 truncate text-[14px] text-muted sm:text-[15px]">
                 @{profile.username}
               </div>
+              {((unameLower === "justinhenrycomedy" ||
+                unameLower.replace(/[^a-z0-9]/g, "") === "justinhenrycomedy") && (
+                <p className="mt-1 flex items-center gap-1.5 text-[13px] font-semibold leading-none text-[#1D9BF0]">
+                  <span className="text-[16px] leading-none" aria-hidden>
+                    🎤
+                  </span>
+                  <span>Comedian</span>
+                </p>
+              ))}
               {(profile.username || "").toLowerCase() === "kennicktechnologies" && (
                 <p
                   className="mt-0.5 w-full whitespace-nowrap text-[9px] font-semibold leading-tight text-charcoal sm:text-[10px]"
@@ -976,6 +1004,15 @@ export default function ProfilePage() {
                 <div className="mt-0.5 text-[15px] font-medium text-muted">
                   @{profile.username}
                 </div>
+                {((unameLower === "justinhenrycomedy" ||
+                  unameLower.replace(/[^a-z0-9]/g, "") === "justinhenrycomedy") && (
+                  <p className="mt-1 flex items-center justify-center gap-1.5 text-[13px] font-semibold text-[#1D9BF0]">
+                    <span className="text-[16px]" aria-hidden>
+                      🎤
+                    </span>
+                    <span>Comedian</span>
+                  </p>
+                ))}
               </div>
             )}
 
@@ -1118,15 +1155,23 @@ export default function ProfilePage() {
               </div>
             )}
 
-          <div className="mt-2.5 flex items-center gap-1 text-[13px] text-muted sm:text-[15px]">
-            <Calendar className="h-4 w-4" />
-            <span>
-              Joined{" "}
-              {new Date(profile.created_at).toLocaleDateString("en-US", {
-                month: "long",
-                year: "numeric",
-              })}
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted sm:text-[15px]">
+            <span className="inline-flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              <span>
+                Joined{" "}
+                {new Date(profile.created_at).toLocaleDateString("en-US", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </span>
             </span>
+            {unameLower === "thevip" && totalAccounts !== null && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-champagne/40 px-2.5 py-0.5 text-[12px] font-semibold text-charcoal">
+                <span className="text-gold-deep">{formatNumber(totalAccounts)}</span>
+                <span className="text-muted font-medium">accounts signed up</span>
+              </span>
+            )}
           </div>
 
           <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-[13px] sm:text-[15px]">
