@@ -19,6 +19,30 @@ const LANG: Record<string, string> = {
   hi: "Hindi",
 };
 
+async function chat(key: string, model: string, prompt: string) {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.2,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You help Lumen · Socialite users write and read enlightenments. Return only the requested text.",
+        },
+        { role: "user", content: prompt },
+      ],
+    }),
+  });
+  const json = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, json };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -27,13 +51,13 @@ export async function POST(req: NextRequest) {
     const target = LANG[String(body?.target || "en")] || "English";
 
     if (!text) {
-      return NextResponse.json({ error: "Nothing to translate" }, { status: 400 });
+      return NextResponse.json({ error: "Nothing to rewrite" }, { status: 400 });
     }
 
     const key = process.env.OPENAI_API_KEY;
     if (!key) {
       return NextResponse.json(
-        { error: "OPENAI_API_KEY is missing in Vercel" },
+        { error: "OPENAI_API_KEY is missing on Vercel" },
         { status: 500 }
       );
     }
@@ -43,34 +67,20 @@ export async function POST(req: NextRequest) {
         ? `Rewrite this social post so the grammar, spelling, and wording are correct and natural. Keep the same meaning, language, names, @tags, and emoji. Do not add hashtags or a new style. Return only the corrected post.\n\n${text}`
         : `Translate this social post into ${target}. Keep names, @usernames, emoji, and line breaks. Do not add commentary. Return only the translation.\n\n${text}`;
 
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        temperature: 0.2,
-        messages: [
-          {
-            role: "system",
-            content:
-              "You help Lumen · Socialite users write and read enlightenments. Return only the requested text.",
-          },
-          { role: "user", content: prompt },
-        ],
-      }),
-    });
-
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      console.error("translate error", res.status, errText);
-      return NextResponse.json({ error: "AI request failed" }, { status: 502 });
+    let result = await chat(key, "gpt-4o-mini", prompt);
+    if (!result.ok) {
+      result = await chat(key, "gpt-4o", prompt);
     }
 
-    const json = await res.json();
-    const out = String(json?.choices?.[0]?.message?.content || "").trim();
+    if (!result.ok) {
+      const msg =
+        result.json?.error?.message ||
+        result.json?.error?.code ||
+        `OpenAI error ${result.status}`;
+      return NextResponse.json({ error: msg }, { status: 502 });
+    }
+
+    const out = String(result.json?.choices?.[0]?.message?.content || "").trim();
     if (!out) {
       return NextResponse.json({ error: "Empty AI response" }, { status: 502 });
     }
