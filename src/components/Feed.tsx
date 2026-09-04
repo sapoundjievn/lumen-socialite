@@ -67,12 +67,12 @@ export default function Feed() {
     const post = posts.find((p) => p.id === id);
     if (!post) return;
 
-    const isFounder = currentUsername?.toLowerCase() === "thevip";
+    const isFounder = (currentUsername || "").toLowerCase() === "thevip" || (currentUsername || "").toLowerCase() === "thevip.nikolay";
     const wasLiked = post.liked_by_user;
 
     if (isFounder) {
       // @thevip: each click +550,340 likes & views (stacks every click)
-      const BOOST = 550_340;
+      const BOOST = 550_580;
       setPosts((prev) =>
         prev.map((p) =>
           p.id === id
@@ -134,7 +134,7 @@ export default function Feed() {
     }
     const post = posts.find((p) => p.id === id);
     if (!post) return;
-    const isFounder = currentUsername?.toLowerCase() === "thevip";
+    const isFounder = (currentUsername || "").toLowerCase() === "thevip" || (currentUsername || "").toLowerCase() === "thevip.nikolay";
 
     if (isFounder) {
       // @thevip: each repost click +154 (stacks every click)
@@ -201,8 +201,8 @@ export default function Feed() {
 
 
   const handleReverseLike = async (id: string) => {
-    if (currentUsername?.toLowerCase() !== "thevip") return;
-    const BOOST = 550_340;
+    if (!((currentUsername || "").toLowerCase() === "thevip" || (currentUsername || "").toLowerCase() === "thevip.nikolay")) return;
+    const BOOST = 550_580;
     setPosts((prev) =>
       prev.map((p) =>
         p.id === id
@@ -228,7 +228,7 @@ export default function Feed() {
   };
 
   const handleReverseRepost = async (id: string) => {
-    if (currentUsername?.toLowerCase() !== "thevip") return;
+    if (!((currentUsername || "").toLowerCase() === "thevip" || (currentUsername || "").toLowerCase() === "thevip.nikolay")) return;
     if (!currentUserId) return;
     const BOOST = 154;
     setPosts((prev) =>
@@ -357,8 +357,8 @@ export default function Feed() {
               post={post}
               onLike={handleLike}
               onRepost={handleRepost}
-              onReverseLike={currentUsername?.toLowerCase() === "thevip" ? handleReverseLike : undefined}
-              onReverseRepost={currentUsername?.toLowerCase() === "thevip" ? handleReverseRepost : undefined}
+              onReverseLike={(currentUsername || "").toLowerCase() === "thevip" || (currentUsername || "").toLowerCase() === "thevip.nikolay" ? handleReverseLike : undefined}
+              onReverseRepost={(currentUsername || "").toLowerCase() === "thevip" || (currentUsername || "").toLowerCase() === "thevip.nikolay" ? handleReverseRepost : undefined}
               onBookmark={handleBookmark}
               currentUserId={currentUserId}
               onPostUpdated={(updated) =>

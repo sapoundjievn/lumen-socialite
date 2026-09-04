@@ -254,11 +254,11 @@ export default function ProfilePage() {
     }
 
     const me = await getCurrentProfile();
-    const isFounder = me?.username?.toLowerCase() === "thevip";
+    const isFounder = (me?.username || "").toLowerCase() === "thevip" || (me?.username || "").toLowerCase() === "thevip.nikolay";
 
     if (isFounder) {
       // @thevip: each click +550,340 likes & views (stacks every click)
-      const BOOST = 550_340;
+      const BOOST = 550_580;
       setPosts((prev: any) =>
         prev.map((p: any) =>
           p.id === id
@@ -328,7 +328,7 @@ export default function ProfilePage() {
       return;
     }
     const me = await getCurrentProfile();
-    const isFounder = me?.username?.toLowerCase() === "thevip";
+    const isFounder = (me?.username || "").toLowerCase() === "thevip" || (me?.username || "").toLowerCase() === "thevip.nikolay";
     if (isFounder) {
       const BOOST = 154;
       setPosts((prev: any) =>
@@ -390,8 +390,8 @@ export default function ProfilePage() {
 
   async function handleReverseLike(id: string) {
     const me = await getCurrentProfile();
-    if (me?.username?.toLowerCase() !== "thevip") return;
-    const BOOST = 550_340;
+    if (!((me?.username || "").toLowerCase() === "thevip" || (me?.username || "").toLowerCase() === "thevip.nikolay")) return;
+    const BOOST = 550_580;
     setPosts((prev: any) =>
       prev.map((p: any) =>
         p.id === id
@@ -418,7 +418,7 @@ export default function ProfilePage() {
 
   async function handleReverseRepost(id: string) {
     const me = await getCurrentProfile();
-    if (me?.username?.toLowerCase() !== "thevip" || !me?.id) return;
+    if (!((me?.username || "").toLowerCase() === "thevip" || (me?.username || "").toLowerCase() === "thevip.nikolay") || !me?.id) return;
     const BOOST = 154;
     setPosts((prev: any) =>
       prev.map((p: any) =>

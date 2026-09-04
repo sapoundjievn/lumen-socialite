@@ -103,7 +103,7 @@ function ExploreInner() {
           <div className="mt-4 flex justify-center gap-3">
             <button
               type="button"
-              onClick={() => runSearch("thevip")}
+              onClick={() => runSearch("TheVIP.Nikolay")}
               className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal hover:bg-champagne/40"
             >
               @thevip
@@ -111,7 +111,7 @@ function ExploreInner() {
             {canSeeHiddenAccount(viewerUsername, "kendall.vip") && (
               <button
                 type="button"
-                onClick={() => runSearch("kendall.vip")}
+                onClick={() => runSearch("TheVIP.Kendall")}
                 className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal hover:bg-champagne/40"
               >
                 @kendall.vip
