@@ -43,7 +43,7 @@ export default function VerifiedBadge({
   if (u === "thevip") {
     return <BadgeCheck className={`${dim} fill-[#C9A86C] text-white`} />;
   }
-  if (u === "kendall.vip") {
+  if (u === "kendall.vip" || u === "thevip.kendall") {
     return <BadgeCheck className={`${dim} fill-[#C2185B] text-white`} />;
   }
   if (u === "igorpiven") {

@@ -76,7 +76,7 @@ export default function SpecialStars({ username }: { username: string }) {
           className="text-[11px] font-semibold leading-snug text-[#C2185B] sm:text-[12px] sm:leading-none"
           style={{ fontFamily: "Times New Roman, Times, serif" }}
         >
-          Identity Verified • VIP • Co-founder of this platform
+          Identity Verified • The.VIP • Co-founder of this platform
         </span>
       </div>
     );

@@ -114,7 +114,7 @@ function ExploreInner() {
                 onClick={() => runSearch("TheVIP.Kendall")}
                 className="rounded-full border border-border px-4 py-1.5 text-[14px] font-bold text-charcoal hover:bg-champagne/40"
               >
-                @kendall.vip
+                @TheVIP.Kendall
               </button>
             )}
           </div>
